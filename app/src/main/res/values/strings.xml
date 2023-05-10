@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">MusicPlayer</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_settings">Settings</string>
+    <string name="create_playlist">Create Playlist</string>
+    <string name="txt_cancel">Cancel</string>
+    <string name="txt_confirm">Confirm</string>
+    <string name="error_playlistname">Please enter playlist name!</string>
+
+    <string name="txt_no_data">Sorry! We could not found any result, due to there was an issue with processing this request.</string>
+    <string name="txt_no_data_found">Sorry! We could not found any result.</string>
+    <string name="txt_no_songs">Tap the<font color="#FF5B24"> + </font>button to create something new</string>
+</resources>
