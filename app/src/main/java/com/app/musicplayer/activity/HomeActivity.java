@@ -5,12 +5,13 @@ import android.os.Bundle;
 
 import com.app.musicplayer.R;
 import com.app.musicplayer.databinding.ActivityHomeBinding;
+import com.app.musicplayer.fragment.FragmentPlayer;
 import com.app.musicplayer.fragment.FragmentPlaylist;
 import com.app.musicplayer.fragment.FragmentSongs;
 import com.app.musicplayer.utils.Constants;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -19,12 +20,13 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import java.util.ArrayList;
 
 public class HomeActivity extends AppCompatActivity {
 
-    private ActivityHomeBinding binding;
+    public static ActivityHomeBinding bindingHome;
     String TAG = HomeActivity.class.getSimpleName();
     ArrayList<String> tabsList = new ArrayList<>();
 
@@ -32,24 +34,24 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
-        binding = ActivityHomeBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        binding.toolbar.setTitle("");
-        setSupportActionBar(binding.toolbar);
+        bindingHome = ActivityHomeBinding.inflate(getLayoutInflater());
+        setContentView(bindingHome.getRoot());
+        bindingHome.toolbar.setTitle("");
+        setSupportActionBar(bindingHome.toolbar);
 
         createTabsList();
         for (String tabs : tabsList) {
-            binding.tabLayout.addTab(binding.tabLayout.newTab().setText(tabs));
+            bindingHome.tabLayout.addTab(bindingHome.tabLayout.newTab().setText(tabs));
         }
-        binding.tabLayout.setTabGravity(TabLayout.GRAVITY_START);
-        binding.tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
-        binding.viewPager.setAdapter(new TabsAdapter(getSupportFragmentManager(), binding.tabLayout.getTabCount()));
-        binding.viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(binding.tabLayout));
-        binding.tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        bindingHome.tabLayout.setTabGravity(TabLayout.GRAVITY_START);
+        bindingHome.tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
+        bindingHome.viewPager.setAdapter(new TabsAdapter(getSupportFragmentManager(), bindingHome.tabLayout.getTabCount()));
+        bindingHome.viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(bindingHome.tabLayout));
+        bindingHome.tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 try {
-                    binding.viewPager.setCurrentItem(tab.getPosition());
+                    bindingHome.viewPager.setCurrentItem(tab.getPosition());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -65,6 +67,8 @@ public class HomeActivity extends AppCompatActivity {
 
             }
         });
+
+        setupPlayScreenFragment();
     }
 
     private void createTabsList() {
@@ -124,14 +128,41 @@ public class HomeActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_delete) {
-            startActivity(new Intent(this, DeleteSongsActivity.class));
+            startActivityForResult(new Intent(this, DeleteSongsActivity.class), 101);
             return true;
         }
 
         if (id == R.id.action_settings) {
+
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setupPlayScreenFragment() {
+        try {
+            getSupportFragmentManager().beginTransaction().replace(R.id.play_screen_frame_layout, FragmentPlayer.class.newInstance(), "FragmentPlayer").commitAllowingStateLoss();
+            bindingHome.playScreenFrameLayout.setVisibility(View.GONE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.v(TAG, "onRequestPermissionsResult Permission granted!");
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            fragment.onActivityResult(requestCode, resultCode, data);
+        }
     }
 }

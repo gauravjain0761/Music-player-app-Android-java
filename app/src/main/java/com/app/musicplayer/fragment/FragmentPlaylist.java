@@ -24,21 +24,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.app.musicplayer.R;
 import com.app.musicplayer.activity.SearchPlaylistActivity;
-import com.app.musicplayer.activity.SearchSongsActivity;
 import com.app.musicplayer.adapter.FragmentPlaylistAdapter;
 import com.app.musicplayer.databinding.FragmentPlaylistBinding;
-import com.app.musicplayer.databinding.FragmentSongsBinding;
-import com.app.musicplayer.pojo.HomeModel;
+import com.app.musicplayer.db.SongModel;
 import com.app.musicplayer.utils.AppUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 
 public class FragmentPlaylist extends Fragment {
     String TAG = FragmentPlaylist.class.getSimpleName();
     private static FragmentPlaylistBinding binding;
-    ArrayList<HomeModel> playList = new ArrayList<>();
+    ArrayList<SongModel> playList = new ArrayList<>();
     static int selectedRadio = 0;
 
     @Nullable
@@ -183,9 +180,9 @@ public class FragmentPlaylist extends Fragment {
     private void reloadList() {
         try {
             if (playList != null) playList.clear();
-            HomeModel menu_1 = new HomeModel();
+            SongModel menu_1 = new SongModel();
             menu_1.setTitle("Play a lot music");
-            menu_1.setMessage("12 songs");
+            menu_1.setComposer("12 songs");
             playList.add(menu_1);
             playList.add(menu_1);
             playList.add(menu_1);

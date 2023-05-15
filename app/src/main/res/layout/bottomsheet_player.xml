@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/sortby_bottomsheet"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/_10sdp">
+
+        <View
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_2sdp"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:background="@color/txt_offwhite" />
+
+        <co.mobiwise.library.MusicPlayerView
+            android:id="@+id/mediaPlayer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:buttonColor="@color/colorAccent"
+            app:cover="@drawable/ic_add"
+            app:progressEmptyColor="@color/txt_white35"
+            app:progressLoadedColor="@android:color/white"
+            app:textColor="@android:color/white"
+            app:textSize="@dimen/_10sdp" />
+    </LinearLayout>
+</LinearLayout>

@@ -11,18 +11,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicplayer.activity.PlaylistSongsActivity;
 import com.app.musicplayer.databinding.AdapterFragmentPlaylistBinding;
-import com.app.musicplayer.pojo.HomeModel;
+import com.app.musicplayer.db.SongModel;
 
 import java.util.ArrayList;
 
 public class FragmentPlaylistAdapter extends RecyclerView.Adapter<FragmentPlaylistAdapter.MyViewHolder> {
     String TAG = FragmentPlaylistAdapter.class.getSimpleName();
     Context context;
-    ArrayList<HomeModel> bankList;
+    ArrayList<SongModel> playList;
 
-    public FragmentPlaylistAdapter(ArrayList<HomeModel> list, Context context) {
+    public FragmentPlaylistAdapter(ArrayList<SongModel> list, Context context) {
         this.context = context;
-        bankList = list;
+        playList = list;
     }
 
     @NonNull
@@ -43,9 +43,9 @@ public class FragmentPlaylistAdapter extends RecyclerView.Adapter<FragmentPlayli
 
     private void bindListLayout(MyViewHolder holder, int position) {
         try {
-            HomeModel result = bankList.get(position);
+            SongModel result = playList.get(position);
             holder.binding.txtTitle.setText("" + (("" + result.getTitle()).replace("null", "").replace("Null", "")));
-            holder.binding.txtMsg.setText("" + (("" + result.getMessage()).replace("null", "").replace("Null", "")));
+            holder.binding.txtMsg.setText("" + (("" + result.getComposer()).replace("null", "").replace("Null", "")));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -53,7 +53,7 @@ public class FragmentPlaylistAdapter extends RecyclerView.Adapter<FragmentPlayli
 
     @Override
     public int getItemCount() {
-        return bankList.size();
+        return playList.size();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {

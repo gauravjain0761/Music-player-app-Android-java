@@ -111,7 +111,7 @@
                     android:src="@drawable/ic_play" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/txt_title"
+                    android:id="@+id/txt_playAll"
                     style="@style/txt_white_style"
                     android:layout_width="match_parent"
                     android:fontFamily="@font/roboto_medium"
@@ -201,7 +201,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="@dimen/_55sdp"
         android:backgroundTint="@color/colorAccent"
         android:gravity="bottom|end"
         app:srcCompat="@android:drawable/ic_input_add"

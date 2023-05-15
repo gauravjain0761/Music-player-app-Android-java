@@ -9,11 +9,9 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.app.musicplayer.R;
-import com.app.musicplayer.adapter.FragmentPlaylistAdapter;
 import com.app.musicplayer.adapter.FragmentSongsAdapter;
 import com.app.musicplayer.databinding.ActivityPlaylistSongsBinding;
-import com.app.musicplayer.databinding.ActivitySearchPlaylistBinding;
-import com.app.musicplayer.pojo.HomeModel;
+import com.app.musicplayer.db.SongModel;
 
 import java.util.ArrayList;
 
@@ -21,7 +19,8 @@ public class PlaylistSongsActivity extends AppCompatActivity {
 
     private ActivityPlaylistSongsBinding binding;
     String TAG = SearchSongsActivity.class.getSimpleName();
-    ArrayList<HomeModel> playList = new ArrayList<>();
+    ArrayList<SongModel> playList = new ArrayList<>();
+    int selectedSortTypeRadio = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +39,9 @@ public class PlaylistSongsActivity extends AppCompatActivity {
     private void reloadList() {
         try {
             if (playList != null) playList.clear();
-            HomeModel menu_1 = new HomeModel();
+            SongModel menu_1 = new SongModel();
             menu_1.setTitle("Play love me a lot");
-            menu_1.setMessage("YARLE");
+            menu_1.setComposer("YARLE");
             playList.add(menu_1);
             playList.add(menu_1);
             playList.add(menu_1);
@@ -63,7 +62,17 @@ public class PlaylistSongsActivity extends AppCompatActivity {
             binding.listView.setVerticalScrollBarEnabled(true);
             binding.listView.setLayoutManager(new LinearLayoutManager(PlaylistSongsActivity.this));
             binding.listView.setItemAnimator(new DefaultItemAnimator());
-            binding.listView.setAdapter(new FragmentSongsAdapter(playList, PlaylistSongsActivity.this));
+            binding.listView.setAdapter(new FragmentSongsAdapter(selectedSortTypeRadio,playList, PlaylistSongsActivity.this, new FragmentSongsAdapter.SongsClickListner() {
+                @Override
+                public void onSongsClick(SongModel result, int position) {
+
+                }
+
+                @Override
+                public void onSongLongClick(SongModel result, int position) {
+
+                }
+            }));
 
             binding.layoutListView.setVisibility(View.VISIBLE);
             binding.listView.setVisibility(View.VISIBLE);

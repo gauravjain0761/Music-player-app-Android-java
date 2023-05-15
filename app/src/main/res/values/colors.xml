@@ -15,4 +15,7 @@
     <color name="txt_white35">#59FFFFFF</color>
     <color name="et_background">#282828</color>
 
+
+    <color name="playerBackground">#212529</color>
+
 </resources>

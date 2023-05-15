@@ -4,6 +4,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
+    id 'org.greenrobot.greendao'
 }
 
 android {
@@ -66,4 +67,10 @@ dependencies {
     implementation 'nl.bryanderidder:themed-toggle-button-group:1.4.1'
 
     implementation 'com.github.Pillarzx:RadarScanView:1.2.0'
+
+    implementation 'org.greenrobot:greendao:3.3.0'
+    implementation 'org.greenrobot:greendao-generator:3.3.0'
+    implementation 'com.github.iammert:MusicPlayerView:e3b937c729'
+
+    implementation 'com.gauravk.audiovisualizer:audiovisualizer:0.9.2'
 }

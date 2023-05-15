@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.app.musicplayer.R;
 import com.app.musicplayer.adapter.FragmentPlaylistAdapter;
 import com.app.musicplayer.databinding.ActivitySearchPlaylistBinding;
-import com.app.musicplayer.pojo.HomeModel;
+import com.app.musicplayer.db.SongModel;
 
 import java.util.ArrayList;
 
@@ -18,7 +18,7 @@ public class SearchPlaylistActivity extends AppCompatActivity {
 
     private ActivitySearchPlaylistBinding binding;
     String TAG = SearchSongsActivity.class.getSimpleName();
-    ArrayList<HomeModel> playList = new ArrayList<>();
+    ArrayList<SongModel> playList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +35,9 @@ public class SearchPlaylistActivity extends AppCompatActivity {
     private void reloadList() {
         try {
             if (playList != null) playList.clear();
-            HomeModel menu_1 = new HomeModel();
+            SongModel menu_1 = new SongModel();
             menu_1.setTitle("Play love me a lot");
-            menu_1.setMessage("12 songs");
+            menu_1.setComposer("12 songs");
             playList.add(menu_1);
             playList.add(menu_1);
             playList.add(menu_1);

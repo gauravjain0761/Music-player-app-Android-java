@@ -4,24 +4,26 @@ import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.musicplayer.databinding.AdapterFragmentSongsBinding;
 import com.app.musicplayer.databinding.AdapterSongsDeleteBinding;
-import com.app.musicplayer.pojo.HomeModel;
+import com.app.musicplayer.db.SongModel;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class DeleteSongsAdapter extends RecyclerView.Adapter<DeleteSongsAdapter.MyViewHolder> {
     String TAG = DeleteSongsAdapter.class.getSimpleName();
     Context context;
-    ArrayList<HomeModel> bankList;
+    List<SongModel> songList;
+    DeleteSongsListner deleteSongsListner;
 
-    public DeleteSongsAdapter(ArrayList<HomeModel> list, Context context) {
+    public DeleteSongsAdapter(List<SongModel> list, Context context, DeleteSongsListner deleteSongs) {
         this.context = context;
-        bankList = list;
+        songList = list;
+        deleteSongsListner = deleteSongs;
     }
 
     @NonNull
@@ -42,10 +44,11 @@ public class DeleteSongsAdapter extends RecyclerView.Adapter<DeleteSongsAdapter.
 
     private void bindListLayout(MyViewHolder holder, int position) {
         try {
-            HomeModel result = bankList.get(position);
+            SongModel result = songList.get(position);
             holder.binding.txtTitle.setText("" + (("" + result.getTitle()).replace("null", "").replace("Null", "")));
-            holder.binding.txtMsg.setText("" + (("" + result.getMessage()).replace("null", "").replace("Null", "")));
+            holder.binding.txtMsg.setText("" + (("" + result.getAlbumName()).replace("null", "").replace("Null", "")));
             holder.binding.cbDelete.setChecked(result.getIsChecked());
+            holder.binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> deleteSongsListner.deleteSongs(result, isChecked, position));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -53,7 +56,7 @@ public class DeleteSongsAdapter extends RecyclerView.Adapter<DeleteSongsAdapter.
 
     @Override
     public int getItemCount() {
-        return bankList.size();
+        return songList.size();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -74,5 +77,9 @@ public class DeleteSongsAdapter extends RecyclerView.Adapter<DeleteSongsAdapter.
                 e.printStackTrace();
             }
         }
+    }
+
+    public interface DeleteSongsListner {
+        void deleteSongs(SongModel result, boolean isChecked, int position);
     }
 }
