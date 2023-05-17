@@ -140,7 +140,17 @@
             app:layout_constraintTop_toTopOf="@id/player_background_view" />
 
         <Constraint
-            android:id="@id/album_art_image_view"
+            android:id="@+id/visualizerView"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/player_background_view"
+            app:layout_constraintStart_toStartOf="@id/player_background_view"
+            app:layout_constraintTop_toTopOf="@id/player_background_view" />
+
+        <Constraint
+            android:id="@+id/musicPlayerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="60dp"
@@ -159,7 +169,7 @@
             app:layout_constraintBottom_toTopOf="@id/artist_name_text_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/album_art_image_view"
+            app:layout_constraintTop_toBottomOf="@id/musicPlayerView"
             app:layout_constraintVertical_chainStyle="packed">
             <CustomAttribute
                 app:attributeName="alpha"
@@ -186,7 +196,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/btn_next"
-            app:layout_constraintTop_toTopOf="@id/album_art_image_view">
+            app:layout_constraintTop_toTopOf="@id/musicPlayerView">
             <CustomAttribute
                 app:attributeName="alpha"
                 app:customFloatValue="0.0" />
@@ -298,13 +308,27 @@
         </Constraint>
 
         <Constraint
-            android:id="@id/album_art_image_view"
+            android:id="@+id/visualizerView"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="8dp"
             app:layout_constraintBottom_toBottomOf="@id/player_background_view"
             app:layout_constraintStart_toStartOf="@id/player_background_view"
             app:layout_constraintTop_toTopOf="@id/player_background_view" />
+
+        <Constraint
+            android:id="@+id/musicPlayerView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="60dp"
+            android:visibility="gone"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent=".4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/top_frame_layout"
+            app:layout_constraintVertical_chainStyle="packed" />
+
 
         <Constraint
             android:id="@id/audio_name_text_view"
@@ -315,7 +339,7 @@
             android:paddingEnd="10dp"
             app:layout_constraintBottom_toTopOf="@id/artist_name_text_view"
             app:layout_constraintEnd_toStartOf="@id/btn_previous"
-            app:layout_constraintStart_toEndOf="@id/album_art_image_view"
+            app:layout_constraintStart_toEndOf="@id/visualizerView"
             app:layout_constraintTop_toTopOf="@id/player_background_view"
             app:layout_constraintVertical_chainStyle="packed">
             <CustomAttribute
@@ -332,7 +356,7 @@
             android:paddingEnd="10dp"
             app:layout_constraintBottom_toBottomOf="@id/player_background_view"
             app:layout_constraintEnd_toStartOf="@id/btn_previous"
-            app:layout_constraintStart_toEndOf="@id/album_art_image_view"
+            app:layout_constraintStart_toEndOf="@id/visualizerView"
             app:layout_constraintTop_toBottomOf="@id/audio_name_text_view"
             app:layout_constraintVertical_chainStyle="packed">
             <CustomAttribute
@@ -345,8 +369,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toStartOf="@id/btn_previous"
-            app:layout_constraintStart_toEndOf="@id/album_art_image_view"
-            app:layout_constraintTop_toTopOf="@id/album_art_image_view">
+            app:layout_constraintStart_toEndOf="@id/visualizerView"
+            app:layout_constraintTop_toTopOf="@id/visualizerView">
             <CustomAttribute
                 app:attributeName="alpha"
                 app:customFloatValue="1.0" />
@@ -358,7 +382,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toStartOf="@id/btn_previous"
-            app:layout_constraintStart_toEndOf="@id/album_art_image_view"
+            app:layout_constraintStart_toEndOf="@id/visualizerView"
             app:layout_constraintTop_toBottomOf="@id/audio_name_text_view_min">
             <CustomAttribute
                 app:attributeName="alpha"
@@ -437,7 +461,7 @@
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/album_art_image_view" />
+            app:layout_constraintTop_toBottomOf="@id/visualizerView" />
 
         <Constraint
             android:id="@id/layout_seekBar"

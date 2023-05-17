@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -39,7 +38,7 @@
                     style="@style/txt_white_style"
                     android:layout_width="match_parent"
                     android:fontFamily="@font/roboto_medium"
-                    android:text="Create Playlist"
+                    android:text="@string/txt_createPlaylist"
                     android:textColor="@color/white"
                     android:textSize="@dimen/_11sdp" />
 
@@ -59,10 +58,12 @@
                     style="@style/txt_white_style"
                     android:layout_width="wrap_content"
                     android:layout_marginEnd="@dimen/_10sdp"
-                    android:drawableRight="@drawable/ic_dropdown"
-                    android:drawablePadding="@dimen/_7sdp"
+                    android:drawableRight="@drawable/selector_ic_dropdown"
+                    android:drawablePadding="@dimen/_5sdp"
+                    android:gravity="center_vertical"
+                    android:layout_gravity="center_vertical"
                     android:fontFamily="@font/roboto_regular"
-                    android:text="Sort by name"
+                    android:text="@string/txt_sort_by_name"
                     android:textColor="@color/txt_offwhite"
                     android:textSize="@dimen/_11sdp" />
 

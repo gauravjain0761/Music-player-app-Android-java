@@ -10,4 +10,60 @@
     <string name="txt_no_data">Sorry! We could not found any result, due to there was an issue with processing this request.</string>
     <string name="txt_no_data_found">Sorry! We could not found any result.</string>
     <string name="txt_no_songs">Tap the<font color="#FF5B24"> + </font>button to create something new</string>
+    <string name="txt_no_songs_msg">A Place for all your Music</string>
+    <string name="txt_no_songs_delete">Sorry! No songs found for trash</string>
+    <string name="txt_no_songs_trash">Sorry! No songs found in trash</string>
+    <string name="txt_no_songs_scan">Sorry! No songs found in scan</string>
+
+
+    <string name="txt_sortBy">SORT BY</string>
+    <string name="txt_emptyTrash">Empty the trash</string>
+    <string name="txt_delete">Delete</string>
+    <string name="txt_restore">Restore</string>
+    <string name="txt_recycleBin">Recycle Bin</string>
+    <string name="txt_search">Search</string>
+    <string name="txt_scanFiles">Scan Files</string>
+    <string name="txt_localFiles">Local Files</string>
+    <string name="txt_playAll">Play All</string>
+    <string name="txt_DONE">DONE</string>
+    <string name="txt_createPlaylist">Create Playlist</string>
+
+    <string name="txt_album">Albums</string>
+    <string name="txt_artist">Artists</string>
+    <string name="txt_genres">Genres</string>
+
+
+    <string name="txt_sort_by_name">Sort by name</string>
+    <string name="txt_sort_by_date">Sort by date</string>
+    <string name="txt_sort_by_duration">Sort by duration</string>
+    <string name="txt_sort_by_size">Sort by size</string>
+
+    <string name="txt_sort_by_nameA2Z">Name (A to Z)</string>
+    <string name="txt_sort_by_nameZ2A">Name (Z to A)</string>
+    <string name="txt_sort_by_date_new">Date (newest first)</string>
+    <string name="txt_sort_by_date_old">Date (oldest first)</string>
+    <string name="txt_sort_by_duration_short">Duration (short first)</string>
+    <string name="txt_sort_by_duration_long">Duration (long first)</string>
+    <string name="txt_sort_by_size_small">Size (small first)</string>
+    <string name="txt_sort_by_size_large">Size (large first)</string>
+
+    <string name="txt_yes">Yes</string>
+    <string name="txt_no">No</string>
+
+    <string name="alert_empty_trash">Are you sure!! Do you want to empty trash ?</string>
+    <string name="alert_empty_trash_msg">All Songs Trashed!</string>
+
+    <string name="alert_restore">Are you sure!! Do you want to restore selected songs ?</string>
+    <string name="alert_restore_msg">Songs Restored!</string>
+
+    <string name="alert_delete">Are you sure!! Do you want to delete selected songs ?</string>
+    <string name="alert_delete_msg">Songs Deleted!</string>
+
+    <string name="alert_trash">Are you sure!! Do you want to trash selected songs ?</string>
+    <string name="alert_trash_msg">Song moved to trash!</string>
+
+    <string name="alert_saved_msg">music moved successfully!</string>
+    <string name="alert_saved_error_msg">No music selected!</string>
+
+
 </resources>

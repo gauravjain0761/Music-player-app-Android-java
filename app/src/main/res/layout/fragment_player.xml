@@ -29,7 +29,7 @@
             android:layout_marginStart="@dimen/_10sdp"
             android:layout_marginTop="@dimen/_15sdp"
             android:layout_marginEnd="@dimen/_10sdp"
-            android:elevation="10dp"
+            android:elevation="@dimen/_10sdp"
             android:orientation="horizontal"
             android:outlineProvider="none"
             app:layout_constraintEnd_toEndOf="parent"
@@ -41,7 +41,7 @@
                 android:layout_width="@dimen/_20sdp"
                 android:layout_height="@dimen/_20sdp"
                 android:layout_gravity="left"
-                android:elevation="10dp"
+                android:elevation="@dimen/_10sdp"
                 app:srcCompat="@drawable/player_ic_arrow_down" />
 
             <LinearLayout
@@ -58,7 +58,7 @@
                     style="@style/txt_white_style"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:elevation="10dp"
+                    android:elevation="@dimen/_10sdp"
                     android:ellipsize="end"
                     android:fontFamily="@font/roboto_medium"
                     android:outlineProvider="none"
@@ -72,7 +72,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_5sdp"
-                    android:elevation="10dp"
+                    android:elevation="@dimen/_10sdp"
                     android:ellipsize="end"
                     android:fontFamily="@font/roboto_regular"
                     android:maxLines="1"
@@ -88,53 +88,50 @@
                 android:layout_height="@dimen/_20sdp"
                 android:layout_gravity="right"
                 android:layout_marginEnd="@dimen/_10sdp"
-                android:elevation="10dp"
+                android:elevation="@dimen/_10sdp"
                 app:srcCompat="@drawable/player_ic_close" />
 
 
         </LinearLayout>
 
-        <FrameLayout
-            android:id="@+id/album_art_image_view"
+        <!--        <com.app.musicplayer.visualizer.VisualizerView-->
+        <!--            android:id="@+id/visualizerView"-->
+        <!--            android:layout_width="50dp"-->
+        <!--            android:layout_height="50dp"-->
+        <!--            android:layout_marginStart="@dimen/_5sdp"-->
+        <!--            app:layout_constraintBottom_toBottomOf="@id/player_background_view"-->
+        <!--            app:layout_constraintStart_toStartOf="@id/player_background_view"-->
+        <!--            app:layout_constraintTop_toTopOf="@id/player_background_view" />-->
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/visualizerView"
+            android:layout_width="@dimen/_45sdp"
+            android:layout_height="@dimen/_45sdp"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:elevation="@dimen/_10sdp"
+            android:outlineProvider="none"
+            app:layout_constraintBottom_toBottomOf="@id/player_background_view"
+            app:layout_constraintStart_toStartOf="@id/player_background_view"
+            app:layout_constraintTop_toTopOf="@id/player_background_view" />
+
+        <co.mobiwise.library.MusicPlayerView
+            android:id="@+id/musicPlayerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="60dp"
-            android:background="@android:color/transparent"
+            android:layout_marginTop="@dimen/_50sdp"
+            app:buttonColor="@color/colorPrimary"
+            app:cover="@drawable/ic_medieview"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent=".3"
+            app:layout_constraintHeight_percent=".4"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/top_frame_layout">
+            app:layout_constraintTop_toBottomOf="@id/top_frame_layout"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:progressEmptyColor="@android:color/transparent"
+            app:progressLoadedColor="@android:color/transparent"
+            app:textColor="@android:color/transparent"
+            app:textSize="@dimen/_10sdp" />
 
-            <com.gauravk.audiovisualizer.visualizer.BlastVisualizer xmlns:custom="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/visualizerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                custom:avColor="@color/colorAccent"
-                custom:avDensity="0.8"
-                custom:avSpeed="normal"
-                custom:avType="fill" />
-
-<!--            <com.app.musicplayer.visualizer.VisualizerView-->
-<!--                android:id="@+id/visualizerView"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent" />-->
-        </FrameLayout>
-
-
-        <!--                <ImageView-->
-        <!--                    android:id="@+id/album_art_image_view"-->
-        <!--                    android:layout_width="0dp"-->
-        <!--                    android:layout_height="0dp"-->
-        <!--                    android:layout_marginTop="60dp"-->
-        <!--                    android:elevation="10dp"-->
-        <!--                    android:outlineProvider="none"-->
-        <!--                    app:layout_constraintDimensionRatio="1:1"-->
-        <!--                    app:layout_constraintEnd_toEndOf="parent"-->
-        <!--                    app:layout_constraintHeight_percent=".3"-->
-        <!--                    app:layout_constraintStart_toStartOf="parent"-->
-        <!--                    app:layout_constraintTop_toBottomOf="@id/top_frame_layout"-->
-        <!--                    app:srcCompat="@drawable/player_demo_album" />-->
 
         <LinearLayout
             android:id="@+id/layout_buttons"
@@ -148,53 +145,53 @@
             android:paddingEnd="@dimen/_10sdp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/album_art_image_view">
+            app:layout_constraintTop_toBottomOf="@id/musicPlayerView">
 
             <ImageView
                 android:id="@+id/btn_1"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
                 android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_marginEnd="@dimen/_5sdp"
                 android:layout_weight="1"
-                android:elevation="10dp"
+                android:elevation="@dimen/_10sdp"
                 android:outlineProvider="none"
                 app:srcCompat="@drawable/player_ic_heart" />
 
             <ImageView
                 android:id="@+id/btn_2"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
                 android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_marginEnd="@dimen/_5sdp"
                 android:layout_weight="1"
-                android:elevation="10dp"
+                android:elevation="@dimen/_10sdp"
                 android:outlineProvider="none"
                 app:srcCompat="@drawable/player_ic_tv" />
 
             <ImageView
                 android:id="@+id/btn_3"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
                 android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_marginEnd="@dimen/_5sdp"
                 android:layout_weight="1"
-                android:elevation="10dp"
+                android:elevation="@dimen/_10sdp"
                 android:outlineProvider="none"
                 app:srcCompat="@drawable/player_ic_filter" />
 
             <ImageView
                 android:id="@+id/btn_4"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
                 android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_marginEnd="@dimen/_5sdp"
                 android:layout_weight="1"
-                android:elevation="10dp"
+                android:elevation="@dimen/_10sdp"
                 android:outlineProvider="none"
                 app:srcCompat="@drawable/icv_songs_menu" />
 
@@ -219,7 +216,7 @@
                 style="@style/txt_white_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:elevation="10dp"
+                android:elevation="@dimen/_10sdp"
                 android:ellipsize="end"
                 android:fontFamily="@font/roboto_regular"
                 android:maxLines="1"
@@ -241,7 +238,7 @@
                 style="@style/txt_white_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:elevation="10dp"
+                android:elevation="@dimen/_10sdp"
                 android:ellipsize="end"
                 android:fontFamily="@font/roboto_regular"
                 android:maxLines="1"
@@ -278,45 +275,45 @@
             style="@style/txt_white_style"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:elevation="10dp"
+            android:elevation="@dimen/_10sdp"
             android:ellipsize="end"
             android:fontFamily="@font/roboto_medium"
             android:outlineProvider="none"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
+            android:paddingStart="@dimen/_15sdp"
+            android:paddingEnd="@dimen/_15sdp"
             android:singleLine="true"
             android:textColor="@color/white"
             android:textSize="@dimen/_12sdp"
             app:layout_constraintEnd_toStartOf="@id/btn_previous"
-            app:layout_constraintStart_toEndOf="@id/album_art_image_view"
-            app:layout_constraintTop_toTopOf="@id/album_art_image_view" />
+            app:layout_constraintStart_toEndOf="@id/visualizerView"
+            app:layout_constraintTop_toTopOf="@id/visualizerView" />
 
         <TextView
             android:id="@+id/artist_name_text_view_min"
             style="@style/txt_white_style"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:elevation="10dp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:elevation="@dimen/_10sdp"
             android:ellipsize="end"
             android:fontFamily="@font/roboto_regular"
             android:maxLines="1"
             android:outlineProvider="none"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
+            android:paddingStart="@dimen/_15sdp"
+            android:paddingEnd="@dimen/_15sdp"
             android:textColor="@color/txt_offwhite"
             android:textSize="@dimen/_10sdp"
             app:layout_constraintEnd_toStartOf="@id/btn_previous"
-            app:layout_constraintStart_toEndOf="@id/album_art_image_view"
+            app:layout_constraintStart_toEndOf="@id/visualizerView"
             app:layout_constraintTop_toBottomOf="@id/audio_name_text_view_min" />
 
         <ImageView
             android:id="@+id/btn_refresh"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
             android:layout_gravity="center"
-            android:layout_marginStart="24dp"
-            android:elevation="10dp"
+            android:layout_marginStart="@dimen/_20sdp"
+            android:elevation="@dimen/_10sdp"
             android:outlineProvider="none"
             app:layout_constraintBottom_toBottomOf="@+id/play_pause_layout"
             app:layout_constraintEnd_toStartOf="@id/btn_previous"
@@ -329,8 +326,8 @@
             android:layout_width="@dimen/_30sdp"
             android:layout_height="@dimen/_30sdp"
             android:layout_gravity="center"
-            android:layout_marginEnd="8dp"
-            android:elevation="10dp"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:elevation="@dimen/_10sdp"
             android:outlineProvider="none"
             app:layout_constraintBottom_toBottomOf="@id/play_pause_layout"
             app:layout_constraintEnd_toStartOf="@id/play_pause_layout"
@@ -348,11 +345,11 @@
 
         <FrameLayout
             android:id="@+id/play_pause_layout"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:elevation="10dp"
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="@dimen/_50sdp"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:elevation="@dimen/_10sdp"
             android:outlineProvider="none"
             app:layout_constraintBottom_toTopOf="@id/play_pause_bottom_space"
             app:layout_constraintEnd_toEndOf="parent"
@@ -381,9 +378,9 @@
             android:layout_width="@dimen/_30sdp"
             android:layout_height="@dimen/_30sdp"
             android:layout_gravity="center"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:elevation="10dp"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:elevation="@dimen/_10sdp"
             android:outlineProvider="none"
             app:layout_constraintBottom_toBottomOf="@+id/play_pause_layout"
             app:layout_constraintEnd_toStartOf="@+id/btn_equilizer"
@@ -393,11 +390,11 @@
 
         <ImageView
             android:id="@+id/btn_equilizer"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
             android:layout_gravity="center"
-            android:layout_marginEnd="24dp"
-            android:elevation="10dp"
+            android:layout_marginEnd="@dimen/_20sdp"
+            android:elevation="@dimen/_10sdp"
             android:outlineProvider="none"
             app:layout_constraintBottom_toBottomOf="@+id/play_pause_layout"
             app:layout_constraintEnd_toEndOf="parent"

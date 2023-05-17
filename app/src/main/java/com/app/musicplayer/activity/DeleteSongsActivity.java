@@ -3,7 +3,6 @@ package com.app.musicplayer.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,24 +37,58 @@ public class DeleteSongsActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         binding.toolbar.setTitle("");
         setSupportActionBar(binding.toolbar);
-        binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                for (int i = 0; i < songsList.size(); i++) {
-                    SongModel songs = songsList.get(i);
-                    songs.setIsChecked(true);
-                    songsList.set(i, songs);
-                }
-            } else {
-                for (int i = 0; i < songsList.size(); i++) {
-                    SongModel songs = songsList.get(i);
-                    songs.setIsChecked(false);
-                    songsList.set(i, songs);
-                }
-            }
-            binding.listView.getAdapter().notifyDataSetChanged();
-        });
+        try {
+            binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                try {
+                    if (songsList != null && songsList.size() > 0) {
+                        if (isChecked) {
+                            for (int i = 0; i < songsList.size(); i++) {
+                                SongModel songs = songsList.get(i);
+                                songs.setIsChecked(true);
+                                songsList.set(i, songs);
+                            }
+                        } else {
+                            for (int i = 0; i < songsList.size(); i++) {
+                                SongModel songs = songsList.get(i);
+                                songs.setIsChecked(false);
+                                songsList.set(i, songs);
+                            }
+                        }
+                        if (binding.listView.getAdapter() != null)
+                            binding.listView.getAdapter().notifyDataSetChanged();
 
-        binding.fab.setOnClickListener(v -> showDeleteAlertDialog());
+                        checkTopLayout();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+
+            binding.fab.setOnClickListener(v -> {
+                if (songsList != null && songsList.size() > 0 && isAnyChecked()) {
+                    showDeleteAlertDialog();
+                }
+            });
+            reloadList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean isAnyChecked() {
+        try {
+            for (SongModel songModel : songsList) {
+                if (songModel.getIsChecked()) return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
         reloadList();
     }
 
@@ -73,6 +106,22 @@ public class DeleteSongsActivity extends AppCompatActivity {
         }
     }
 
+    private void checkTopLayout() {
+        try {
+            if (songsList != null && songsList.size() > 0) {
+                if (isAnyChecked()) {
+                    binding.layoutListTopView.setVisibility(View.VISIBLE);
+                } else {
+                    binding.layoutListTopView.setVisibility(View.GONE);
+                }
+            } else {
+                showNoDataFound();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void showListView() {
         try {
             binding.listView.setHasFixedSize(true);
@@ -80,14 +129,19 @@ public class DeleteSongsActivity extends AppCompatActivity {
             binding.listView.setLayoutManager(new LinearLayoutManager(DeleteSongsActivity.this));
             binding.listView.setItemAnimator(new DefaultItemAnimator());
             binding.listView.setAdapter(new DeleteSongsAdapter(songsList, DeleteSongsActivity.this, (result, isChecked, position) -> {
-                result.setIsChecked(isChecked);
-                songsList.set(position, result);
+                try {
+                    songsList.set(position, result);
 
+                    checkTopLayout();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }));
 
             binding.layoutListView.setVisibility(View.VISIBLE);
             binding.listView.setVisibility(View.VISIBLE);
             binding.txtNoData.setVisibility(View.GONE);
+            checkTopLayout();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -103,7 +157,6 @@ public class DeleteSongsActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -114,7 +167,7 @@ public class DeleteSongsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_delete) {
-            showDeleteAlertDialog();
+            startActivityForResult(new Intent(this, TrashedSongsActivity.class), 101);
             return true;
         }
         if (id == R.id.action_settings) {
@@ -128,16 +181,41 @@ public class DeleteSongsActivity extends AppCompatActivity {
     private void showDeleteAlertDialog() {
         try {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Are you sure!! Do you want to delete ?");
+            builder.setMessage(getResources().getString(R.string.alert_trash));
             builder.setTitle(R.string.app_name);
             builder.setCancelable(false);
-            builder.setPositiveButton("Yes", (dialog, id) -> {
-                DBUtils.deleteMultipleSongs(songsList.stream().filter(SongModel::getIsChecked).collect(Collectors.toList()));
-                setResult(Activity.RESULT_OK, new Intent());
-                finish();
-                Toast.makeText(getApplicationContext(), "Songs Deleted!", Toast.LENGTH_SHORT).show();
-            }).setNegativeButton("No", (dialog, id) -> dialog.cancel());
+            builder.setPositiveButton(getResources().getString(R.string.txt_yes), (dialog, id) -> {
+                int songListCount = songsList.size();
+                int deleteCount = songsList.stream().filter(SongModel::getIsChecked).collect(Collectors.toList()).size();
+                DBUtils.trashMultipleSongs(songsList.stream().filter(SongModel::getIsChecked).collect(Collectors.toList()));
+                Toast.makeText(getApplicationContext(), deleteCount + " " + getResources().getString(R.string.alert_trash_msg), Toast.LENGTH_SHORT).show();
+                if (songListCount == deleteCount) {
+                    setResult(Activity.RESULT_OK, new Intent());
+                    finish();
+                } else {
+                    reloadList();
+                }
+
+//                DBUtils.deleteMultipleSongs(songsList.stream().filter(SongModel::getIsChecked).collect(Collectors.toList()));
+//                setResult(Activity.RESULT_OK, new Intent());
+//                finish();
+//                Toast.makeText(getApplicationContext(), "Songs Deleted!", Toast.LENGTH_SHORT).show();
+            }).setNegativeButton(getResources().getString(R.string.txt_no), (dialog, id) -> dialog.cancel());
             builder.create().show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void clear() {
+        try {
+            if (songsList != null && songsList.size() > 0) {
+                for (int i = 0; i < songsList.size(); i++) {
+                    SongModel songs = songsList.get(i);
+                    songs.setIsChecked(false);
+                    songsList.set(i, songs);
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -146,6 +224,7 @@ public class DeleteSongsActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        clear();
         setResult(Activity.RESULT_OK, new Intent());
         finish();
     }

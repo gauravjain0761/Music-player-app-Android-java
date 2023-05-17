@@ -1,17 +1,24 @@
 package com.app.musicplayer.db;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.CursorWrapper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
+
+import com.app.musicplayer.R;
+import com.app.musicplayer.utils.ImageUtil;
 
 public class SongCursorWrapper extends CursorWrapper {
     public SongCursorWrapper(Cursor cursor) {
         super(cursor);
     }
 
-    public SongModel getSong() {
+    public SongModel getSong(Context context) {
         SongModel songModel = new SongModel();
         try {
             int id = getInt(getColumnIndex(MediaStore.Audio.Media._ID));
@@ -41,14 +48,17 @@ public class SongCursorWrapper extends CursorWrapper {
                 }
             }
 
-//        Log.e("TAG", "auther" + auther);
-//        Log.e("TAG", "composer" + composer);
-//        Log.e("TAG", "size" + size);
             Log.e("TAG", "id " + id);
             Log.e("TAG", "Data : " + data);
-            Log.e("TAG", "albumName : " + albumName);
-            Log.e("TAG", "genreName : " + genreName);
-            Log.e("TAG", "artistName : " + artistName);
+
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever.setDataSource(data);
+            byte[] coverBytes = retriever.getEmbeddedPicture();
+            Bitmap songCoverBitmap;
+            if (coverBytes != null && coverBytes.length > 0)
+                songCoverBitmap = BitmapFactory.decodeByteArray(coverBytes, 0, coverBytes.length);
+            else
+                songCoverBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_medieview);
 
             songModel.setGenreId(genreId);
             songModel.setGenreName(genreName);
@@ -67,6 +77,7 @@ public class SongCursorWrapper extends CursorWrapper {
             songModel.setAlbumName("" + albumName);
             songModel.setData("" + data);
             songModel.setSize(size);
+            songModel.setBitmapCover(ImageUtil.convertToString(songCoverBitmap));
         } catch (Exception e) {
             e.printStackTrace();
         }

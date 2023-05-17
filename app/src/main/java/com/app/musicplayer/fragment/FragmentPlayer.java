@@ -4,10 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -20,14 +18,15 @@ import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 
+import com.app.musicplayer.AppController;
 import com.app.musicplayer.R;
 import com.app.musicplayer.activity.HomeActivity;
 import com.app.musicplayer.databinding.FragmentPlayerBinding;
 import com.app.musicplayer.db.SongModel;
-import com.app.musicplayer.visualizer.renderer.CircleBarRenderer;
-import com.app.musicplayer.visualizer.renderer.LineRenderer;
+import com.app.musicplayer.utils.ImageUtil;
 import com.app.musicplayer.visualizer.utils.TunnelPlayerWorkaround;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -42,12 +41,12 @@ public class FragmentPlayer extends Fragment {
     Handler handler = new Handler();
     List<SongModel> songsList = new ArrayList<>();
     int position = 0;
+    SongModel playSongModel;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentPlayerBinding.inflate(inflater, container, false);
-        Log.e(TAG, "onCreateView called.....");
         return binding.getRoot();
     }
 
@@ -64,33 +63,33 @@ public class FragmentPlayer extends Fragment {
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
         //initTunnelPlayerWorkaround();
-
-
         requireActivity().registerReceiver(songClickReceiver, new IntentFilter("SongClick"));
 
-        binding.closeImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    closeMediaPlayer();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        binding.collapseImageView.setOnClickListener(v -> {
+            try {
+                binding.playerMotion.transitionToCollapse();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
 
-        binding.playPauseImageView.setOnClickListener(v -> {
-            Log.e(TAG, "play click called.....");
+        binding.closeImageView.setOnClickListener(v -> {
             try {
-                if (mediaPlayer != null) {
-                    if (mediaPlayer.isPlaying()) {
-                        mediaPlayer.pause();
-                        binding.visualizerView.hide();
-                        binding.playPauseImageView.setImageResource(R.drawable.player_ic_play);
-                    } else {
-                        mediaPlayer.start();
-                        binding.visualizerView.show();
-                        binding.playPauseImageView.setImageResource(R.drawable.player_ic_pause);
+                closeMediaPlayer();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        binding.playPauseImageView.setOnClickListener(v -> startStopOnClick());
+        binding.musicPlayerView.setOnClickListener(v -> startStopOnClick());
+
+        binding.btnNext.setOnClickListener(v -> {
+            try {
+                if (songsList != null && position != songsList.size() - 1) {
+                    position = position + 1;
+                    if (songsList.size() > 0 && songsList.size() > position) {
+                        setMediaPlayer(songsList.get(position));
                     }
                 }
             } catch (Exception e) {
@@ -98,11 +97,122 @@ public class FragmentPlayer extends Fragment {
             }
         });
 
-        binding.btnNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        binding.btnPrevious.setOnClickListener(v -> {
+            try {
+                if (songsList != null && position > 0) {
+                    position = position - 1;
+                    if (songsList != null && songsList.size() > 0 && songsList.size() > position) {
+                        setMediaPlayer(songsList.get(position));
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private final BroadcastReceiver songClickReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try {
+                if (intent.getAction() != null && intent.getAction().equals("SongClick")) {
+                    if (songsList != null) songsList.clear();
+                    position = AppController.getSpSongInfo().getInt("position", 0);
+                    songsList = new Gson().fromJson(AppController.getSpSongInfo().getString("songList", ""), new TypeToken<List<SongModel>>() {
+                    }.getType());
+                    AppController.getSpSongInfo().edit().clear().apply();
+
+                    if (songsList.size() > 0 && songsList.size() > position) {
+                        setMediaPlayer(songsList.get(position));
+                    }
+
+                    try {
+                        binding.playerMotion.transitionToEnd();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    private void startStopOnClick() {
+        try {
+            try {
+                if (mediaPlayer != null) {
+                    if (mediaPlayer.isPlaying()) {
+                        mediaPlayer.pause();
+                        binding.musicPlayerView.stop();
+                        //binding.visualizerView.hide();
+                        binding.playPauseImageView.setImageResource(R.drawable.player_ic_play);
+
+                        Intent updatePlayBroadCast = new Intent("GetPlaySong");
+                        AppController.getSpSongInfo().edit().putBoolean("isPlaying", false).putString("CurrentSong", "").apply();
+                        requireActivity().sendBroadcast(updatePlayBroadCast);
+
+                    } else {
+                        mediaPlayer.start();
+                        binding.musicPlayerView.start();
+                        //binding.visualizerView.show();
+                        binding.playPauseImageView.setImageResource(R.drawable.player_ic_pause);
+
+                        if (playSongModel != null) {
+                            Intent updatePlayBroadCast = new Intent("GetPlaySong");
+                            AppController.getSpSongInfo().edit().putBoolean("isPlaying", true).putString("CurrentSong", new Gson().toJson(playSongModel)).apply();
+                            requireActivity().sendBroadcast(updatePlayBroadCast);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void setMediaPlayer(SongModel songModel) {
+        try {
+            playSongModel = songModel;
+            binding.audioNameTextView.setText("" + (("" + songModel.getTitle()).replace("null", "").replace("Null", "")));
+            binding.artistNameTextView.setText("" + (("" + songModel.getArtistName()).replace("null", "").replace("Null", "")));
+            binding.audioNameTextViewMin.setText("" + (("" + songModel.getTitle()).replace("null", "").replace("Null", "")));
+            binding.artistNameTextViewMin.setText("" + (("" + songModel.getArtistName()).replace("null", "").replace("Null", "")));
+
+            if (("" + (("" + songModel.getBitmapCover()).replace("null", "").replace("Null", ""))).isEmpty()) {
+                binding.visualizerView.setImageResource(R.drawable.icv_songs);
+            } else {
+                binding.visualizerView.setImageBitmap(ImageUtil.convertToBitmap(songModel.getBitmapCover()));
+            }
+
+//            try {
+//                if (("" + (("" + songModel.getBitmapCover()).replace("null", "").replace("Null", ""))).isEmpty()) {
+//                    binding.musicPlayerView.setCoverDrawable(new BitmapDrawable(getResources(), BitmapFactory.decodeResource(getResources(), R.drawable.ic_medieview)));
+//                } else {
+//                    binding.musicPlayerView.setCoverDrawable(new BitmapDrawable(getResources(), ImageUtil.convertToBitmap(songModel.getBitmapCover())));
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+
+            if (mediaPlayer != null) {
+                mediaPlayer.stop();
+                mediaPlayer.reset();
+                mediaPlayer.release();
+            }
+
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+            mediaPlayer.setDataSource(songModel.getData());
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+            mediaPlayer.setOnCompletionListener(mp -> {
                 try {
-                    if (songsList != null && position != songsList.size() - 1) {
+                    if (mp != null && mediaPlayer != null && songsList != null && position != songsList.size() - 1) {
                         position = position + 1;
                         if (songsList.size() > 0 && songsList.size() > position) {
                             setMediaPlayer(songsList.get(position));
@@ -111,26 +221,44 @@ public class FragmentPlayer extends Fragment {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-        });
+            });
+            binding.musicPlayerView.start();
+            setAudioProgress();
 
-        binding.btnPrevious.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    if (songsList != null && position > 0) {
-                        position = position - 1;
-                        if (songsList != null && songsList.size() > 0 && songsList.size() > position) {
-                            setMediaPlayer(songsList.get(position));
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+            Intent updatePlayBroadCast = new Intent("GetPlaySong");
+            AppController.getSpSongInfo().edit().putBoolean("isPlaying", true).putString("CurrentSong", new Gson().toJson(songModel)).apply();
+            requireActivity().sendBroadcast(updatePlayBroadCast);
+
+//                int audioSessionId = mediaPlayer.getAudioSessionId();
+//                if (audioSessionId != -1) binding.visualizerView.setAudioSessionId(audioSessionId);
+
+            //binding.visualizerView.setColor(Color.argb(255, 222, 92, 143));
+//                binding.visualizerView.link(mediaPlayer);
+//                addCircleBarRenderer();
+//                addLineRenderer();
+            //addBarGraphRenderers();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
+//    // Methods for adding renderers to visualizer
+//    private void addBarGraphRenderers() {
+//        Paint paint = new Paint();
+//        paint.setStrokeWidth(50f);
+//        paint.setAntiAlias(true);
+//        paint.setColor(Color.argb(200, 56, 138, 252));
+//        BarGraphRenderer barGraphRendererBottom = new BarGraphRenderer(16, paint, false);
+//        binding.visualizerView.addRenderer(barGraphRendererBottom);
+//
+//        Paint paint2 = new Paint();
+//        paint2.setStrokeWidth(12f);
+//        paint2.setAntiAlias(true);
+//        paint2.setColor(Color.argb(200, 181, 111, 233));
+//        BarGraphRenderer barGraphRendererTop = new BarGraphRenderer(4, paint2, true);
+//        binding.visualizerView.addRenderer(barGraphRendererTop);
+//    }
+//
 //    private void addCircleBarRenderer() {
 //        Paint paint = new Paint();
 //        paint.setStrokeWidth(8f);
@@ -140,9 +268,8 @@ public class FragmentPlayer extends Fragment {
 //        CircleBarRenderer circleBarRenderer = new CircleBarRenderer(paint, 32, true);
 //        binding.visualizerView.addRenderer(circleBarRenderer);
 //    }
-
-//    private void addLineRenderer()
-//    {
+//
+//    private void addLineRenderer() {
 //        Paint linePaint = new Paint();
 //        linePaint.setStrokeWidth(1f);
 //        linePaint.setAntiAlias(true);
@@ -155,71 +282,6 @@ public class FragmentPlayer extends Fragment {
 //        LineRenderer lineRenderer = new LineRenderer(linePaint, lineFlashPaint, true);
 //        binding.visualizerView.addRenderer(lineRenderer);
 //    }
-
-    private BroadcastReceiver songClickReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            try {
-                Log.v(TAG, "songClickReceiver onReceive is called");
-                if (intent.getAction() != null && intent.getAction().equals("SongClick")) {
-                    if (songsList != null) songsList.clear();
-                    position = intent.getIntExtra("position", 0);
-                    songsList = new Gson().fromJson(intent.getStringExtra("songList"), new TypeToken<List<SongModel>>() {
-                    }.getType());
-
-                    if (songsList.size() > 0 && songsList.size() > position) {
-                        setMediaPlayer(songsList.get(position));
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    };
-
-    private void setMediaPlayer(SongModel songModel) {
-        try {
-
-            if (mediaPlayer != null) {
-                binding.audioNameTextView.setText("" + (("" + songModel.getTitle()).replace("null", "").replace("Null", "")));
-                binding.artistNameTextView.setText("" + (("" + songModel.getArtistName()).replace("null", "").replace("Null", "")));
-                binding.audioNameTextViewMin.setText("" + (("" + songModel.getTitle()).replace("null", "").replace("Null", "")));
-                binding.artistNameTextViewMin.setText("" + (("" + songModel.getArtistName()).replace("null", "").replace("Null", "")));
-
-                mediaPlayer.reset();
-                mediaPlayer.setDataSource(songModel.getData());
-                mediaPlayer.prepare();
-                mediaPlayer.start();
-
-                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        try {
-                            if (songsList != null && position != songsList.size() - 1) {
-                                position = position + 1;
-                                if (songsList.size() > 0 && songsList.size() > position) {
-                                    setMediaPlayer(songsList.get(position));
-                                }
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-
-                setAudioProgress();
-                int audioSessionId = mediaPlayer.getAudioSessionId();
-                if (audioSessionId != -1) binding.visualizerView.setAudioSessionId(audioSessionId);
-
-                //binding.visualizerView.setColor(Color.argb(255, 222, 92, 143));
-//                binding.visualizerView.link(mediaPlayer);
-//                addCircleBarRenderer();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     String secToTime(int sec) {
         int seconds = sec % 60;
@@ -237,55 +299,68 @@ public class FragmentPlayer extends Fragment {
     }
 
     public void setAudioProgress() {
-        binding.seekDurationTextView.setText(secToTime(((int) mediaPlayer.getDuration()) / 1000));
-        binding.seekTimeTextView.setText(secToTime(((int) mediaPlayer.getCurrentPosition()) / 1000));
+        try {
+            binding.seekDurationTextView.setText(secToTime(((int) mediaPlayer.getDuration()) / 1000));
+            binding.seekTimeTextView.setText(secToTime(((int) mediaPlayer.getCurrentPosition()) / 1000));
 
+            binding.musicPlayerView.setMax(mediaPlayer.getDuration());
+            binding.seekBar.setProgress(0);
+            binding.seekBar.setMax(mediaPlayer.getDuration());
 
-        binding.seekBar.setProgress(0);
-        binding.seekBar.setMax(mediaPlayer.getDuration());
+            binding.seekBarMin.setProgress(0);
+            binding.seekBarMin.setMax(mediaPlayer.getDuration());
 
-        binding.seekBarMin.setProgress(0);
-        binding.seekBarMin.setMax(mediaPlayer.getDuration());
+            binding.seekBarMin.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
-        binding.seekBarMin.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
 
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (mediaPlayer != null && fromUser) {
-                    mediaPlayer.seekTo(progress);
                 }
-            }
-        });
 
-        binding.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
 
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (mediaPlayer != null && fromUser) {
-                    mediaPlayer.seekTo(progress);
                 }
-            }
-        });
+
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    try {
+                        if (mediaPlayer != null && fromUser) {
+                            mediaPlayer.seekTo(progress);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            binding.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    try {
+                        if (mediaPlayer != null && fromUser) {
+                            mediaPlayer.seekTo(progress);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
         Runnable runnable = new Runnable() {
             @Override
@@ -295,15 +370,14 @@ public class FragmentPlayer extends Fragment {
                         binding.seekTimeTextView.setText(secToTime(((int) mediaPlayer.getCurrentPosition()) / 1000));
                         binding.seekBar.setProgress((int) mediaPlayer.getCurrentPosition());
                         binding.seekBarMin.setProgress((int) mediaPlayer.getCurrentPosition());
-
-                        handler.postDelayed(this, 1000);
+                        if (handler != null) handler.postDelayed(this, 1000);
                     }
                 } catch (Exception ed) {
                     ed.printStackTrace();
                 }
             }
         };
-        handler.postDelayed(runnable, 1000);
+        if (handler != null) handler.postDelayed(runnable, 1000);
     }
 
     @Override
@@ -320,10 +394,11 @@ public class FragmentPlayer extends Fragment {
     private void closeMediaPlayer() {
         try {
             if (mediaPlayer != null) {
-                if (mediaPlayer.isPlaying()) mediaPlayer.stop();
+                mediaPlayer.stop();
                 mediaPlayer.reset();
                 mediaPlayer.release();
-                binding.visualizerView.hide();
+                mediaPlayer = null;
+                //binding.visualizerView.hide();
                 HomeActivity.bindingHome.playScreenFrameLayout.setVisibility(View.GONE);
             }
         } catch (Exception e) {

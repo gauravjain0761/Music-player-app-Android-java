@@ -30,7 +30,7 @@
             android:layout_marginTop="@dimen/_10sdp"
             android:fontFamily="@font/roboto_medium"
             android:gravity="center"
-            android:text="Local Files"
+            android:text="@string/txt_localFiles"
             android:textColor="@color/white"
             android:textSize="@dimen/_12sdp" />
 
@@ -59,7 +59,7 @@
             android:layout_marginTop="@dimen/_10sdp"
             android:fontFamily="@font/roboto_medium"
             android:gravity="center"
-            android:text="Scan Files"
+            android:text="@string/txt_scanFiles"
             android:textColor="@color/white"
             android:textSize="@dimen/_12sdp" />
 

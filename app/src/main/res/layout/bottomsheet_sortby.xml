@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_margin="@dimen/_10sdp"
             android:fontFamily="@font/roboto_medium"
-            android:text="SORT BY"
+            android:text="@string/txt_sortBy"
             android:textColor="@color/white"
             android:textSize="@dimen/_14sdp" />
 
@@ -55,7 +55,7 @@
                     android:buttonTint="@color/radio_tint"
                     android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
-                    android:text="Name (A to Z)"
+                    android:text="@string/txt_sort_by_nameA2Z"
                     android:textAlignment="textStart"
                     android:textColor="@color/radio_tint"
                     android:textSize="@dimen/_10sdp" />
@@ -70,7 +70,7 @@
                     android:buttonTint="@color/radio_tint"
                     android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
-                    android:text="Name (Z to A)"
+                    android:text="@string/txt_sort_by_nameZ2A"
                     android:textAlignment="textStart"
                     android:textColor="@color/radio_tint"
                     android:textSize="@dimen/_10sdp" />
@@ -85,7 +85,7 @@
                     android:buttonTint="@color/radio_tint"
                     android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
-                    android:text="Date (newest first)"
+                    android:text="@string/txt_sort_by_date_new"
                     android:textAlignment="textStart"
                     android:textColor="@color/radio_tint"
                     android:textSize="@dimen/_10sdp" />
@@ -100,7 +100,7 @@
                     android:buttonTint="@color/radio_tint"
                     android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
-                    android:text="Date (oldest first)"
+                    android:text="@string/txt_sort_by_date_old"
                     android:textAlignment="textStart"
                     android:textColor="@color/radio_tint"
                     android:textSize="@dimen/_10sdp" />
@@ -115,7 +115,7 @@
                     android:buttonTint="@color/radio_tint"
                     android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
-                    android:text="Duration (short first)"
+                    android:text="@string/txt_sort_by_duration_short"
                     android:textAlignment="textStart"
                     android:textColor="@color/radio_tint"
                     android:textSize="@dimen/_10sdp" />
@@ -130,7 +130,7 @@
                     android:buttonTint="@color/radio_tint"
                     android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
-                    android:text="Duration (long first)"
+                    android:text="@string/txt_sort_by_duration_long"
                     android:textAlignment="textStart"
                     android:textColor="@color/radio_tint"
                     android:textSize="@dimen/_10sdp" />
@@ -145,7 +145,7 @@
                     android:buttonTint="@color/radio_tint"
                     android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
-                    android:text="Size (small first)"
+                    android:text="@string/txt_sort_by_size_small"
                     android:textAlignment="textStart"
                     android:textColor="@color/radio_tint"
                     android:textSize="@dimen/_10sdp" />
@@ -160,14 +160,12 @@
                     android:buttonTint="@color/radio_tint"
                     android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
-                    android:text="Size (large first)"
+                    android:text="@string/txt_sort_by_size_large"
                     android:textAlignment="textStart"
                     android:textColor="@color/radio_tint"
                     android:textSize="@dimen/_10sdp" />
 
-
             </RadioGroup>
-
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

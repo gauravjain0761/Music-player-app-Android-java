@@ -11,7 +11,13 @@
         android:id="@+id/imageView"
         android:layout_width="@dimen/_40sdp"
         android:layout_height="@dimen/_40sdp"
-        android:src="@drawable/icv_songs" />
+        android:visibility="gone" />
+
+    <com.app.musicplayer.visualizer.VisualizerView
+        android:id="@+id/visualizerView"
+        android:layout_width="@dimen/_40sdp"
+        android:layout_height="@dimen/_40sdp"
+        android:visibility="gone" />
 
     <LinearLayout
         android:layout_width="0dp"

@@ -17,6 +17,16 @@ import java.util.List;
 public class AppUtils {
     public static final int PERMISSION_REQUESTS = 1;
 
+    public static void showKeyboard(Context context){
+        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+    }
+
+    public static void closeKeyboard(Context context){
+        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+    }
+
     public static String[] getRequiredPermissions(Context context) {
         try {
             Log.v("TAG", "getRequiredPermissions called.....");

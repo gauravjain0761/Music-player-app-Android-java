@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
-    tools:context=".activity.HomeActivity">
+    android:background="@color/colorPrimary">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -50,12 +49,14 @@
                 android:orientation="vertical">
 
                 <LinearLayout
+                    android:id="@+id/layout_listTopView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginTop="@dimen/_5sdp"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -71,7 +72,7 @@
                             style="@style/txt_white_style"
                             android:layout_width="match_parent"
                             android:fontFamily="@font/roboto_medium"
-                            android:text="DONE"
+                            android:text="@string/txt_DONE"
                             android:textColor="@color/colorAccent"
                             android:textSize="@dimen/_11sdp" />
 
@@ -89,13 +90,12 @@
                         <androidx.appcompat.widget.AppCompatCheckBox
                             android:id="@+id/cb_delete"
                             style="@style/checkBoxStyle"
+                            android:button="@drawable/cb_selector"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:buttonTint="@color/checkbox_tint" />
 
                     </LinearLayout>
-
-
                 </LinearLayout>
 
 
@@ -125,7 +125,7 @@
                     android:gravity="center"
                     android:padding="@dimen/_20sdp"
                     android:singleLine="false"
-                    android:text="@string/txt_no_songs"
+                    android:text="@string/txt_no_songs_delete"
                     android:textColor="@color/offwhite"
                     android:textFontWeight="400"
                     android:visibility="gone" />

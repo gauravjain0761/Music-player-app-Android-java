@@ -34,7 +34,6 @@ public class FragmentPlaylistAdapter extends RecyclerView.Adapter<FragmentPlayli
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         try {
-            Log.v(TAG, "onBindViewHolder called.....");
             bindListLayout(holder, position);
         } catch (Exception e) {
             e.printStackTrace();
@@ -65,7 +64,6 @@ public class FragmentPlaylistAdapter extends RecyclerView.Adapter<FragmentPlayli
             try {
                 binding.getRoot().setOnClickListener(v -> {
                     try {
-                        Log.v(TAG, "binding.getRoot().setOnClickListener getLayoutPosition()....." + getLayoutPosition());
                         context.startActivity(new Intent(context, PlaylistSongsActivity.class));
                     } catch (Exception e) {
                         e.printStackTrace();

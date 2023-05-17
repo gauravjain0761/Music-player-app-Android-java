@@ -2,6 +2,7 @@ package com.app.musicplayer.db;
 
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -18,11 +19,15 @@ public class FetchSongsFromLocal {
         try {
             if (cursor.moveToFirst()) {
                 do {
-                    SongModel song = cursor.getSong();
+                    SongModel song = cursor.getSong(context);
                     song.setAlbumArt("" + getAlbumUri(song.getAlbumId()).toString());
                     songs.add(song);
                 } while (cursor.moveToNext());
+            } else {
+                Log.e("TAG", "cursor else called ");
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             cursor.close();
         }
@@ -41,6 +46,9 @@ public class FetchSongsFromLocal {
         Cursor cursor = context.getContentResolver().query(uri, null, selection, // where clause
                 whereArgs,       //whereargs
                 sortOrder);
+
+        if (cursor == null) Log.e("TAG", "cursor is null called ");
+
         return new SongCursorWrapper(cursor);
     }
 
@@ -56,7 +64,7 @@ public class FetchSongsFromLocal {
         try {
             if (cursor.moveToFirst()) {
                 do {
-                    SongModel song = cursor.getSong();
+                    SongModel song = cursor.getSong(context);
                     song.setAlbumArt("" + getAlbumUri(song.getAlbumId()).toString());
                     songs.add(song);
                 } while (cursor.moveToNext());

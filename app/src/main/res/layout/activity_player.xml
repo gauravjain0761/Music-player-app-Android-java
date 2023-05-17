@@ -6,7 +6,6 @@
     android:background="@android:color/transparent"
     android:orientation="vertical">
 
-
     <FrameLayout
         android:id="@+id/play_screen_frame_layout"
         android:layout_width="match_parent"

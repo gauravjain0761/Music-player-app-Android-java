@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -17,7 +16,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_5sdp"
             android:gravity="center_horizontal"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <RadioButton
                 android:id="@+id/rb_album"
@@ -28,16 +28,16 @@
                 android:background="@drawable/radio_flat_selector"
                 android:button="@android:color/transparent"
                 android:checked="true"
-                android:drawableLeft="@drawable/ic_album"
-                android:drawablePadding="@dimen/_minus20sdp"
+                android:drawableLeft="@drawable/selector_ic_album"
+                android:drawablePadding="@dimen/_minus15sdp"
                 android:drawableTint="@color/offwhite"
                 android:fontFamily="@font/roboto_regular"
                 android:gravity="center"
                 android:paddingStart="@dimen/_15sdp"
-                android:paddingTop="@dimen/_7sdp"
-                android:paddingBottom="@dimen/_7sdp"
+                android:paddingTop="@dimen/_5sdp"
+                android:paddingBottom="@dimen/_5sdp"
                 android:singleLine="true"
-                android:text="Albums"
+                android:text="@string/txt_album"
                 android:textColor="@color/offwhite"
                 android:textFontWeight="400"
                 android:textSize="@dimen/_10sdp" />
@@ -50,16 +50,16 @@
                 android:layout_weight="1"
                 android:background="@drawable/radio_flat_selector"
                 android:button="@android:color/transparent"
-                android:drawableLeft="@drawable/ic_artist"
-                android:drawablePadding="@dimen/_minus20sdp"
+                android:drawableLeft="@drawable/selector_ic_artist"
+                android:drawablePadding="@dimen/_minus15sdp"
                 android:drawableTint="@color/offwhite"
                 android:fontFamily="@font/roboto_regular"
                 android:gravity="center"
                 android:paddingStart="@dimen/_15sdp"
-                android:paddingTop="@dimen/_7sdp"
-                android:paddingBottom="@dimen/_7sdp"
+                android:paddingTop="@dimen/_5sdp"
+                android:paddingBottom="@dimen/_5sdp"
                 android:singleLine="true"
-                android:text="Artists"
+                android:text="@string/txt_artist"
                 android:textColor="@color/offwhite"
                 android:textFontWeight="400"
                 android:textSize="@dimen/_10sdp" />
@@ -72,16 +72,16 @@
                 android:layout_weight="1"
                 android:background="@drawable/radio_flat_selector"
                 android:button="@android:color/transparent"
-                android:drawableLeft="@drawable/ic_genres"
-                android:drawablePadding="@dimen/_minus20sdp"
+                android:drawableLeft="@drawable/selector_ic_genres"
+                android:drawablePadding="@dimen/_minus15sdp"
                 android:drawableTint="@color/offwhite"
                 android:fontFamily="@font/roboto_regular"
                 android:gravity="center"
                 android:paddingStart="@dimen/_15sdp"
-                android:paddingTop="@dimen/_7sdp"
-                android:paddingBottom="@dimen/_7sdp"
+                android:paddingTop="@dimen/_5sdp"
+                android:paddingBottom="@dimen/_5sdp"
                 android:singleLine="true"
-                android:text="Genres"
+                android:text="@string/txt_genres"
                 android:textColor="@color/offwhite"
                 android:textFontWeight="400"
                 android:textSize="@dimen/_10sdp" />
@@ -89,14 +89,17 @@
         </RadioGroup>
 
         <LinearLayout
+            android:id="@+id/layout_topListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginTop="@dimen/_5sdp"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <LinearLayout
+                android:id="@+id/layout_playAll"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -111,11 +114,10 @@
                     android:src="@drawable/ic_play" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/txt_playAll"
                     style="@style/txt_white_style"
                     android:layout_width="match_parent"
                     android:fontFamily="@font/roboto_medium"
-                    android:text="Play All"
+                    android:text="@string/txt_playAll"
                     android:textColor="@color/white"
                     android:textSize="@dimen/_11sdp" />
 
@@ -134,11 +136,13 @@
                     android:id="@+id/txt_sort"
                     style="@style/txt_white_style"
                     android:layout_width="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:layout_marginEnd="@dimen/_10sdp"
-                    android:drawableRight="@drawable/ic_dropdown"
-                    android:drawablePadding="@dimen/_7sdp"
+                    android:drawableRight="@drawable/selector_ic_dropdown"
+                    android:drawablePadding="@dimen/_5sdp"
                     android:fontFamily="@font/roboto_regular"
-                    android:text="Sort by name"
+                    android:gravity="center_vertical"
+                    android:text="@string/txt_sort_by_name"
                     android:textColor="@color/txt_offwhite"
                     android:textSize="@dimen/_11sdp" />
 
@@ -153,7 +157,6 @@
 
 
         </LinearLayout>
-
 
         <LinearLayout
             android:id="@+id/layout_listView"
@@ -180,18 +183,44 @@
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         </LinearLayout>
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/txt_no_data"
-            style="@style/txt_white_style"
+        <LinearLayout
+            android:id="@+id/layout_noData"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fontFamily="@font/roboto_medium"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/_100sdp"
             android:gravity="center"
-            android:padding="@dimen/_20sdp"
-            android:singleLine="false"
-            android:text="@string/txt_no_songs"
-            android:textColor="@color/offwhite"
-            android:textFontWeight="400"
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/txt_white_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@drawable/dashed_rect"
+                android:fontFamily="@font/roboto_bold"
+                android:gravity="center"
+                android:padding="@dimen/_5sdp"
+                android:singleLine="false"
+                android:text="@string/txt_no_songs_msg"
+                android:textColor="@color/offwhite"
+                android:textFontWeight="400" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/txt_white_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:fontFamily="@font/roboto_medium"
+                android:gravity="center"
+                android:singleLine="false"
+                android:text="@string/txt_no_songs"
+                android:textColor="@color/txt_white35"
+                android:textFontWeight="400" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

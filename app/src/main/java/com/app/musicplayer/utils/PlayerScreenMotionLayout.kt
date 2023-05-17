@@ -106,6 +106,10 @@ class PlayerScreenMotionLayout(
             }
         })
 
+    fun transitionToCollapse() {
+        transitionToStart()
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         gestureDetector.onTouchEvent(event)   //This ensures the Mini Player is maximised on single tap
         when (event.actionMasked) {

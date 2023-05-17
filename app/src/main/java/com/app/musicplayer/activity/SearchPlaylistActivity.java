@@ -27,9 +27,12 @@ public class SearchPlaylistActivity extends AppCompatActivity {
         binding = ActivitySearchPlaylistBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.imageViewBack.setOnClickListener(v -> finish());
-
-        reloadList();
+        try {
+            binding.imageViewBack.setOnClickListener(v -> finish());
+            reloadList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void reloadList() {

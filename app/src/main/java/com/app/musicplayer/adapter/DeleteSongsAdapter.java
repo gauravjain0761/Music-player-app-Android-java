@@ -9,8 +9,10 @@ import android.widget.CompoundButton;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.app.musicplayer.R;
 import com.app.musicplayer.databinding.AdapterSongsDeleteBinding;
 import com.app.musicplayer.db.SongModel;
+import com.app.musicplayer.utils.ImageUtil;
 
 import java.util.List;
 
@@ -35,7 +37,6 @@ public class DeleteSongsAdapter extends RecyclerView.Adapter<DeleteSongsAdapter.
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         try {
-            Log.v(TAG, "onBindViewHolder called.....");
             bindListLayout(holder, position);
         } catch (Exception e) {
             e.printStackTrace();
@@ -44,11 +45,15 @@ public class DeleteSongsAdapter extends RecyclerView.Adapter<DeleteSongsAdapter.
 
     private void bindListLayout(MyViewHolder holder, int position) {
         try {
-            SongModel result = songList.get(position);
+            final SongModel result = songList.get(position);
             holder.binding.txtTitle.setText("" + (("" + result.getTitle()).replace("null", "").replace("Null", "")));
             holder.binding.txtMsg.setText("" + (("" + result.getAlbumName()).replace("null", "").replace("Null", "")));
+            if (("" + (("" + result.getBitmapCover()).replace("null", "").replace("Null", ""))).isEmpty()) {
+                holder.binding.imageView.setImageResource(R.drawable.icv_songs);
+            } else {
+                holder.binding.imageView.setImageBitmap(ImageUtil.convertToBitmap(result.getBitmapCover()));
+            }
             holder.binding.cbDelete.setChecked(result.getIsChecked());
-            holder.binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> deleteSongsListner.deleteSongs(result, isChecked, position));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -66,9 +71,19 @@ public class DeleteSongsAdapter extends RecyclerView.Adapter<DeleteSongsAdapter.
             super(itemBinding.getRoot());
             this.binding = itemBinding;
             try {
+                binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    try {
+                        SongModel songModel = songList.get(getPosition());
+                        songModel.setIsChecked(isChecked);
+                        deleteSongsListner.deleteSongs(songModel, isChecked, getPosition());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
                 binding.getRoot().setOnClickListener(v -> {
                     try {
-                        Log.v(TAG, "binding.getRoot().setOnClickListener getLayoutPosition()....." + getLayoutPosition());
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

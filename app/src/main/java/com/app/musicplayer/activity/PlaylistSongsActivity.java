@@ -28,12 +28,13 @@ public class PlaylistSongsActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
         binding = ActivityPlaylistSongsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        binding.imageViewBack.setOnClickListener(v -> finish());
-
-        binding.imageViewSearch.setOnClickListener(v -> startActivity(new Intent(this, SearchSongsActivity.class)));
-
-        reloadList();
+        try {
+            binding.imageViewBack.setOnClickListener(v -> finish());
+            binding.imageViewSearch.setOnClickListener(v -> startActivity(new Intent(this, SearchSongsActivity.class)));
+            reloadList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void reloadList() {
@@ -62,7 +63,7 @@ public class PlaylistSongsActivity extends AppCompatActivity {
             binding.listView.setVerticalScrollBarEnabled(true);
             binding.listView.setLayoutManager(new LinearLayoutManager(PlaylistSongsActivity.this));
             binding.listView.setItemAnimator(new DefaultItemAnimator());
-            binding.listView.setAdapter(new FragmentSongsAdapter(selectedSortTypeRadio,playList, PlaylistSongsActivity.this, new FragmentSongsAdapter.SongsClickListner() {
+            binding.listView.setAdapter(new FragmentSongsAdapter(selectedSortTypeRadio, playList, PlaylistSongsActivity.this, new FragmentSongsAdapter.SongsClickListner() {
                 @Override
                 public void onSongsClick(SongModel result, int position) {
 

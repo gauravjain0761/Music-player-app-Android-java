@@ -42,37 +42,37 @@ public class FragmentPlaylist extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentPlaylistBinding.inflate(inflater, container, false);
-        Log.e(TAG, "onCreateView called.....");
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Log.e(TAG, "onViewCreated called.....");
+        try {
+            binding.swipe.setOnRefreshListener(() -> {
+                try {
+                    binding.swipe.setRefreshing(false);
+                    reloadList();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
 
-        binding.swipe.setOnRefreshListener(() -> {
-            try {
-                Log.e(TAG, "btnRefresh clicked called...");
-                binding.swipe.setRefreshing(false);
-                reloadList();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+            binding.txtSort.setOnClickListener(v -> {
+                try {
+                    BottomSheetFragmentSortBy.class.getDeclaredConstructor().newInstance().show(requireActivity().getSupportFragmentManager(), "BottomSheetFragmentSortBy");
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
-        binding.txtSort.setOnClickListener(v -> {
-            try {
-                BottomSheetFragmentSortBy.class.getDeclaredConstructor().newInstance().show(requireActivity().getSupportFragmentManager(), "BottomSheetFragmentSortBy");
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+            binding.imageViewSearch.setOnClickListener(v -> requireActivity().startActivity(new Intent(requireActivity(), SearchPlaylistActivity.class)));
 
-        binding.imageViewSearch.setOnClickListener(v -> requireActivity().startActivity(new Intent(requireActivity(), SearchPlaylistActivity.class)));
+            binding.fab.setOnClickListener(v -> showAddPlayListDialog());
 
-        binding.fab.setOnClickListener(v -> showAddPlayListDialog());
-
-        reloadList();
+            reloadList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static class BottomSheetFragmentSortBy extends BottomSheetDialogFragment {
@@ -95,28 +95,28 @@ public class FragmentPlaylist extends Fragment {
                     try {
                         Log.e("TAG", "layoutScan clicked called...");
                         if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(0).getId()) {
-                            binding.txtSort.setText("Sort by name");
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_name));
                             selectedRadio = 0;
                         } else if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(1).getId()) {
-                            binding.txtSort.setText("Sort by name");
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_name));
                             selectedRadio = 1;
                         } else if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(2).getId()) {
-                            binding.txtSort.setText("Sort by date");
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_date));
                             selectedRadio = 2;
                         } else if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(3).getId()) {
-                            binding.txtSort.setText("Sort by date");
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_date));
                             selectedRadio = 3;
                         } else if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(4).getId()) {
-                            binding.txtSort.setText("Sort by duration");
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_duration));
                             selectedRadio = 4;
                         } else if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(5).getId()) {
-                            binding.txtSort.setText("Sort by duration");
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_duration));
                             selectedRadio = 5;
                         } else if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(6).getId()) {
-                            binding.txtSort.setText("Sort by size");
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_size));
                             selectedRadio = 6;
                         } else if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(7).getId()) {
-                            binding.txtSort.setText("Sort by size");
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_size));
                             selectedRadio = 7;
                         }
                         dismiss();

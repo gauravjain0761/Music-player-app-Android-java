@@ -2,7 +2,6 @@ package com.app.musicplayer.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -35,9 +34,7 @@ public class BottomSheetMenuFragment extends BottomSheetDialogFragment {
 
             contentView.findViewById(R.id.layoutScan).setOnClickListener(v -> {
                 try {
-                    Log.e("TAG", "layoutScan clicked called...");
                     bottomSheetClick.onScanFilesClick();
-                    //requireActivity().startActivity(new Intent(requireActivity(), ScanFilesActivity.class));
                     dismiss();
                     dialog.dismiss();
                 } catch (Exception e) {
@@ -47,12 +44,9 @@ public class BottomSheetMenuFragment extends BottomSheetDialogFragment {
 
             contentView.findViewById(R.id.layoutLocalFiles).setOnClickListener(v -> {
                 try {
-                    Log.e("TAG", "layoutLocalFiles clicked called...");
                     dismiss();
                     dialog.dismiss();
                     bottomSheetClick.onLocalFilesClick();
-                    //DBUtils.insertMultipleSongs(FetchSongsFromLocal.querySongs(requireActivity()));
-                    //reloadList();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
