@@ -4,14 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.app.musicplayer.AppController;
 import com.app.musicplayer.R;
@@ -19,15 +14,17 @@ import com.app.musicplayer.adapter.FragmentSongsAdapter;
 import com.app.musicplayer.databinding.ActivitySearchSongsBinding;
 import com.app.musicplayer.db.DBUtils;
 import com.app.musicplayer.db.SongModel;
+import com.app.musicplayer.presenter.SearchSongsActivityPresenter;
 import com.app.musicplayer.utils.AppUtils;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchSongsActivity extends AppCompatActivity {
+public class SearchSongsActivity extends AppCompatActivity implements SearchSongsActivityPresenter.View {
 
     private ActivitySearchSongsBinding binding;
+    SearchSongsActivityPresenter presenter;
     String TAG = SearchSongsActivity.class.getSimpleName();
     List<SongModel> songsList = new ArrayList<>();
     int selectedSortTypeRadio = 0;
@@ -38,7 +35,7 @@ public class SearchSongsActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
         binding = ActivitySearchSongsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
+        presenter = new SearchSongsActivityPresenter(this, binding);
         try {
             binding.etSearch.requestFocus();
             AppUtils.showKeyboard(this);
@@ -55,10 +52,10 @@ public class SearchSongsActivity extends AppCompatActivity {
                         if (!s.toString().isEmpty()) {
                             if (songsList != null) songsList.clear();
                             songsList = DBUtils.getSearchSongsByName(s.toString());
-                            reloadList();
+                            refreshView();
                         } else {
                             if (songsList != null) songsList.clear();
-                            reloadList();
+                            refreshView();
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -75,24 +72,23 @@ public class SearchSongsActivity extends AppCompatActivity {
         }
     }
 
-    private void reloadList() {
+    @Override
+    public void refreshView() {
         try {
             if (songsList != null && songsList.size() > 0) {
                 showListView();
             } else {
-                showNoDataFound();
+                showNoDataView();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void showListView() {
+    @Override
+    public void showListView() {
         try {
-            binding.listView.setHasFixedSize(true);
-            binding.listView.setVerticalScrollBarEnabled(true);
-            binding.listView.setLayoutManager(new LinearLayoutManager(SearchSongsActivity.this));
-            binding.listView.setItemAnimator(new DefaultItemAnimator());
+            presenter.setListView();
             binding.listView.setAdapter(new FragmentSongsAdapter(selectedSortTypeRadio, songsList, SearchSongsActivity.this, new FragmentSongsAdapter.SongsClickListner() {
                 @Override
                 public void onSongsClick(SongModel result, int position) {
@@ -114,20 +110,15 @@ public class SearchSongsActivity extends AppCompatActivity {
                     startActivityForResult(new Intent(SearchSongsActivity.this, DeleteSongsActivity.class), 101);
                 }
             }));
-
-            binding.layoutListView.setVisibility(View.VISIBLE);
-            binding.listView.setVisibility(View.VISIBLE);
-            binding.txtNoData.setVisibility(View.GONE);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void showNoDataFound() {
+    @Override
+    public void showNoDataView() {
         try {
-            binding.layoutListView.setVisibility(View.GONE);
-            binding.listView.setVisibility(View.GONE);
-            binding.txtNoData.setVisibility(View.GONE);
+            presenter.setNoDataView();
         } catch (Exception e) {
             e.printStackTrace();
         }

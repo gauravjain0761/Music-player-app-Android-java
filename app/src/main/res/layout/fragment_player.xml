@@ -89,6 +89,7 @@
                 android:layout_gravity="right"
                 android:layout_marginEnd="@dimen/_10sdp"
                 android:elevation="@dimen/_10sdp"
+                android:visibility="gone"
                 app:srcCompat="@drawable/player_ic_close" />
 
 

@@ -1,18 +1,28 @@
 package com.app.musicplayer.presenter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.view.View;
 
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.app.musicplayer.AppController;
+import com.app.musicplayer.activity.DeleteSongsActivity;
+import com.app.musicplayer.activity.HomeActivity;
+import com.app.musicplayer.adapter.FragmentSongsAdapter;
 import com.app.musicplayer.databinding.ActivityDeleteSongsBinding;
+import com.app.musicplayer.databinding.FragmentSongsBinding;
+import com.app.musicplayer.db.SongModel;
+import com.google.gson.Gson;
 
-public class DeleteActivityPresenter {
+public class FragmentSongPresenter {
 
     Context context;
-    ActivityDeleteSongsBinding binding;
+    FragmentSongsBinding binding;
 
-    public DeleteActivityPresenter(Context con, ActivityDeleteSongsBinding bind) {
+    public FragmentSongPresenter(Context con, FragmentSongsBinding bind) {
         context = con;
         binding = bind;
     }
@@ -28,6 +38,8 @@ public class DeleteActivityPresenter {
 
     public void setListView() {
         try {
+            binding.swipe.setColorSchemeColors(Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE);
+
             binding.listView.setHasFixedSize(true);
             binding.listView.setVerticalScrollBarEnabled(true);
             binding.listView.setLayoutManager(new LinearLayoutManager(context));
@@ -35,7 +47,9 @@ public class DeleteActivityPresenter {
 
             binding.layoutListView.setVisibility(android.view.View.VISIBLE);
             binding.listView.setVisibility(android.view.View.VISIBLE);
-            binding.txtNoData.setVisibility(android.view.View.GONE);
+            binding.rgLayout.setVisibility(android.view.View.VISIBLE);
+            binding.layoutTopListView.setVisibility(android.view.View.VISIBLE);
+            binding.layoutNoData.setVisibility(android.view.View.GONE);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -45,7 +59,9 @@ public class DeleteActivityPresenter {
         try {
             binding.layoutListView.setVisibility(android.view.View.GONE);
             binding.listView.setVisibility(android.view.View.GONE);
-            binding.txtNoData.setVisibility(android.view.View.VISIBLE);
+            binding.rgLayout.setVisibility(android.view.View.GONE);
+            binding.layoutTopListView.setVisibility(android.view.View.GONE);
+            binding.layoutNoData.setVisibility(android.view.View.VISIBLE);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -8,8 +8,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.app.musicplayer.R;
 import com.app.musicplayer.adapter.DeleteSongsAdapter;
@@ -17,14 +15,17 @@ import com.app.musicplayer.databinding.ActivityTrashedSongsBinding;
 import com.app.musicplayer.db.DBUtils;
 import com.app.musicplayer.db.SongModel;
 import com.app.musicplayer.fragment.BottomSheetFragmentSortBy;
+import com.app.musicplayer.presenter.TrashedActivityPresenter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TrashedSongsActivity extends AppCompatActivity {
+public class TrashedSongsActivity extends AppCompatActivity implements TrashedActivityPresenter.View {
 
-    private ActivityTrashedSongsBinding binding;
+    ActivityTrashedSongsBinding binding;
+    TrashedActivityPresenter presenter;
+
     String TAG = TrashedSongsActivity.class.getSimpleName();
     public static List<SongModel> songsList = new ArrayList<>();
     int selectedSortByRadio = 0;
@@ -37,6 +38,7 @@ public class TrashedSongsActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         binding.toolbar.setTitle("");
         setSupportActionBar(binding.toolbar);
+        presenter = new TrashedActivityPresenter(this, binding);
 
         try {
             binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -55,8 +57,7 @@ public class TrashedSongsActivity extends AppCompatActivity {
                                 songsList.set(i, songs);
                             }
                         }
-                        if (binding.listView.getAdapter() != null)
-                            binding.listView.getAdapter().notifyDataSetChanged();
+                        presenter.notifyAdapter();
 
                         checkTopLayout();
                     }
@@ -79,7 +80,7 @@ public class TrashedSongsActivity extends AppCompatActivity {
                 try {
                     new BottomSheetFragmentSortBy(selectedSortByRadio, selected -> {
                         selectedSortByRadio = selected;
-                        reloadList();
+                        refreshView();
                     }).show(getSupportFragmentManager(), "BottomSheetFragmentSortBy");
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -122,7 +123,7 @@ public class TrashedSongsActivity extends AppCompatActivity {
                 }
             });
 
-            reloadList();
+            refreshView();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -134,7 +135,8 @@ public class TrashedSongsActivity extends AppCompatActivity {
         setListView();
     }
 
-    private void reloadList() {
+    @Override
+    public void refreshView() {
         try {
             if (songsList != null) songsList.clear();
             if (selectedSortByRadio == 0) {
@@ -175,19 +177,17 @@ public class TrashedSongsActivity extends AppCompatActivity {
             if (songsList != null && songsList.size() > 0) {
                 showListView();
             } else {
-                showNoDataFound();
+                showNoDataView();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void showListView() {
+    @Override
+    public void showListView() {
         try {
-            binding.listView.setHasFixedSize(true);
-            binding.listView.setVerticalScrollBarEnabled(true);
-            binding.listView.setLayoutManager(new LinearLayoutManager(TrashedSongsActivity.this));
-            binding.listView.setItemAnimator(new DefaultItemAnimator());
+            presenter.setListView();
             binding.listView.setAdapter(new DeleteSongsAdapter(songsList, TrashedSongsActivity.this, (result, isChecked, position) -> {
                 try {
                     songsList.set(position, result);
@@ -196,10 +196,6 @@ public class TrashedSongsActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }));
-
-            binding.layoutListView.setVisibility(View.VISIBLE);
-            binding.listView.setVisibility(View.VISIBLE);
-            binding.txtNoData.setVisibility(View.GONE);
             checkTopLayout();
         } catch (Exception e) {
             e.printStackTrace();
@@ -221,7 +217,7 @@ public class TrashedSongsActivity extends AppCompatActivity {
                     binding.layoutBottomButton.setVisibility(View.GONE);
                 }
             } else {
-                showNoDataFound();
+                showNoDataView();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -240,14 +236,10 @@ public class TrashedSongsActivity extends AppCompatActivity {
     }
 
 
-    private void showNoDataFound() {
+    @Override
+    public void showNoDataView() {
         try {
-            binding.layoutListView.setVisibility(View.GONE);
-            binding.listView.setVisibility(View.GONE);
-            binding.layoutTopCheckBox.setVisibility(View.GONE);
-            binding.layoutTopSearch.setVisibility(View.GONE);
-            binding.layoutBottomButton.setVisibility(View.GONE);
-            binding.txtNoData.setVisibility(View.VISIBLE);
+            presenter.setNoDataView();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -266,7 +258,7 @@ public class TrashedSongsActivity extends AppCompatActivity {
 //                    setResult(Activity.RESULT_OK, new Intent());
 //                    finish();
                     Toast.makeText(getApplicationContext(), deleteCount + " " + getResources().getString(R.string.alert_delete_msg), Toast.LENGTH_SHORT).show();
-                    reloadList();
+                    refreshView();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -290,7 +282,7 @@ public class TrashedSongsActivity extends AppCompatActivity {
 //                    setResult(Activity.RESULT_OK, new Intent());
 //                    finish();
                     Toast.makeText(getApplicationContext(), restoreCount + " " + getResources().getString(R.string.alert_restore_msg), Toast.LENGTH_SHORT).show();
-                    reloadList();
+                    refreshView();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -313,7 +305,7 @@ public class TrashedSongsActivity extends AppCompatActivity {
                     //setResult(Activity.RESULT_OK, new Intent());
                     //finish();
                     Toast.makeText(getApplicationContext(), getResources().getString(R.string.alert_empty_trash_msg), Toast.LENGTH_SHORT).show();
-                    reloadList();
+                    refreshView();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

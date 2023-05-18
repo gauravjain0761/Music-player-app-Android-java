@@ -80,15 +80,15 @@ public class FragmentSongsAdapter extends RecyclerView.Adapter<FragmentSongsAdap
             if (isPlaying && playSongModel != null && Objects.equals(playSongModel.getId(), result.getId())) {
                 holder.binding.visualizerView.setVisibility(View.VISIBLE);
                 holder.binding.imageView.setVisibility(View.GONE);
-                if (FragmentPlayer.mediaPlayer != null) {
-                    try {
-                        holder.binding.visualizerView.flash();
-                        holder.binding.visualizerView.release();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    holder.binding.visualizerView.link(FragmentPlayer.mediaPlayer);
-                }
+//                if (FragmentPlayer.mediaPlayer != null) {
+//                    try {
+//                        holder.binding.visualizerView.flash();
+//                        holder.binding.visualizerView.release();
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                    holder.binding.visualizerView.link(FragmentPlayer.mediaPlayer);
+//                }
             } else {
                 holder.binding.visualizerView.setVisibility(View.GONE);
                 holder.binding.imageView.setVisibility(View.VISIBLE);

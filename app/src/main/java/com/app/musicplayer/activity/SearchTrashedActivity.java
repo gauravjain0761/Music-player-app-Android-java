@@ -17,15 +17,17 @@ import com.app.musicplayer.adapter.DeleteSongsAdapter;
 import com.app.musicplayer.databinding.ActivitySearchSongsBinding;
 import com.app.musicplayer.db.DBUtils;
 import com.app.musicplayer.db.SongModel;
+import com.app.musicplayer.presenter.SearchTrashedActivityPresenter;
 import com.app.musicplayer.utils.AppUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SearchTrashedActivity extends AppCompatActivity {
+public class SearchTrashedActivity extends AppCompatActivity implements SearchTrashedActivityPresenter.View {
 
     private ActivitySearchSongsBinding binding;
+    SearchTrashedActivityPresenter presenter;
     String TAG = SearchTrashedActivity.class.getSimpleName();
     List<SongModel> songsList = new ArrayList<>();
 
@@ -35,6 +37,7 @@ public class SearchTrashedActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
         binding = ActivitySearchSongsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        presenter = new SearchTrashedActivityPresenter(this, binding);
         try {
             binding.etSearch.requestFocus();
             AppUtils.showKeyboard(this);
@@ -51,10 +54,10 @@ public class SearchTrashedActivity extends AppCompatActivity {
                         if (!s.toString().isEmpty()) {
                             if (songsList != null) songsList.clear();
                             songsList = DBUtils.getSearchTrashSongsByName(s.toString());
-                            reloadList();
+                            refreshView();
                         } else {
                             if (songsList != null) songsList.clear();
-                            reloadList();
+                            refreshView();
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -87,24 +90,23 @@ public class SearchTrashedActivity extends AppCompatActivity {
         }
     }
 
-    private void reloadList() {
+    @Override
+    public void refreshView() {
         try {
             if (songsList != null && songsList.size() > 0) {
                 showListView();
             } else {
-                showNoDataFound();
+                showNoDataView();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void showListView() {
+    @Override
+    public void showListView() {
         try {
-            binding.listView.setHasFixedSize(true);
-            binding.listView.setVerticalScrollBarEnabled(true);
-            binding.listView.setLayoutManager(new LinearLayoutManager(SearchTrashedActivity.this));
-            binding.listView.setItemAnimator(new DefaultItemAnimator());
+            presenter.setListView();
             binding.listView.setAdapter(new DeleteSongsAdapter(songsList, SearchTrashedActivity.this, (result, isChecked, position) -> {
                 try {
 //                    for (int i = 0; i < ScanFilesActivity.songsList.size(); i++) {
@@ -117,10 +119,6 @@ public class SearchTrashedActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }));
-
-            binding.layoutListView.setVisibility(View.VISIBLE);
-            binding.listView.setVisibility(View.VISIBLE);
-            binding.txtNoData.setVisibility(View.GONE);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -153,11 +151,10 @@ public class SearchTrashedActivity extends AppCompatActivity {
         return false;
     }
 
-    private void showNoDataFound() {
+    @Override
+    public void showNoDataView() {
         try {
-            binding.layoutListView.setVisibility(View.GONE);
-            binding.listView.setVisibility(View.GONE);
-            binding.txtNoData.setVisibility(View.GONE);
+            presenter.setNoDataView();
         } catch (Exception e) {
             e.printStackTrace();
         }

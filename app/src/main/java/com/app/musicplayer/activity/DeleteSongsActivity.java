@@ -71,7 +71,7 @@ public class DeleteSongsActivity extends AppCompatActivity implements DeleteActi
                     showDeleteAlertDialog();
                 }
             });
-            reloadList();
+            refreshView();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -91,18 +91,18 @@ public class DeleteSongsActivity extends AppCompatActivity implements DeleteActi
     @Override
     protected void onRestart() {
         super.onRestart();
-        reloadList();
+        refreshView();
     }
 
     @Override
-    public void reloadList() {
+    public void refreshView() {
         try {
             if (songsList != null) songsList.clear();
             songsList = DBUtils.getAllSongs();
             if (songsList != null && songsList.size() > 0) {
                 showListView();
             } else {
-                showNoDataFound();
+                showNoDataView();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -118,7 +118,7 @@ public class DeleteSongsActivity extends AppCompatActivity implements DeleteActi
                     binding.layoutListTopView.setVisibility(View.GONE);
                 }
             } else {
-                showNoDataFound();
+                showNoDataView();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -144,9 +144,9 @@ public class DeleteSongsActivity extends AppCompatActivity implements DeleteActi
     }
 
     @Override
-    public void showNoDataFound() {
+    public void showNoDataView() {
         try {
-            presenter.setNoDataFound();
+            presenter.setNoDataView();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -188,7 +188,7 @@ public class DeleteSongsActivity extends AppCompatActivity implements DeleteActi
                     setResult(Activity.RESULT_OK, new Intent());
                     finish();
                 } else {
-                    reloadList();
+                    refreshView();
                 }
 
 //                DBUtils.deleteMultipleSongs(songsList.stream().filter(SongModel::getIsChecked).collect(Collectors.toList()));

@@ -29,6 +29,7 @@ import com.app.musicplayer.databinding.FragmentSongsBinding;
 import com.app.musicplayer.db.DBUtils;
 import com.app.musicplayer.db.FetchSongsFromLocal;
 import com.app.musicplayer.db.SongModel;
+import com.app.musicplayer.presenter.FragmentSongPresenter;
 import com.app.musicplayer.utils.AppUtils;
 import com.app.musicplayer.utils.FileUtils1;
 import com.google.gson.Gson;
@@ -36,9 +37,10 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FragmentSongs extends Fragment {
+public class FragmentSongs extends Fragment implements FragmentSongPresenter.View {
     String TAG = FragmentSongs.class.getSimpleName();
     FragmentSongsBinding binding;
+    FragmentSongPresenter presenter;
     List<SongModel> songsList = new ArrayList<>();
     int selectedSortTypeRadio = 0;
     int selectedSortByRadio = 0;
@@ -56,12 +58,14 @@ public class FragmentSongs extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         try {
+            presenter = new FragmentSongPresenter(requireActivity(), binding);
+
             requireActivity().registerReceiver(playSongReceiver, new IntentFilter("GetPlaySong"));
 
             binding.swipe.setOnRefreshListener(() -> {
                 try {
                     binding.swipe.setRefreshing(false);
-                    reloadList();
+                    refreshView();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -76,7 +80,7 @@ public class FragmentSongs extends Fragment {
                     } else {
                         selectedSortTypeRadio = 2;
                     }
-                    reloadList();
+                    refreshView();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -87,7 +91,7 @@ public class FragmentSongs extends Fragment {
                     if (songsList != null && songsList.size() > 0) {
                         new BottomSheetFragmentSortBy(selectedSortByRadio, selected -> {
                             selectedSortByRadio = selected;
-                            reloadList();
+                            refreshView();
                         }).show(requireActivity().getSupportFragmentManager(), "BottomSheetFragmentSortBy");
                     }
                 } catch (Exception e) {
@@ -125,7 +129,7 @@ public class FragmentSongs extends Fragment {
                 }
             });
 
-            reloadList();
+            refreshView();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -158,12 +162,11 @@ public class FragmentSongs extends Fragment {
                 }
             }
 
-            reloadList();
+            refreshView();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
     private final BroadcastReceiver playSongReceiver = new BroadcastReceiver() {
         @Override
@@ -239,7 +242,8 @@ public class FragmentSongs extends Fragment {
         }
     }
 
-    private void reloadList() {
+    @Override
+    public void refreshView() {
         try {
             if (songsList != null) songsList.clear();
             if (selectedSortByRadio == 0) {
@@ -273,21 +277,17 @@ public class FragmentSongs extends Fragment {
             if (songsList != null && songsList.size() > 0) {
                 showListView();
             } else {
-                showNoDataFound();
+                showNoDataView();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void showListView() {
+    @Override
+    public void showListView() {
         try {
-            binding.swipe.setColorSchemeColors(Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE);
-
-            binding.listView.setHasFixedSize(true);
-            binding.listView.setVerticalScrollBarEnabled(true);
-            binding.listView.setLayoutManager(new LinearLayoutManager(requireActivity()));
-            binding.listView.setItemAnimator(new DefaultItemAnimator());
+            presenter.setListView();
             adapter = new FragmentSongsAdapter(selectedSortTypeRadio, songsList, requireActivity(), new FragmentSongsAdapter.SongsClickListner() {
                 @Override
                 public void onSongsClick(SongModel result, int position) {
@@ -309,27 +309,15 @@ public class FragmentSongs extends Fragment {
                 }
             });
             binding.listView.setAdapter(adapter);
-
-            binding.layoutListView.setVisibility(View.VISIBLE);
-            binding.listView.setVisibility(View.VISIBLE);
-            binding.rgLayout.setVisibility(View.VISIBLE);
-            binding.layoutTopListView.setVisibility(View.VISIBLE);
-            binding.layoutNoData.setVisibility(View.GONE);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void showNoDataFound() {
+    @Override
+    public void showNoDataView() {
         try {
-            binding.layoutListView.setVisibility(View.GONE);
-            binding.listView.setVisibility(View.GONE);
-
-            binding.rgLayout.setVisibility(View.GONE);
-            binding.layoutTopListView.setVisibility(View.GONE);
-
-            binding.layoutNoData.setVisibility(View.VISIBLE);
-
+            presenter.setNoDataView();
         } catch (Exception e) {
             e.printStackTrace();
         }

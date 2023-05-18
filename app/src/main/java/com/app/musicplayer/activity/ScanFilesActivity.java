@@ -8,8 +8,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.app.musicplayer.R;
 import com.app.musicplayer.adapter.DeleteSongsAdapter;
@@ -18,6 +16,7 @@ import com.app.musicplayer.db.DBUtils;
 import com.app.musicplayer.db.FetchSongsFromLocal;
 import com.app.musicplayer.db.SongModel;
 import com.app.musicplayer.fragment.BottomSheetFragmentSortBy;
+import com.app.musicplayer.presenter.ScanFilesActivityPresenter;
 import com.app.musicplayer.utils.SortComparator;
 
 import java.util.ArrayList;
@@ -25,9 +24,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ScanFilesActivity extends AppCompatActivity {
+public class ScanFilesActivity extends AppCompatActivity implements ScanFilesActivityPresenter.View {
 
     ActivityScanFilesBinding binding;
+    ScanFilesActivityPresenter presenter;
     String TAG = SearchSongsActivity.class.getSimpleName();
     public static List<SongModel> songsList = new ArrayList<>();
     int selectedSortByRadio = 0;
@@ -38,6 +38,7 @@ public class ScanFilesActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
         binding = ActivityScanFilesBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        presenter = new ScanFilesActivityPresenter(this, binding);
         try {
             binding.radarScan.startScan();
             try {
@@ -74,8 +75,7 @@ public class ScanFilesActivity extends AppCompatActivity {
                                 songsList.set(i, songs);
                             }
                         }
-                        if (binding.listView.getAdapter() != null)
-                            binding.listView.getAdapter().notifyDataSetChanged();
+                        presenter.notifyAdapter();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -119,7 +119,7 @@ public class ScanFilesActivity extends AppCompatActivity {
                 }
             });
 
-            reloadList();
+            refreshView();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -128,7 +128,7 @@ public class ScanFilesActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        reloadList();
+        refreshView();
     }
 
     private void sortList() {
@@ -162,32 +162,30 @@ public class ScanFilesActivity extends AppCompatActivity {
                     songsList = FetchSongsFromLocal.getAllSongs(ScanFilesActivity.this);
                 }
 
-                if (binding.listView.getAdapter() != null)
-                    binding.listView.getAdapter().notifyDataSetChanged();
+                presenter.notifyAdapter();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void reloadList() {
+    @Override
+    public void refreshView() {
         try {
             if (songsList != null && songsList.size() > 0) {
                 showListView();
             } else {
-                showNoDataFound();
+                showNoDataView();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void showListView() {
+    @Override
+    public void showListView() {
         try {
-            binding.listView.setHasFixedSize(true);
-            binding.listView.setVerticalScrollBarEnabled(true);
-            binding.listView.setLayoutManager(new LinearLayoutManager(ScanFilesActivity.this));
-            binding.listView.setItemAnimator(new DefaultItemAnimator());
+            presenter.setListView();
             binding.listView.setAdapter(new DeleteSongsAdapter(songsList, ScanFilesActivity.this, (result, isChecked, position) -> {
                 try {
                     songsList.set(position, result);
@@ -195,25 +193,15 @@ public class ScanFilesActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }));
-
-            binding.layoutList.setVisibility(View.VISIBLE);
-            binding.layoutListView.setVisibility(View.VISIBLE);
-            binding.listView.setVisibility(View.VISIBLE);
-            binding.layoutListTopView.setVisibility(View.VISIBLE);
-            binding.txtNoData.setVisibility(View.GONE);
-            binding.layoutScan.setVisibility(View.GONE);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void showNoDataFound() {
+    @Override
+    public void showNoDataView() {
         try {
-            binding.layoutListView.setVisibility(View.GONE);
-            binding.listView.setVisibility(View.GONE);
-            binding.layoutListTopView.setVisibility(View.GONE);
-            binding.layoutScan.setVisibility(View.GONE);
-            binding.txtNoData.setVisibility(View.VISIBLE);
+            presenter.setNoDataView();
         } catch (Exception e) {
             e.printStackTrace();
         }

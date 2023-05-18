@@ -4,8 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -18,7 +16,6 @@ import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 
 import com.app.musicplayer.AppController;
@@ -37,7 +34,7 @@ import java.util.List;
 public class FragmentPlayer extends Fragment {
     String TAG = FragmentPlayer.class.getSimpleName();
     FragmentPlayerBinding binding;
-    public static MediaPlayer mediaPlayer = new MediaPlayer();
+    MediaPlayer mediaPlayer = new MediaPlayer();
     Handler handler = new Handler();
     List<SongModel> songsList = new ArrayList<>();
     int position = 0;
@@ -125,8 +122,6 @@ public class FragmentPlayer extends Fragment {
                     if (songsList.size() > 0 && songsList.size() > position) {
                         setMediaPlayer(songsList.get(position));
                     }
-
-
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -171,6 +166,7 @@ public class FragmentPlayer extends Fragment {
 
     private void setMediaPlayer(SongModel songModel) {
         try {
+            Log.e("TAG","setMediaPlayer called");
             playSongModel = songModel;
             binding.audioNameTextView.setText("" + (("" + songModel.getTitle()).replace("null", "").replace("Null", "")));
             binding.artistNameTextView.setText("" + (("" + songModel.getArtistName()).replace("null", "").replace("Null", "")));
@@ -201,13 +197,21 @@ public class FragmentPlayer extends Fragment {
 
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
             mediaPlayer.setDataSource(songModel.getData());
             mediaPlayer.prepare();
             mediaPlayer.start();
+            binding.musicPlayerView.start();
+            try {
+                binding.playerMotion.transitionToEnd();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            setAudioProgress();
+
             mediaPlayer.setOnCompletionListener(mp -> {
                 try {
-                    if (mp != null && mediaPlayer != null && songsList != null && position != songsList.size() - 1) {
+                    Log.e("TAG","setOnCompletionListener called");
+                    if (songsList != null && position != songsList.size() - 1) {
                         position = position + 1;
                         if (songsList.size() > 0 && songsList.size() > position) {
                             setMediaPlayer(songsList.get(position));
@@ -217,13 +221,6 @@ public class FragmentPlayer extends Fragment {
                     e.printStackTrace();
                 }
             });
-            binding.musicPlayerView.start();
-            try {
-                binding.playerMotion.transitionToEnd();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            setAudioProgress();
 
             Intent updatePlayBroadCast = new Intent("GetPlaySong");
             AppController.getSpSongInfo().edit().putBoolean("isPlaying", true).putString("CurrentSong", new Gson().toJson(songModel)).apply();

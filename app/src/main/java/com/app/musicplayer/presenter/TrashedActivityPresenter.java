@@ -1,18 +1,22 @@
 package com.app.musicplayer.presenter;
 
 import android.content.Context;
+import android.view.View;
 
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.app.musicplayer.activity.TrashedSongsActivity;
+import com.app.musicplayer.adapter.DeleteSongsAdapter;
 import com.app.musicplayer.databinding.ActivityDeleteSongsBinding;
+import com.app.musicplayer.databinding.ActivityTrashedSongsBinding;
 
-public class DeleteActivityPresenter {
+public class TrashedActivityPresenter {
 
     Context context;
-    ActivityDeleteSongsBinding binding;
+    ActivityTrashedSongsBinding binding;
 
-    public DeleteActivityPresenter(Context con, ActivityDeleteSongsBinding bind) {
+    public TrashedActivityPresenter(Context con, ActivityTrashedSongsBinding bind) {
         context = con;
         binding = bind;
     }
@@ -45,6 +49,9 @@ public class DeleteActivityPresenter {
         try {
             binding.layoutListView.setVisibility(android.view.View.GONE);
             binding.listView.setVisibility(android.view.View.GONE);
+            binding.layoutTopCheckBox.setVisibility(android.view.View.GONE);
+            binding.layoutTopSearch.setVisibility(android.view.View.GONE);
+            binding.layoutBottomButton.setVisibility(android.view.View.GONE);
             binding.txtNoData.setVisibility(android.view.View.VISIBLE);
         } catch (Exception e) {
             e.printStackTrace();
