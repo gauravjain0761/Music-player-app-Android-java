@@ -10,23 +10,23 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.app.musicplayer.R;
 import com.app.musicplayer.adapter.DeleteSongsAdapter;
 import com.app.musicplayer.databinding.ActivityDeleteSongsBinding;
 import com.app.musicplayer.db.DBUtils;
 import com.app.musicplayer.db.SongModel;
+import com.app.musicplayer.presenter.DeleteActivityPresenter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DeleteSongsActivity extends AppCompatActivity {
+public class DeleteSongsActivity extends AppCompatActivity implements DeleteActivityPresenter.View {
 
-    private ActivityDeleteSongsBinding binding;
     String TAG = DeleteSongsActivity.class.getSimpleName();
+    ActivityDeleteSongsBinding binding;
+    DeleteActivityPresenter presenter;
     List<SongModel> songsList = new ArrayList<>();
 
     @Override
@@ -37,6 +37,8 @@ public class DeleteSongsActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         binding.toolbar.setTitle("");
         setSupportActionBar(binding.toolbar);
+        presenter = new DeleteActivityPresenter(this, binding);
+
         try {
             binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 try {
@@ -54,8 +56,8 @@ public class DeleteSongsActivity extends AppCompatActivity {
                                 songsList.set(i, songs);
                             }
                         }
-                        if (binding.listView.getAdapter() != null)
-                            binding.listView.getAdapter().notifyDataSetChanged();
+
+                        presenter.notifyAdapter();
 
                         checkTopLayout();
                     }
@@ -92,7 +94,8 @@ public class DeleteSongsActivity extends AppCompatActivity {
         reloadList();
     }
 
-    private void reloadList() {
+    @Override
+    public void reloadList() {
         try {
             if (songsList != null) songsList.clear();
             songsList = DBUtils.getAllSongs();
@@ -122,36 +125,28 @@ public class DeleteSongsActivity extends AppCompatActivity {
         }
     }
 
-    private void showListView() {
+    @Override
+    public void showListView() {
         try {
-            binding.listView.setHasFixedSize(true);
-            binding.listView.setVerticalScrollBarEnabled(true);
-            binding.listView.setLayoutManager(new LinearLayoutManager(DeleteSongsActivity.this));
-            binding.listView.setItemAnimator(new DefaultItemAnimator());
+            presenter.setListView();
             binding.listView.setAdapter(new DeleteSongsAdapter(songsList, DeleteSongsActivity.this, (result, isChecked, position) -> {
                 try {
                     songsList.set(position, result);
-
                     checkTopLayout();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }));
-
-            binding.layoutListView.setVisibility(View.VISIBLE);
-            binding.listView.setVisibility(View.VISIBLE);
-            binding.txtNoData.setVisibility(View.GONE);
             checkTopLayout();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void showNoDataFound() {
+    @Override
+    public void showNoDataFound() {
         try {
-            binding.layoutListView.setVisibility(View.GONE);
-            binding.listView.setVisibility(View.GONE);
-            binding.txtNoData.setVisibility(View.VISIBLE);
+            presenter.setNoDataFound();
         } catch (Exception e) {
             e.printStackTrace();
         }

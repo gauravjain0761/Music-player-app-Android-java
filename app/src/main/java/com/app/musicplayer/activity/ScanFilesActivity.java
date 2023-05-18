@@ -29,7 +29,7 @@ public class ScanFilesActivity extends AppCompatActivity {
 
     ActivityScanFilesBinding binding;
     String TAG = SearchSongsActivity.class.getSimpleName();
-    List<SongModel> songsList = new ArrayList<>();
+    public static List<SongModel> songsList = new ArrayList<>();
     int selectedSortByRadio = 0;
 
     @Override
@@ -40,19 +40,24 @@ public class ScanFilesActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         try {
             binding.radarScan.startScan();
-            new Handler().postDelayed(() -> {
-                binding.radarScan.stopScan();
-                binding.layoutList.setVisibility(View.VISIBLE);
-                binding.layoutScan.setVisibility(View.GONE);
-            }, 3000);
-
             try {
                 if (songsList != null) songsList.clear();
                 songsList = FetchSongsFromLocal.getAllSongs(ScanFilesActivity.this);
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            new Handler().postDelayed(() -> {
+                binding.radarScan.stopScan();
+                binding.layoutScan.setVisibility(View.GONE);
+                showLayout();
+            }, 3000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    private void showLayout() {
+        try {
             binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 try {
                     if (songsList != null && songsList.size() > 0) {
@@ -109,13 +114,21 @@ public class ScanFilesActivity extends AppCompatActivity {
             binding.imageViewBack.setOnClickListener(v -> finish());
 
             binding.imageViewSearch.setOnClickListener(v -> {
-                //startActivity(new Intent(this, SearchSongsActivity.class))
+                if (songsList != null && songsList.size() > 0) {
+                    startActivityForResult(new Intent(this, SearchScanFilesActivity.class), 1001);
+                }
             });
 
             reloadList();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        reloadList();
     }
 
     private void sortList() {
@@ -183,12 +196,12 @@ public class ScanFilesActivity extends AppCompatActivity {
                 }
             }));
 
-            binding.layoutList.setVisibility(View.GONE);
-            binding.layoutScan.setVisibility(View.VISIBLE);
+            binding.layoutList.setVisibility(View.VISIBLE);
             binding.layoutListView.setVisibility(View.VISIBLE);
             binding.listView.setVisibility(View.VISIBLE);
             binding.layoutListTopView.setVisibility(View.VISIBLE);
             binding.txtNoData.setVisibility(View.GONE);
+            binding.layoutScan.setVisibility(View.GONE);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -199,6 +212,7 @@ public class ScanFilesActivity extends AppCompatActivity {
             binding.layoutListView.setVisibility(View.GONE);
             binding.listView.setVisibility(View.GONE);
             binding.layoutListTopView.setVisibility(View.GONE);
+            binding.layoutScan.setVisibility(View.GONE);
             binding.txtNoData.setVisibility(View.VISIBLE);
         } catch (Exception e) {
             e.printStackTrace();

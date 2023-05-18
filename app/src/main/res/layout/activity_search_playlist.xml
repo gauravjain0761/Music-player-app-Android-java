@@ -29,6 +29,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/_5sdp"
+                android:imeOptions="actionDone"
+                android:singleLine="true"
                 android:background="@drawable/et_white_selector"
                 android:hint="@string/txt_search"
                 android:paddingLeft="@dimen/_15sdp"

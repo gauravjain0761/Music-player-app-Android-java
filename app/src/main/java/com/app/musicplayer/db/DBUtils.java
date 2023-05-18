@@ -132,6 +132,10 @@ public class DBUtils {
         return AppController.getDaoSession().getSongModelDao().queryBuilder().where(SongModelDao.Properties.Title.like("%" + searchText + "%"), SongModelDao.Properties.IsTrashed.eq(false)).list();
     }
 
+    public static List<SongModel> getSearchTrashSongsByName(String searchText) {
+        return AppController.getDaoSession().getSongModelDao().queryBuilder().where(SongModelDao.Properties.Title.like("%" + searchText + "%"), SongModelDao.Properties.IsTrashed.eq(true)).list();
+    }
+
     public static boolean checkSongIsExistInDB(int songId) {
         if (AppController.getDaoSession().getSongModelDao().queryBuilder().where(SongModelDao.Properties.SongId.eq(songId)).list().size() > 0) {
             return true;

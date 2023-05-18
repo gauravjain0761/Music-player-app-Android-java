@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -33,10 +34,12 @@
                 android:layout_margin="@dimen/_5sdp"
                 android:background="@drawable/et_white_selector"
                 android:hint="@string/txt_search"
+                android:imeOptions="actionDone"
                 android:paddingLeft="@dimen/_15sdp"
                 android:paddingTop="@dimen/_7sdp"
                 android:paddingRight="@dimen/_15sdp"
                 android:paddingBottom="@dimen/_7sdp"
+                android:singleLine="true"
                 android:textColor="@color/txt_offwhite"
                 android:textColorHint="@color/txt_white35"
                 android:textSize="@dimen/_12sdp">
@@ -97,5 +100,18 @@
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:backgroundTint="@color/colorAccent"
+        android:gravity="bottom|end"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_file_move"
+        app:tint="@color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -37,7 +37,7 @@ import java.util.List;
 public class FragmentPlayer extends Fragment {
     String TAG = FragmentPlayer.class.getSimpleName();
     FragmentPlayerBinding binding;
-    MediaPlayer mediaPlayer = new MediaPlayer();
+    public static MediaPlayer mediaPlayer = new MediaPlayer();
     Handler handler = new Handler();
     List<SongModel> songsList = new ArrayList<>();
     int position = 0;
@@ -126,11 +126,7 @@ public class FragmentPlayer extends Fragment {
                         setMediaPlayer(songsList.get(position));
                     }
 
-                    try {
-                        binding.playerMotion.transitionToEnd();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -151,7 +147,6 @@ public class FragmentPlayer extends Fragment {
                         Intent updatePlayBroadCast = new Intent("GetPlaySong");
                         AppController.getSpSongInfo().edit().putBoolean("isPlaying", false).putString("CurrentSong", "").apply();
                         requireActivity().sendBroadcast(updatePlayBroadCast);
-
                     } else {
                         mediaPlayer.start();
                         binding.musicPlayerView.start();
@@ -223,6 +218,11 @@ public class FragmentPlayer extends Fragment {
                 }
             });
             binding.musicPlayerView.start();
+            try {
+                binding.playerMotion.transitionToEnd();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             setAudioProgress();
 
             Intent updatePlayBroadCast = new Intent("GetPlaySong");
@@ -394,6 +394,10 @@ public class FragmentPlayer extends Fragment {
     private void closeMediaPlayer() {
         try {
             if (mediaPlayer != null) {
+                Intent updatePlayBroadCast = new Intent("GetPlaySong");
+                AppController.getSpSongInfo().edit().putBoolean("isPlaying", false).putString("CurrentSong", "").apply();
+                requireActivity().sendBroadcast(updatePlayBroadCast);
+
                 mediaPlayer.stop();
                 mediaPlayer.reset();
                 mediaPlayer.release();

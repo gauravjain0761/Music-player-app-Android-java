@@ -26,7 +26,7 @@ public class TrashedSongsActivity extends AppCompatActivity {
 
     private ActivityTrashedSongsBinding binding;
     String TAG = TrashedSongsActivity.class.getSimpleName();
-    List<SongModel> songsList = new ArrayList<>();
+    public static List<SongModel> songsList = new ArrayList<>();
     int selectedSortByRadio = 0;
 
     @Override
@@ -115,10 +115,23 @@ public class TrashedSongsActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             });
+
+            binding.imageViewSearch.setOnClickListener(v -> {
+                if (songsList != null && songsList.size() > 0) {
+                    startActivityForResult(new Intent(this, SearchTrashedActivity.class), 1001);
+                }
+            });
+
             reloadList();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        setListView();
     }
 
     private void reloadList() {
@@ -151,6 +164,14 @@ public class TrashedSongsActivity extends AppCompatActivity {
             } else {
                 songsList = DBUtils.getAllTrashSongs();
             }
+            setListView();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setListView() {
+        try {
             if (songsList != null && songsList.size() > 0) {
                 showListView();
             } else {
