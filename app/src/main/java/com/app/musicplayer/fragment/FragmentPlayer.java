@@ -80,9 +80,25 @@ public class FragmentPlayer extends Fragment {
             requireActivity().registerReceiver(songListAfterDeleteReceiver, new IntentFilter("SongListAfterDelete"));
         }
 
-        objectAnimator = ObjectAnimator.ofFloat(binding.imageViewRotate, View.ROTATION, 0f, 360f).setDuration(5000);
-        objectAnimator.setInterpolator(new LinearInterpolator());
-        objectAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        try {
+            ObjectAnimator.class.getMethod("setDurationScale", float.class).invoke(null, 1f);
+        } catch (Throwable t) {
+            Log.e(TAG, t.getMessage());
+        }
+
+        try {
+            ValueAnimator.class.getMethod("setDurationScale", float.class).invoke(null, 1f);
+        } catch (Throwable t) {
+            Log.e(TAG, t.getMessage());
+        }
+
+        try {
+            objectAnimator = ObjectAnimator.ofFloat(binding.imageViewRotate, View.ROTATION, 0f, 360f).setDuration(5000);
+            objectAnimator.setInterpolator(new LinearInterpolator());
+            objectAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        } catch (Throwable t) {
+            Log.e(TAG, t.getMessage());
+        }
 
         binding.collapseImageView.setOnClickListener(v -> {
             try {
