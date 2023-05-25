@@ -1,6 +1,7 @@
 package com.app.musicplayer.presenter;
 
 import android.content.Context;
+import android.view.View;
 
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -45,7 +46,14 @@ public class SearchTrashedActivityPresenter {
         try {
             binding.layoutListView.setVisibility(android.view.View.GONE);
             binding.listView.setVisibility(android.view.View.GONE);
-            binding.txtNoData.setVisibility(android.view.View.GONE);
+            binding.layoutBottomButton.setVisibility(android.view.View.GONE);
+            binding.layoutTopCheckBox.setVisibility(android.view.View.GONE);
+
+            if (binding.etSearch.getText().toString().isEmpty()) {
+                binding.txtNoData.setVisibility(android.view.View.GONE);
+            } else {
+                binding.txtNoData.setVisibility(android.view.View.VISIBLE);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

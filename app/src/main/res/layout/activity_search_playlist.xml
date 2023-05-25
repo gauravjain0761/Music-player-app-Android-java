@@ -24,19 +24,19 @@
                 android:layout_height="@dimen/_30sdp"
                 android:src="@drawable/ic_arrow_back" />
 
-            <androidx.appcompat.widget.AppCompatEditText
+            <com.app.musicplayer.utils.CustomEditText
                 android:id="@+id/et_search"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/_5sdp"
-                android:imeOptions="actionDone"
-                android:singleLine="true"
                 android:background="@drawable/et_white_selector"
                 android:hint="@string/txt_search"
+                android:imeOptions="actionDone"
                 android:paddingLeft="@dimen/_15sdp"
                 android:paddingTop="@dimen/_7sdp"
                 android:paddingRight="@dimen/_15sdp"
                 android:paddingBottom="@dimen/_7sdp"
+                android:singleLine="true"
                 android:textColor="@color/txt_offwhite"
                 android:textColorHint="@color/txt_white35"
                 android:textSize="@dimen/_12sdp" />
@@ -72,6 +72,7 @@
                         android:background="@color/colorPrimary"
                         android:clipToPadding="false"
                         android:divider="@null"
+                        android:paddingBottom="@dimen/_50sdp"
                         android:scrollbarStyle="outsideOverlay"
                         android:scrollbars="vertical" />
                 </LinearLayout>

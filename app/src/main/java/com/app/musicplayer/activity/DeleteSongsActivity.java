@@ -17,6 +17,7 @@ import com.app.musicplayer.databinding.ActivityDeleteSongsBinding;
 import com.app.musicplayer.db.DBUtils;
 import com.app.musicplayer.db.SongModel;
 import com.app.musicplayer.presenter.DeleteActivityPresenter;
+import com.app.musicplayer.utils.AppUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,8 @@ public class DeleteSongsActivity extends AppCompatActivity implements DeleteActi
     ActivityDeleteSongsBinding binding;
     DeleteActivityPresenter presenter;
     List<SongModel> songsList = new ArrayList<>();
+    int selectedSortByRadio = 0;
+    String searchText = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,14 @@ public class DeleteSongsActivity extends AppCompatActivity implements DeleteActi
         binding.toolbar.setTitle("");
         setSupportActionBar(binding.toolbar);
         presenter = new DeleteActivityPresenter(this, binding);
+
+        if (getIntent() != null && getIntent().hasExtra("selectedSortByRadio")) {
+            selectedSortByRadio = getIntent().getIntExtra("selectedSortByRadio", 0);
+        }
+
+        if (getIntent() != null && getIntent().hasExtra("searchText")) {
+            searchText = getIntent().getStringExtra("searchText");
+        }
 
         try {
             binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -71,6 +82,17 @@ public class DeleteSongsActivity extends AppCompatActivity implements DeleteActi
                     showDeleteAlertDialog();
                 }
             });
+
+            binding.txtDone.setOnClickListener(v -> {
+                try {
+                    AppUtils.hideKeyboardOnClick(DeleteSongsActivity.this, v);
+                    clear();
+                    setResult(Activity.RESULT_OK, new Intent());
+                    finish();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
             refreshView();
         } catch (Exception e) {
             e.printStackTrace();
@@ -94,11 +116,41 @@ public class DeleteSongsActivity extends AppCompatActivity implements DeleteActi
         refreshView();
     }
 
+    private void refreshList() {
+        try {
+            if (songsList != null) songsList.clear();
+            if (searchText != null && !searchText.isEmpty()) {
+                songsList = DBUtils.getSearchSongsByName(searchText);
+            } else {
+                if (selectedSortByRadio == 0) {
+                    songsList = DBUtils.getAllSongByNameAsc();
+                } else if (selectedSortByRadio == 1) {
+                    songsList = DBUtils.getAllSongByNameDesc();
+                } else if (selectedSortByRadio == 2) {
+                    songsList = DBUtils.getAllSongByDateAsc();
+                } else if (selectedSortByRadio == 3) {
+                    songsList = DBUtils.getAllSongByDateDesc();
+                } else if (selectedSortByRadio == 4) {
+                    songsList = DBUtils.getAllSongByDurationAsc();
+                } else if (selectedSortByRadio == 5) {
+                    songsList = DBUtils.getAllSongByDurationDesc();
+                } else if (selectedSortByRadio == 6) {
+                    songsList = DBUtils.getAllSongBySizeAsc();
+                } else if (selectedSortByRadio == 7) {
+                    songsList = DBUtils.getAllSongBySizeDesc();
+                } else {
+                    songsList = DBUtils.getAllSongs();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void refreshView() {
         try {
-            if (songsList != null) songsList.clear();
-            songsList = DBUtils.getAllSongs();
+            refreshList();
             if (songsList != null && songsList.size() > 0) {
                 showListView();
             } else {
@@ -112,11 +164,12 @@ public class DeleteSongsActivity extends AppCompatActivity implements DeleteActi
     private void checkTopLayout() {
         try {
             if (songsList != null && songsList.size() > 0) {
-                if (isAnyChecked()) {
-                    binding.layoutListTopView.setVisibility(View.VISIBLE);
-                } else {
-                    binding.layoutListTopView.setVisibility(View.GONE);
-                }
+                binding.layoutListTopView.setVisibility(View.VISIBLE);
+//                if (isAnyChecked()) {
+//                    binding.layoutListTopView.setVisibility(View.VISIBLE);
+//                } else {
+//                    binding.layoutListTopView.setVisibility(View.GONE);
+//                }
             } else {
                 showNoDataView();
             }
@@ -184,6 +237,8 @@ public class DeleteSongsActivity extends AppCompatActivity implements DeleteActi
                 int deleteCount = songsList.stream().filter(SongModel::getIsChecked).collect(Collectors.toList()).size();
                 DBUtils.trashMultipleSongs(songsList.stream().filter(SongModel::getIsChecked).collect(Collectors.toList()));
                 Toast.makeText(getApplicationContext(), deleteCount + " " + getResources().getString(R.string.alert_trash_msg), Toast.LENGTH_SHORT).show();
+                Intent updatePlayBroadCast = new Intent("DeletePlaySong");
+                sendBroadcast(updatePlayBroadCast);
                 if (songListCount == deleteCount) {
                     setResult(Activity.RESULT_OK, new Intent());
                     finish();

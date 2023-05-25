@@ -3,6 +3,7 @@ package com.app.musicplayer.adapter;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicplayer.R;
+import com.app.musicplayer.activity.ScanFilesActivity;
 import com.app.musicplayer.databinding.AdapterSongsDeleteBinding;
 import com.app.musicplayer.db.SongModel;
 import com.app.musicplayer.utils.ImageUtil;
@@ -47,7 +49,7 @@ public class DeleteSongsAdapter extends RecyclerView.Adapter<DeleteSongsAdapter.
         try {
             final SongModel result = songList.get(position);
             holder.binding.txtTitle.setText("" + (("" + result.getTitle()).replace("null", "").replace("Null", "")));
-            holder.binding.txtMsg.setText("" + (("" + result.getAlbumName()).replace("null", "").replace("Null", "")));
+            holder.binding.txtMsg.setText("" + (("" + result.getArtistName()).replace("null", "").replace("Null", "")));
             if (("" + (("" + result.getBitmapCover()).replace("null", "").replace("Null", ""))).isEmpty()) {
                 holder.binding.imageView.setImageResource(R.drawable.icv_songs);
             } else {
@@ -76,14 +78,6 @@ public class DeleteSongsAdapter extends RecyclerView.Adapter<DeleteSongsAdapter.
                         SongModel songModel = songList.get(getPosition());
                         songModel.setIsChecked(isChecked);
                         deleteSongsListner.deleteSongs(songModel, isChecked, getPosition());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-
-                binding.getRoot().setOnClickListener(v -> {
-                    try {
-
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

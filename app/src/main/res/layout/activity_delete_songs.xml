@@ -113,6 +113,7 @@
                         android:background="@color/colorPrimary"
                         android:clipToPadding="false"
                         android:divider="@null"
+                        android:paddingBottom="@dimen/_50sdp"
                         android:scrollbarStyle="outsideOverlay"
                         android:scrollbars="vertical" />
                 </LinearLayout>

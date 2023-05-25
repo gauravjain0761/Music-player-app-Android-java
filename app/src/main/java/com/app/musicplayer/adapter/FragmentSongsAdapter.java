@@ -3,11 +3,13 @@ package com.app.musicplayer.adapter;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicplayer.R;
@@ -30,17 +32,60 @@ public class FragmentSongsAdapter extends RecyclerView.Adapter<FragmentSongsAdap
 
     SongModel playSongModel = null;
     Boolean isPlaying = false;
+    FragmentPlayer fragmentPlayer = null;
+
+    boolean isAnyLongPress = false;
+
+    public void setLongPress() {
+        try {
+            isAnyLongPress = true;
+            notifyDataSetChanged();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean getLongPress() {
+        return isAnyLongPress;
+    }
+
+    public void clearLongPress() {
+        try {
+            isAnyLongPress = false;
+            notifyDataSetChanged();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public FragmentSongsAdapter(int selected, List<SongModel> list, Context context, SongsClickListner clickListner) {
         this.context = context;
         songList = list;
         selectedSortTypeRadio = selected;
         songsClickListner = clickListner;
+        getFragment();
+        getPlayerInfo();
+    }
+
+    private void getFragment() {
+        try {
+            fragmentPlayer = (FragmentPlayer) ((FragmentActivity) context).getSupportFragmentManager().findFragmentByTag("FragmentPlayer");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getPlayerInfo() {
+        if (fragmentPlayer != null && fragmentPlayer.mediaPlayer != null && fragmentPlayer.playSongModel != null && fragmentPlayer.mediaPlayer.isPlaying()) {
+            playSongModel = fragmentPlayer.playSongModel;
+            isPlaying = true;
+        }
     }
 
     public void setPlayerInfo(SongModel sModel, Boolean playing) {
         playSongModel = sModel;
         isPlaying = playing;
+        getFragment();
         notifyDataSetChanged();
     }
 
@@ -63,13 +108,14 @@ public class FragmentSongsAdapter extends RecyclerView.Adapter<FragmentSongsAdap
         try {
             SongModel result = songList.get(position);
             holder.binding.txtTitle.setText("" + (("" + result.getTitle()).replace("null", "").replace("Null", "")));
-            if (selectedSortTypeRadio == 0) {
-                holder.binding.txtMsg.setText("" + (("" + result.getAlbumName()).replace("null", "").replace("Null", "")));
-            } else if (selectedSortTypeRadio == 1) {
-                holder.binding.txtMsg.setText("" + (("" + result.getArtistName()).replace("null", "").replace("Null", "")));
-            } else {
-                holder.binding.txtMsg.setText("" + (("" + result.getGenreName()).replace("null", "").replace("Null", "")));
-            }
+            holder.binding.txtMsg.setText("" + (("" + result.getArtistName()).replace("null", "").replace("Null", "")));
+//            if (selectedSortTypeRadio == 0) {
+//                holder.binding.txtMsg.setText("" + (("" + result.getAlbumName()).replace("null", "").replace("Null", "")));
+//            } else if (selectedSortTypeRadio == 1) {
+//                holder.binding.txtMsg.setText("" + (("" + result.getArtistName()).replace("null", "").replace("Null", "")));
+//            } else {
+//                holder.binding.txtMsg.setText("" + (("" + result.getGenreName()).replace("null", "").replace("Null", "")));
+//            }
 
             if (("" + (("" + result.getBitmapCover()).replace("null", "").replace("Null", ""))).isEmpty()) {
                 holder.binding.imageView.setImageResource(R.drawable.icv_songs);
@@ -77,23 +123,45 @@ public class FragmentSongsAdapter extends RecyclerView.Adapter<FragmentSongsAdap
                 holder.binding.imageView.setImageBitmap(ImageUtil.convertToBitmap(result.getBitmapCover()));
             }
 
-            if (isPlaying && playSongModel != null && Objects.equals(playSongModel.getId(), result.getId())) {
-                holder.binding.visualizerView.setVisibility(View.VISIBLE);
-                holder.binding.imageView.setVisibility(View.GONE);
-//                if (FragmentPlayer.mediaPlayer != null) {
-//                    try {
-//                        holder.binding.visualizerView.flash();
-//                        holder.binding.visualizerView.release();
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                    holder.binding.visualizerView.link(FragmentPlayer.mediaPlayer);
-//                }
-            } else {
-                holder.binding.visualizerView.setVisibility(View.GONE);
+            holder.binding.imageView.setVisibility(View.VISIBLE);
+            holder.binding.gifView.setVisibility(View.GONE);
+            holder.binding.txtTitle.setTextColor(context.getResources().getColor(R.color.white));
+
+
+            //holder.binding.visualizerView.setVisibility(View.GONE);
+//            holder.binding.imageView.setVisibility(View.VISIBLE);
+//            holder.binding.visualizerView.clearRenderers();
+//            holder.binding.visualizerView.clearAnimation();
+//            holder.binding.visualizerView.clearFocus();
+//            holder.binding.visualizerView.flash();
+//            holder.binding.visualizerView.release();
+
+            if (fragmentPlayer != null && fragmentPlayer.mediaPlayer != null && playSongModel != null && Objects.equals(playSongModel.getId(), result.getId()) && isPlaying) {
+                Log.e("isPlaying", "isPlaying : " + isPlaying);
+
+                holder.binding.gifView.setVisibility(View.VISIBLE);
                 holder.binding.imageView.setVisibility(View.VISIBLE);
+                holder.binding.txtTitle.setTextColor(context.getResources().getColor(R.color.colorAccent));
+
+//                holder.binding.visualizerView.clearRenderers();
+//                holder.binding.visualizerView.clearAnimation();
+//                holder.binding.visualizerView.clearFocus();
+//                holder.binding.visualizerView.flash();
+//                holder.binding.visualizerView.release();
+//
+//                holder.binding.visualizerView.setVisibility(View.VISIBLE);
+//                holder.binding.imageView.setVisibility(View.GONE);
+//
+//                holder.binding.visualizerView.link(fragmentPlayer.mediaPlayer);
+//                addLineRenderer(holder.binding.visualizerView);
             }
-            addLineRenderer(holder.binding.visualizerView);
+
+            holder.binding.cbDelete.setChecked(result.getIsChecked());
+            if (isAnyLongPress) {
+                holder.binding.cbDelete.setVisibility(View.VISIBLE);
+            } else {
+                holder.binding.cbDelete.setVisibility(View.GONE);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -119,8 +187,24 @@ public class FragmentSongsAdapter extends RecyclerView.Adapter<FragmentSongsAdap
                     }
                 });
 
+                binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    try {
+                        SongModel songModel = songList.get(getPosition());
+                        songModel.setIsChecked(isChecked);
+                        songsClickListner.deleteSongs(songModel, isChecked, getPosition());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
                 binding.getRoot().setOnLongClickListener(v -> {
-                    songsClickListner.onSongLongClick(songList.get(getPosition()), getPosition());
+                    try {
+                        isAnyLongPress = true;
+                        songsClickListner.onSongLongClick(songList.get(getPosition()), getPosition());
+                        notifyDataSetChanged();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     return false;
                 });
             } catch (Exception e) {
@@ -147,5 +231,7 @@ public class FragmentSongsAdapter extends RecyclerView.Adapter<FragmentSongsAdap
         void onSongsClick(SongModel result, int position);
 
         void onSongLongClick(SongModel result, int position);
+
+        void deleteSongs(SongModel result, boolean isChecked, int position);
     }
 }

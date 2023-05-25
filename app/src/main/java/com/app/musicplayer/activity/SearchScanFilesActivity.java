@@ -1,11 +1,15 @@
 package com.app.musicplayer.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,14 +36,22 @@ public class SearchScanFilesActivity extends AppCompatActivity implements Search
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
         binding = ActivitySearchSongsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         presenter = new SearchScanActivityPresenter(this, binding);
         try {
-            binding.etSearch.requestFocus();
-            AppUtils.showKeyboard(this);
-            binding.imageViewBack.setOnClickListener(v -> finish());
+
+            binding.etSearch.mSearchActivity = this;
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(binding.etSearch, InputMethodManager.SHOW_IMPLICIT);
+
+            binding.imageViewBack.setOnClickListener(v -> {
+                AppUtils.hideKeyboardOnClick(SearchScanFilesActivity.this, v);
+                finish();
+            });
+
             binding.etSearch.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -49,14 +61,7 @@ public class SearchScanFilesActivity extends AppCompatActivity implements Search
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     try {
-                        if (!s.toString().isEmpty()) {
-                            if (songsList != null) songsList.clear();
-                            songsList = getFilterList(s.toString());
-                            refreshView();
-                        } else {
-                            if (songsList != null) songsList.clear();
-                            refreshView();
-                        }
+                        getSearchedList(s.toString());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -71,7 +76,7 @@ public class SearchScanFilesActivity extends AppCompatActivity implements Search
             binding.fab.setOnClickListener(v -> {
                 try {
                     if (ScanFilesActivity.songsList.stream().filter(SongModel::getIsChecked).collect(Collectors.toList()).size() > 0) {
-                        int moveCount = songsList.stream().filter(SongModel::getIsChecked).collect(Collectors.toList()).size();
+                        int moveCount = ScanFilesActivity.songsList.stream().filter(SongModel::getIsChecked).collect(Collectors.toList()).size();
                         DBUtils.insertMultipleSongs(songsList.stream().filter(SongModel::getIsChecked).collect(Collectors.toList()));
                         setResult(Activity.RESULT_OK, new Intent());
                         finish();
@@ -83,6 +88,31 @@ public class SearchScanFilesActivity extends AppCompatActivity implements Search
                     e.printStackTrace();
                 }
             });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        try {
+            getSearchedList(binding.etSearch.getText().toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getSearchedList(String text) {
+        try {
+            if (text != null && !text.isEmpty()) {
+                if (songsList != null) songsList.clear();
+                songsList = getFilterList(text);
+                refreshView();
+            } else {
+                if (songsList != null) songsList.clear();
+                refreshView();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -122,12 +152,7 @@ public class SearchScanFilesActivity extends AppCompatActivity implements Search
             presenter.setListView();
             binding.listView.setAdapter(new DeleteSongsAdapter(songsList, SearchScanFilesActivity.this, (result, isChecked, position) -> {
                 try {
-//                    for (int i = 0; i < ScanFilesActivity.songsList.size(); i++) {
-//                        if (Objects.equals(ScanFilesActivity.songsList.get(i).getId(), result.getId())) {
-//                            ScanFilesActivity.songsList.set(i, result);
-//                        }
-//                    }
-//                    checkFabLayout();
+                    checkFabLayout();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -155,7 +180,7 @@ public class SearchScanFilesActivity extends AppCompatActivity implements Search
 
     private boolean isAnyChecked() {
         try {
-            for (SongModel songModel : songsList) {
+            for (SongModel songModel : ScanFilesActivity.songsList) {
                 if (songModel.getIsChecked()) return true;
             }
         } catch (Exception e) {
@@ -171,5 +196,11 @@ public class SearchScanFilesActivity extends AppCompatActivity implements Search
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }

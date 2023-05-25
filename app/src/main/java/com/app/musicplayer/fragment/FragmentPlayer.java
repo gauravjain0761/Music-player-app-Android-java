@@ -1,21 +1,28 @@
 package com.app.musicplayer.fragment;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.app.musicplayer.AppController;
@@ -30,15 +37,20 @@ import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class FragmentPlayer extends Fragment {
     String TAG = FragmentPlayer.class.getSimpleName();
     FragmentPlayerBinding binding;
-    MediaPlayer mediaPlayer = new MediaPlayer();
+    public MediaPlayer mediaPlayer = new MediaPlayer();
     Handler handler = new Handler();
     List<SongModel> songsList = new ArrayList<>();
     int position = 0;
-    SongModel playSongModel;
+    public SongModel playSongModel;
+
+    ObjectAnimator objectAnimator;
+
+    int playMode = 1;//1 for loop-all,2 for single,3 for random
 
     @Nullable
     @Override
@@ -59,8 +71,18 @@ public class FragmentPlayer extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
-        //initTunnelPlayerWorkaround();
-        requireActivity().registerReceiver(songClickReceiver, new IntentFilter("SongClick"));
+        initTunnelPlayerWorkaround();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ContextCompat.registerReceiver(requireActivity(), songClickReceiver, new IntentFilter("SongClick"), ContextCompat.RECEIVER_NOT_EXPORTED);
+            ContextCompat.registerReceiver(requireActivity(), songListAfterDeleteReceiver, new IntentFilter("SongListAfterDelete"), ContextCompat.RECEIVER_NOT_EXPORTED);
+        } else {
+            requireActivity().registerReceiver(songClickReceiver, new IntentFilter("SongClick"));
+            requireActivity().registerReceiver(songListAfterDeleteReceiver, new IntentFilter("SongListAfterDelete"));
+        }
+
+        objectAnimator = ObjectAnimator.ofFloat(binding.imageViewRotate, View.ROTATION, 0f, 360f).setDuration(5000);
+        objectAnimator.setInterpolator(new LinearInterpolator());
+        objectAnimator.setRepeatCount(ValueAnimator.INFINITE);
 
         binding.collapseImageView.setOnClickListener(v -> {
             try {
@@ -78,17 +100,47 @@ public class FragmentPlayer extends Fragment {
             }
         });
 
+
+        binding.btnPlayMode.setOnClickListener(v -> {
+            try {
+                Log.e("TAG", "playMode clicked");
+
+                //String item = ThreadLocalRandom.current().ints(0, songsList.size()).distinct().limit(1).asLongStream().toString();
+                //Log.e("TAG", "playMode clicked" + item);
+
+                if (playMode == 1) {
+                    playMode = 2;
+                } else if (playMode == 2) {
+                    playMode = 3;
+                } else if (playMode == 3) {
+                    playMode = 1;
+                } else {
+                    playMode = 1;
+                }
+                setMediaPlayerPlayMode();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+
         binding.playPauseImageView.setOnClickListener(v -> startStopOnClick());
         binding.musicPlayerView.setOnClickListener(v -> startStopOnClick());
 
+        binding.btnQueue.setOnClickListener(v -> {
+            try {
+                new BottomSheetFragmentQueue(selected -> {
+                    Log.e("TAG", "selected" + selected);
+
+                }).show(requireActivity().getSupportFragmentManager(), "BottomSheetFragmentQueue");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
         binding.btnNext.setOnClickListener(v -> {
             try {
-                if (songsList != null && position != songsList.size() - 1) {
-                    position = position + 1;
-                    if (songsList.size() > 0 && songsList.size() > position) {
-                        setMediaPlayer(songsList.get(position));
-                    }
-                }
+                playNextSong();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -96,16 +148,49 @@ public class FragmentPlayer extends Fragment {
 
         binding.btnPrevious.setOnClickListener(v -> {
             try {
-                if (songsList != null && position > 0) {
-                    position = position - 1;
-                    if (songsList != null && songsList.size() > 0 && songsList.size() > position) {
-                        setMediaPlayer(songsList.get(position));
-                    }
-                }
+                playPreviousSong();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
+        setMediaPlayerPlayMode();
+        binding.playerMotion.transitionToEnd();
+    }
+
+    private void playNextSong() {
+        try {
+            if (songsList != null && position != songsList.size() - 1) {
+                position = position + 1;
+                if (songsList.size() > 0 && songsList.size() > position) {
+                    setMediaPlayer(songsList.get(position));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void playDeleteNextSong() {
+        try {
+            if (songsList != null && songsList.size() > 0 && songsList.size() > position) {
+                setMediaPlayer(songsList.get(position));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void playPreviousSong() {
+        try {
+            if (songsList != null && position > 0) {
+                position = position - 1;
+                if (songsList != null && songsList.size() > 0 && songsList.size() > position) {
+                    setMediaPlayer(songsList.get(position));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private final BroadcastReceiver songClickReceiver = new BroadcastReceiver() {
@@ -119,8 +204,73 @@ public class FragmentPlayer extends Fragment {
                     }.getType());
                     AppController.getSpSongInfo().edit().clear().apply();
 
-                    if (songsList.size() > 0 && songsList.size() > position) {
+                    if (songsList != null && songsList.size() > 0 && songsList.size() > position) {
+//                        try {
+//                            binding.playerMotion.transitionToEnd();
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
                         setMediaPlayer(songsList.get(position));
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    public void setMediaPlayerPlayMode() {
+        try {
+            //int playMode = 1;//1 for loop-all,2 for single,3 for random
+            if (mediaPlayer != null) {
+                if (playMode == 1) {
+                    binding.btnPlayMode.setImageResource(R.drawable.player_ic_playmode_loop_all);
+                    mediaPlayer.setLooping(false);
+                } else if (playMode == 2) {
+                    binding.btnPlayMode.setImageResource(R.drawable.player_ic_playmode_single_loop);
+                    mediaPlayer.setLooping(true);
+                } else if (playMode == 3) {
+                    binding.btnPlayMode.setImageResource(R.drawable.player_ic_playmode_random);
+                } else {
+                    binding.btnPlayMode.setImageResource(R.drawable.player_ic_playmode_loop_all);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private final BroadcastReceiver songListAfterDeleteReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try {
+                if (intent.getAction() != null && intent.getAction().equals("SongListAfterDelete")) {
+                    if (songsList != null) songsList.clear();
+                    songsList = new Gson().fromJson(AppController.getSpSongInfo().getString("songList", ""), new TypeToken<List<SongModel>>() {
+                    }.getType());
+
+                    boolean isSongDelete = true;
+                    if (playSongModel != null) {
+                        for (SongModel model : songsList) {
+                            if (model.getId() == playSongModel.getId()) {
+                                isSongDelete = false;
+                            }
+                        }
+                    }
+
+                    Log.e("songsList", "on delete songsList size " + songsList.size());
+
+
+                    if (songsList != null && songsList.size() > 0) {
+                        if (isSongDelete) {
+                            if (position > songsList.size()) {
+//                                position = songsList.size() - 1;
+                                position = 0;
+                            }
+                            playDeleteNextSong();
+                        }
+                    } else {
+                        closeMediaPlayer();
                     }
                 }
             } catch (Exception e) {
@@ -135,7 +285,8 @@ public class FragmentPlayer extends Fragment {
                 if (mediaPlayer != null) {
                     if (mediaPlayer.isPlaying()) {
                         mediaPlayer.pause();
-                        binding.musicPlayerView.stop();
+                        //binding.musicPlayerView.stop();
+                        if (objectAnimator != null) objectAnimator.pause();
                         //binding.visualizerView.hide();
                         binding.playPauseImageView.setImageResource(R.drawable.player_ic_play);
 
@@ -144,7 +295,8 @@ public class FragmentPlayer extends Fragment {
                         requireActivity().sendBroadcast(updatePlayBroadCast);
                     } else {
                         mediaPlayer.start();
-                        binding.musicPlayerView.start();
+                        //binding.musicPlayerView.start();
+                        if (objectAnimator != null) objectAnimator.resume();
                         //binding.visualizerView.show();
                         binding.playPauseImageView.setImageResource(R.drawable.player_ic_pause);
 
@@ -166,7 +318,8 @@ public class FragmentPlayer extends Fragment {
 
     private void setMediaPlayer(SongModel songModel) {
         try {
-            Log.e("TAG","setMediaPlayer called");
+            Log.e("TAG", "setMediaPlayer called");
+            HomeActivity.bindingHome.playScreenFrameLayout.setVisibility(View.VISIBLE);
             playSongModel = songModel;
             binding.audioNameTextView.setText("" + (("" + songModel.getTitle()).replace("null", "").replace("Null", "")));
             binding.artistNameTextView.setText("" + (("" + songModel.getArtistName()).replace("null", "").replace("Null", "")));
@@ -177,6 +330,16 @@ public class FragmentPlayer extends Fragment {
                 binding.visualizerView.setImageResource(R.drawable.icv_songs);
             } else {
                 binding.visualizerView.setImageBitmap(ImageUtil.convertToBitmap(songModel.getBitmapCover()));
+            }
+
+            try {
+                if (("" + (("" + songModel.getBitmapCover()).replace("null", "").replace("Null", ""))).isEmpty()) {
+                    binding.imageViewRotate.setImageDrawable(new BitmapDrawable(getResources(), BitmapFactory.decodeResource(getResources(), R.drawable.ic_medieview)));
+                } else {
+                    binding.imageViewRotate.setImageDrawable(new BitmapDrawable(getResources(), ImageUtil.convertToBitmap(songModel.getBitmapCover())));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
 //            try {
@@ -194,29 +357,20 @@ public class FragmentPlayer extends Fragment {
                 mediaPlayer.reset();
                 mediaPlayer.release();
             }
-
+            mediaPlayer = null;
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setDataSource(songModel.getData());
             mediaPlayer.prepare();
             mediaPlayer.start();
-            binding.musicPlayerView.start();
-            try {
-                binding.playerMotion.transitionToEnd();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            if (objectAnimator != null) objectAnimator.start();
+            //binding.musicPlayerView.start();
+            binding.playPauseImageView.setImageResource(R.drawable.player_ic_pause);
             setAudioProgress();
 
             mediaPlayer.setOnCompletionListener(mp -> {
                 try {
-                    Log.e("TAG","setOnCompletionListener called");
-                    if (songsList != null && position != songsList.size() - 1) {
-                        position = position + 1;
-                        if (songsList.size() > 0 && songsList.size() > position) {
-                            setMediaPlayer(songsList.get(position));
-                        }
-                    }
+                    playNextSong();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -300,7 +454,7 @@ public class FragmentPlayer extends Fragment {
             binding.seekDurationTextView.setText(secToTime(((int) mediaPlayer.getDuration()) / 1000));
             binding.seekTimeTextView.setText(secToTime(((int) mediaPlayer.getCurrentPosition()) / 1000));
 
-            binding.musicPlayerView.setMax(mediaPlayer.getDuration());
+            //binding.musicPlayerView.setMax(mediaPlayer.getDuration());
             binding.seekBar.setProgress(0);
             binding.seekBar.setMax(mediaPlayer.getDuration());
 
@@ -383,12 +537,14 @@ public class FragmentPlayer extends Fragment {
         try {
             closeMediaPlayer();
             if (songClickReceiver != null) requireActivity().unregisterReceiver(songClickReceiver);
+            if (songListAfterDeleteReceiver != null)
+                requireActivity().unregisterReceiver(songListAfterDeleteReceiver);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void closeMediaPlayer() {
+    public void closeMediaPlayer() {
         try {
             if (mediaPlayer != null) {
                 Intent updatePlayBroadCast = new Intent("GetPlaySong");
@@ -400,6 +556,24 @@ public class FragmentPlayer extends Fragment {
                 mediaPlayer.release();
                 mediaPlayer = null;
                 //binding.visualizerView.hide();
+                HomeActivity.bindingHome.playScreenFrameLayout.setVisibility(View.GONE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void closeMediaWindow() {
+        try {
+            Log.e("TAG", "closeMediaWindow called");
+            binding.playerMotion.transitionToEnd();
+            if (mediaPlayer != null) {
+                mediaPlayer.stop();
+                mediaPlayer.reset();
+                mediaPlayer.release();
+                mediaPlayer = null;
+                //binding.visualizerView.hide();
+                binding.playerMotion.transitionToEnd();
                 HomeActivity.bindingHome.playScreenFrameLayout.setVisibility(View.GONE);
             }
         } catch (Exception e) {

@@ -53,6 +53,7 @@ public class TrashedActivityPresenter {
             binding.layoutTopSearch.setVisibility(android.view.View.GONE);
             binding.layoutBottomButton.setVisibility(android.view.View.GONE);
             binding.txtNoData.setVisibility(android.view.View.VISIBLE);
+            binding.btnEmptyTrash.setVisibility(android.view.View.GONE);
         } catch (Exception e) {
             e.printStackTrace();
         }

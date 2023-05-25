@@ -50,7 +50,7 @@ public class SortComparator {
             public int compare(SongModel song1, SongModel song2) {
                 // Catch Parse errors
                 try {
-                    return (song1.getSize() > song1.getSize() ? 1 : -1);
+                    return (song1.getSize() > song2.getSize() ? 1 : -1);
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
@@ -68,7 +68,7 @@ public class SortComparator {
             public int compare(SongModel song1, SongModel song2) {
                 try {
                     // Descending
-                    return (song1.getSize() > song2.getSize() ? -1 : 1);
+                    return (song1.getSize() < song2.getSize() ? 1 : -1);
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
@@ -86,7 +86,7 @@ public class SortComparator {
             public int compare(SongModel song1, SongModel song2) {
                 // Catch Parse errors
                 try {
-                    return (song1.getDuration() > song1.getDuration() ? 1 : -1);
+                    return (song1.getDuration() > song2.getDuration() ? 1 : -1);
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
@@ -104,7 +104,7 @@ public class SortComparator {
             public int compare(SongModel song1, SongModel song2) {
                 try {
                     // Descending
-                    return (song1.getDuration() > song2.getDuration() ? -1 : 1);
+                    return (song1.getDuration() < song2.getDuration() ? 1 : -1);
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
@@ -125,7 +125,7 @@ public class SortComparator {
             public int compare(SongModel song1, SongModel song2) {
                 // Catch Parse errors
                 try {
-                    return (song1.getDateAdded() > song1.getDateAdded() ? 1 : -1);
+                    return (song1.getDateAdded() > song2.getDateAdded() ? 1 : -1);
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
@@ -143,7 +143,7 @@ public class SortComparator {
             public int compare(SongModel song1, SongModel song2) {
                 try {
                     // Descending
-                    return (song1.getDateAdded() > song2.getDateAdded() ? -1 : 1);
+                    return (song2.getDateAdded() > song1.getDateAdded() ? 1 : -1);
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }

@@ -9,6 +9,7 @@ import com.app.musicplayer.fragment.FragmentPlayer;
 import com.app.musicplayer.fragment.FragmentPlaylist;
 import com.app.musicplayer.fragment.FragmentSongs;
 import com.app.musicplayer.utils.Constants;
+import com.app.musicplayer.utils.CustomEditText;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
@@ -134,7 +135,7 @@ public class HomeActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setupPlayScreenFragment() {
+    public void setupPlayScreenFragment() {
         try {
             getSupportFragmentManager().beginTransaction().replace(R.id.play_screen_frame_layout, FragmentPlayer.class.newInstance(), "FragmentPlayer").commitAllowingStateLoss();
             bindingHome.playScreenFrameLayout.setVisibility(View.GONE);

@@ -6,7 +6,10 @@
     android:background="@android:color/transparent"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="@dimen/_10sdp">
+    android:paddingLeft="@dimen/_5sdp"
+    android:paddingTop="@dimen/_10sdp"
+    android:paddingRight="@dimen/_10sdp"
+    android:paddingBottom="@dimen/_10sdp">
 
     <androidx.appcompat.widget.AppCompatCheckBox
         android:id="@+id/cb_delete"

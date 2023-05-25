@@ -12,6 +12,7 @@ import com.app.musicplayer.R;
 import com.app.musicplayer.adapter.FragmentSongsAdapter;
 import com.app.musicplayer.databinding.ActivityPlaylistSongsBinding;
 import com.app.musicplayer.db.SongModel;
+import com.app.musicplayer.utils.AppUtils;
 
 import java.util.ArrayList;
 
@@ -29,7 +30,11 @@ public class PlaylistSongsActivity extends AppCompatActivity {
         binding = ActivityPlaylistSongsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         try {
-            binding.imageViewBack.setOnClickListener(v -> finish());
+            binding.imageViewBack.setOnClickListener(v -> {
+                AppUtils.hideKeyboardOnClick(PlaylistSongsActivity.this, v);
+                finish();
+            });
+
             binding.imageViewSearch.setOnClickListener(v -> startActivity(new Intent(this, SearchSongsActivity.class)));
             reloadList();
         } catch (Exception e) {
@@ -64,6 +69,16 @@ public class PlaylistSongsActivity extends AppCompatActivity {
             binding.listView.setLayoutManager(new LinearLayoutManager(PlaylistSongsActivity.this));
             binding.listView.setItemAnimator(new DefaultItemAnimator());
             binding.listView.setAdapter(new FragmentSongsAdapter(selectedSortTypeRadio, playList, PlaylistSongsActivity.this, new FragmentSongsAdapter.SongsClickListner() {
+
+                @Override
+                public void deleteSongs(SongModel result, boolean isChecked, int position) {
+                    try {
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 @Override
                 public void onSongsClick(SongModel result, int position) {
 

@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.app.musicplayer.R;
+import com.app.musicplayer.activity.HomeActivity;
 import com.app.musicplayer.activity.SearchPlaylistActivity;
 import com.app.musicplayer.adapter.FragmentPlaylistAdapter;
 import com.app.musicplayer.databinding.FragmentPlaylistBinding;
@@ -48,15 +49,6 @@ public class FragmentPlaylist extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         try {
-            binding.swipe.setOnRefreshListener(() -> {
-                try {
-                    binding.swipe.setRefreshing(false);
-                    reloadList();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-
             binding.txtSort.setOnClickListener(v -> {
                 try {
                     BottomSheetFragmentSortBy.class.getDeclaredConstructor().newInstance().show(requireActivity().getSupportFragmentManager(), "BottomSheetFragmentSortBy");
@@ -69,6 +61,23 @@ public class FragmentPlaylist extends Fragment {
 
             binding.fab.setOnClickListener(v -> showAddPlayListDialog());
 
+            HomeActivity.bindingHome.playScreenFrameLayout.setTag(HomeActivity.bindingHome.playScreenFrameLayout.getVisibility());
+            HomeActivity.bindingHome.playScreenFrameLayout.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+                try {
+                    if (HomeActivity.bindingHome.playScreenFrameLayout.getVisibility() == View.VISIBLE) {
+                        AppUtils.setMargins(binding.fab, 0, 0, (int) getResources().getDimension(R.dimen.fab_margin), (int) getResources().getDimension(com.intuit.sdp.R.dimen._55sdp));
+                    } else {
+                        AppUtils.setMargins(binding.fab, 0, 0, (int) getResources().getDimension(R.dimen.fab_margin), (int) getResources().getDimension(R.dimen.fab_margin));
+                    }
+                    int newVis = HomeActivity.bindingHome.playScreenFrameLayout.getVisibility();
+                    if ((int) HomeActivity.bindingHome.playScreenFrameLayout.getTag() != newVis) {
+                        HomeActivity.bindingHome.playScreenFrameLayout.setTag(HomeActivity.bindingHome.playScreenFrameLayout.getVisibility());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+
             reloadList();
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,6 +85,7 @@ public class FragmentPlaylist extends Fragment {
     }
 
     public static class BottomSheetFragmentSortBy extends BottomSheetDialogFragment {
+
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -95,28 +105,28 @@ public class FragmentPlaylist extends Fragment {
                     try {
                         Log.e("TAG", "layoutScan clicked called...");
                         if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(0).getId()) {
-                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_name));
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_nameA2Z));
                             selectedRadio = 0;
                         } else if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(1).getId()) {
-                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_name));
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_nameZ2A));
                             selectedRadio = 1;
                         } else if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(2).getId()) {
-                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_date));
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_date_new));
                             selectedRadio = 2;
                         } else if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(3).getId()) {
-                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_date));
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_date_old));
                             selectedRadio = 3;
                         } else if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(4).getId()) {
-                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_duration));
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_duration_short));
                             selectedRadio = 4;
                         } else if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(5).getId()) {
-                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_duration));
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_duration_long));
                             selectedRadio = 5;
                         } else if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(6).getId()) {
-                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_size));
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_size_small));
                             selectedRadio = 6;
                         } else if (radioGroup.getCheckedRadioButtonId() == radioGroup.getChildAt(7).getId()) {
-                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_size));
+                            binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_size_large));
                             selectedRadio = 7;
                         }
                         dismiss();
@@ -187,6 +197,7 @@ public class FragmentPlaylist extends Fragment {
             playList.add(menu_1);
             playList.add(menu_1);
             playList.add(menu_1);
+            playList.add(menu_1);
             if (playList != null && playList.size() > 0) {
                 showListView();
             } else {
@@ -199,8 +210,6 @@ public class FragmentPlaylist extends Fragment {
 
     private void showListView() {
         try {
-            binding.swipe.setColorSchemeColors(Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE);
-
             binding.listView.setHasFixedSize(true);
             binding.listView.setVerticalScrollBarEnabled(true);
             binding.listView.setLayoutManager(new LinearLayoutManager(requireActivity()));

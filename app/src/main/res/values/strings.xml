@@ -8,14 +8,21 @@
     <string name="error_playlistname">Please enter playlist name!</string>
 
     <string name="txt_no_data">Sorry! We could not found any result, due to there was an issue with processing this request.</string>
-    <string name="txt_no_data_found">Sorry! We could not found any result.</string>
+    <string name="txt_no_data_found">No results</string>
     <string name="txt_no_songs">Tap the<font color="#FF5B24"> + </font>button to create something new</string>
     <string name="txt_no_songs_msg">A Place for all your Music</string>
     <string name="txt_no_songs_delete">Sorry! No songs found for trash</string>
     <string name="txt_no_songs_trash">Sorry! No songs found in trash</string>
     <string name="txt_no_songs_scan">Sorry! No songs found in scan</string>
 
+    <string name="txt_delete_zero">Please select anyone. No one is selected for delete.</string>
+    <string name="txt_restore_zero">Please select anyone. No one is selected for restore.</string>
 
+
+
+
+
+    <string name="txt_scanning">Scanning...</string>
     <string name="txt_sortBy">SORT BY</string>
     <string name="txt_emptyTrash">Empty the trash</string>
     <string name="txt_delete">Delete</string>
@@ -63,7 +70,7 @@
     <string name="alert_trash_msg">Song moved to trash!</string>
 
     <string name="alert_saved_msg">music moved successfully!</string>
-    <string name="alert_saved_error_msg">No music selected!</string>
+    <string name="alert_saved_error_msg">No one is selected!</string>
 
 
 </resources>

@@ -1,12 +1,18 @@
 package com.app.musicplayer.activity;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
+import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.app.musicplayer.R;
@@ -17,6 +23,7 @@ import com.app.musicplayer.db.FetchSongsFromLocal;
 import com.app.musicplayer.db.SongModel;
 import com.app.musicplayer.fragment.BottomSheetFragmentSortBy;
 import com.app.musicplayer.presenter.ScanFilesActivityPresenter;
+import com.app.musicplayer.utils.AppUtils;
 import com.app.musicplayer.utils.SortComparator;
 
 import java.util.ArrayList;
@@ -40,20 +47,51 @@ public class ScanFilesActivity extends AppCompatActivity implements ScanFilesAct
         setContentView(binding.getRoot());
         presenter = new ScanFilesActivityPresenter(this, binding);
         try {
-            binding.radarScan.startScan();
+            binding.imageViewBack.setOnClickListener(v -> {
+                AppUtils.hideKeyboardOnClick(ScanFilesActivity.this, v);
+                finish();
+            });
+
+            new AsyncScanList().execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class AsyncScanList extends AsyncTask<String, String, List<SongModel>> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            RotateAnimation rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+            rotate.setDuration(4000);
+            rotate.setRepeatCount(ValueAnimator.INFINITE);
+            rotate.setInterpolator(new LinearInterpolator());
+            binding.imageViewRotate.startAnimation(rotate);
+//            binding.radarScan.startScan();
+        }
+
+        @Override
+        protected List<SongModel> doInBackground(String... strings) {
             try {
                 if (songsList != null) songsList.clear();
                 songsList = FetchSongsFromLocal.getAllSongs(ScanFilesActivity.this);
+                Collections.sort(songsList, new SortComparator.SortByName.Ascending());
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            new Handler().postDelayed(() -> {
-                binding.radarScan.stopScan();
+            return songsList;
+        }
+
+        @Override
+        protected void onPostExecute(List<SongModel> list) {
+            super.onPostExecute(list);
+            try {
+                //binding.radarScan.stopScan();
                 binding.layoutScan.setVisibility(View.GONE);
                 showLayout();
-            }, 3000);
-        } catch (Exception e) {
-            e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -87,6 +125,7 @@ public class ScanFilesActivity extends AppCompatActivity implements ScanFilesAct
                     if (songsList != null && songsList.size() > 0) {
                         new BottomSheetFragmentSortBy(selectedSortByRadio, selected -> {
                             selectedSortByRadio = selected;
+                            Log.e("TAG", " selected " + selectedSortByRadio);
                             sortList();
                         }).show(getSupportFragmentManager(), "BottomSheetFragmentSortBy");
                     }
@@ -111,8 +150,6 @@ public class ScanFilesActivity extends AppCompatActivity implements ScanFilesAct
                 }
             });
 
-            binding.imageViewBack.setOnClickListener(v -> finish());
-
             binding.imageViewSearch.setOnClickListener(v -> {
                 if (songsList != null && songsList.size() > 0) {
                     startActivityForResult(new Intent(this, SearchScanFilesActivity.class), 1001);
@@ -134,29 +171,31 @@ public class ScanFilesActivity extends AppCompatActivity implements ScanFilesAct
     private void sortList() {
         try {
             if (songsList != null && songsList.size() > 0) {
+                Log.e("TAG", " selected " + selectedSortByRadio);
+                Collections.sort(songsList, new SortComparator.SortByName.Ascending());
                 if (selectedSortByRadio == 0) {
-                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_name));
+                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_nameA2Z));
                     Collections.sort(songsList, new SortComparator.SortByName.Ascending());
                 } else if (selectedSortByRadio == 1) {
-                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_name));
+                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_nameZ2A));
                     Collections.sort(songsList, new SortComparator.SortByName.Descending());
                 } else if (selectedSortByRadio == 2) {
-                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_date));
+                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_date_new));
                     Collections.sort(songsList, new SortComparator.SortByDate.Ascending());
                 } else if (selectedSortByRadio == 3) {
-                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_date));
+                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_date_old));
                     Collections.sort(songsList, new SortComparator.SortByDate.Descending());
                 } else if (selectedSortByRadio == 4) {
-                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_duration));
+                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_duration_short));
                     Collections.sort(songsList, new SortComparator.SortByDuration.Ascending());
                 } else if (selectedSortByRadio == 5) {
-                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_duration));
+                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_duration_long));
                     Collections.sort(songsList, new SortComparator.SortByDuration.Descending());
                 } else if (selectedSortByRadio == 6) {
-                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_size));
+                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_size_small));
                     Collections.sort(songsList, new SortComparator.SortBySize.Ascending());
                 } else if (selectedSortByRadio == 7) {
-                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_size));
+                    binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_size_large));
                     Collections.sort(songsList, new SortComparator.SortBySize.Descending());
                 } else {
                     songsList = FetchSongsFromLocal.getAllSongs(ScanFilesActivity.this);
@@ -202,6 +241,18 @@ public class ScanFilesActivity extends AppCompatActivity implements ScanFilesAct
     public void showNoDataView() {
         try {
             presenter.setNoDataView();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        try {
+            if (requestCode == 1001 && resultCode == RESULT_OK) {
+                finish();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

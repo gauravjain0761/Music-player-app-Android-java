@@ -1,7 +1,10 @@
 package com.app.musicplayer.activity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -11,6 +14,7 @@ import com.app.musicplayer.R;
 import com.app.musicplayer.adapter.FragmentPlaylistAdapter;
 import com.app.musicplayer.databinding.ActivitySearchPlaylistBinding;
 import com.app.musicplayer.db.SongModel;
+import com.app.musicplayer.utils.AppUtils;
 
 import java.util.ArrayList;
 
@@ -23,12 +27,20 @@ public class SearchPlaylistActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
         binding = ActivitySearchPlaylistBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         try {
-            binding.imageViewBack.setOnClickListener(v -> finish());
+            binding.etSearch.mSearchActivity = this;
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(binding.etSearch, InputMethodManager.SHOW_IMPLICIT);
+
+            binding.imageViewBack.setOnClickListener(v -> {
+                AppUtils.hideKeyboardOnClick(SearchPlaylistActivity.this, v);
+                finish();
+            });
+
             reloadList();
         } catch (Exception e) {
             e.printStackTrace();
@@ -79,5 +91,11 @@ public class SearchPlaylistActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }

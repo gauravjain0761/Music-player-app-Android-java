@@ -3,10 +3,21 @@
 
     <item android:drawable="@color/colorPrimary" />
 
-    <item>
+    <item
+        android:width="@dimen/_250sdp"
+        android:height="@dimen/_50sdp"
+        android:gravity="center">
         <bitmap
-            android:gravity="center"
-            android:src="@drawable/ic_splash_logo" />
+            android:gravity="fill"
+            android:src="@drawable/ic_app_logo" />
     </item>
+
+    <!--    <item-->
+    <!--        android:left="@dimen/_300sdp"-->
+    <!--        android:right="@dimen/_300sdp">-->
+    <!--        <bitmap-->
+    <!--            android:gravity="center"-->
+    <!--            android:src="@drawable/ic_app_logo" />-->
+    <!--    </item>-->
 
 </layer-list>

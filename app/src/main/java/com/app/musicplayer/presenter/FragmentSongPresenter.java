@@ -38,8 +38,6 @@ public class FragmentSongPresenter {
 
     public void setListView() {
         try {
-            binding.swipe.setColorSchemeColors(Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE);
-
             binding.listView.setHasFixedSize(true);
             binding.listView.setVerticalScrollBarEnabled(true);
             binding.listView.setLayoutManager(new LinearLayoutManager(context));

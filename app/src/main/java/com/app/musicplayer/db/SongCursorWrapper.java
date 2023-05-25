@@ -52,9 +52,14 @@ public class SongCursorWrapper extends CursorWrapper {
             Log.e("TAG", "Data : " + data);
 
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-            retriever.setDataSource(data);
-            byte[] coverBytes = retriever.getEmbeddedPicture();
             Bitmap songCoverBitmap;
+            byte[] coverBytes = null;
+            try {
+                retriever.setDataSource(data);
+                coverBytes = retriever.getEmbeddedPicture();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             if (coverBytes != null && coverBytes.length > 0)
                 songCoverBitmap = BitmapFactory.decodeByteArray(coverBytes, 0, coverBytes.length);
             else

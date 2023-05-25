@@ -66,7 +66,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_weight="1"
+                        android:layout_weight=".6"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
@@ -80,7 +80,7 @@
                             android:drawablePadding="@dimen/_5sdp"
                             android:fontFamily="@font/roboto_regular"
                             android:gravity="center_vertical"
-                            android:text="@string/txt_sort_by_name"
+                            android:text="@string/txt_sort_by_nameA2Z"
                             android:textColor="@color/txt_offwhite"
                             android:textSize="@dimen/_11sdp" />
                     </LinearLayout>
@@ -90,7 +90,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="right|center_vertical"
                         android:layout_marginRight="@dimen/_10sdp"
-                        android:layout_weight="1"
+                        android:layout_weight=".4"
                         android:gravity="right|center_vertical"
                         android:orientation="horizontal">
 
@@ -129,6 +129,7 @@
                         android:background="@color/colorPrimary"
                         android:clipToPadding="false"
                         android:divider="@null"
+                        android:paddingBottom="@dimen/_50sdp"
                         android:scrollbarStyle="outsideOverlay"
                         android:scrollbars="vertical" />
                 </LinearLayout>
@@ -167,22 +168,80 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
+            android:background="@color/colorPrimary"
             android:gravity="center"
             android:orientation="vertical">
 
-            <com.radar.widget.RadarScanView
-                android:id="@+id/radar_scan"
-                android:layout_width="@dimen/_150sdp"
-                android:layout_height="@dimen/_150sdp"
-                app:circleColor="@color/et_background"
-                app:circleWidth="1"
-                app:innerRingAlpha="94"
-                app:innerRingWidth="6"
-                app:outerRingAlpha="64"
-                app:outerRingWidth="4"
-                app:radarColor="@color/et_background"
-                app:tailColor="@color/colorAccent" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="@dimen/_150sdp"
+                    android:layout_height="@dimen/_150sdp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/image_1" />
+
+                <ImageView
+                    android:layout_width="@dimen/_100sdp"
+                    android:layout_height="@dimen/_100sdp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/image_2" />
+
+                <ImageView
+                    android:layout_width="@dimen/_30sdp"
+                    android:layout_height="@dimen/_30sdp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/image_3" />
+
+                <ImageView
+                    android:id="@+id/imageViewRotate"
+                    android:layout_width="@dimen/_150sdp"
+                    android:layout_height="@dimen/_150sdp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/image_4" />
+
+            </FrameLayout>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/txt_white_style"
+                android:layout_width="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:fontFamily="@font/roboto_regular"
+                android:gravity="center"
+                android:text="@string/txt_scanning"
+                android:textColor="@color/white"
+                android:textFontWeight="400"
+                android:textSize="@dimen/_14sdp" />
 
         </LinearLayout>
+
+
+        <!--        <LinearLayout-->
+        <!--            android:id="@+id/layout_scan"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="match_parent"-->
+        <!--            android:layout_gravity="center"-->
+        <!--            android:gravity="center"-->
+        <!--            android:orientation="vertical">-->
+
+        <!--            <com.radar.widget.RadarScanView-->
+        <!--                android:id="@+id/radar_scan"-->
+        <!--                android:layout_width="@dimen/_150sdp"-->
+        <!--                android:layout_height="@dimen/_150sdp"-->
+        <!--                app:circleColor="@color/et_background"-->
+        <!--                app:circleWidth="1"-->
+        <!--                app:innerRingAlpha="94"-->
+        <!--                app:innerRingWidth="6"-->
+        <!--                app:outerRingAlpha="64"-->
+        <!--                app:outerRingWidth="4"-->
+        <!--                app:radarColor="@color/et_background"-->
+        <!--                app:tailColor="@color/colorAccent" />-->
+
+        <!--        </LinearLayout>-->
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

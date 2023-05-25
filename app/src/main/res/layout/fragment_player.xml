@@ -115,23 +115,79 @@
             app:layout_constraintStart_toStartOf="@id/player_background_view"
             app:layout_constraintTop_toTopOf="@id/player_background_view" />
 
-        <co.mobiwise.library.MusicPlayerView
+        <!--        <co.mobiwise.library.MusicPlayerView-->
+        <!--            android:id="@+id/musicPlayerView"-->
+        <!--            android:layout_width="0dp"-->
+        <!--            android:layout_height="0dp"-->
+        <!--            android:layout_marginTop="@dimen/_50sdp"-->
+        <!--            app:buttonColor="@color/colorPrimary"-->
+        <!--            app:cover="@drawable/ic_medieview"-->
+        <!--            app:layout_constraintDimensionRatio="1:1"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+        <!--            app:layout_constraintHeight_percent=".4"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:layout_constraintTop_toBottomOf="@id/top_frame_layout"-->
+        <!--            app:layout_constraintVertical_chainStyle="packed"-->
+        <!--            app:progressEmptyColor="@android:color/transparent"-->
+        <!--            app:progressLoadedColor="@android:color/transparent"-->
+        <!--            app:textColor="@android:color/transparent"-->
+        <!--            app:textSize="@dimen/_10sdp" />-->
+
+        <FrameLayout
             android:id="@+id/musicPlayerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_gravity="center"
             android:layout_marginTop="@dimen/_50sdp"
-            app:buttonColor="@color/colorPrimary"
-            app:cover="@drawable/ic_medieview"
+            android:gravity="center"
+            android:orientation="vertical"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent=".4"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/top_frame_layout"
-            app:layout_constraintVertical_chainStyle="packed"
-            app:progressEmptyColor="@android:color/transparent"
-            app:progressLoadedColor="@android:color/transparent"
-            app:textColor="@android:color/transparent"
-            app:textSize="@dimen/_10sdp" />
+            app:layout_constraintVertical_chainStyle="packed">
+
+            <ImageView
+                android:layout_width="@dimen/_240sdp"
+                android:layout_height="@dimen/_240sdp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:src="@drawable/player_anim_4" />
+
+            <ImageView
+                android:layout_width="@dimen/_240sdp"
+                android:layout_height="@dimen/_240sdp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:src="@drawable/player_anim_1" />
+
+            <ImageView
+                android:layout_width="@dimen/_225sdp"
+                android:layout_height="@dimen/_225sdp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:src="@drawable/player_anim_2" />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imageViewRotate"
+                android:layout_width="@dimen/_140sdp"
+                android:layout_height="@dimen/_140sdp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:src="@drawable/ic_medieview"
+                app:civ_border_color="@color/colorPrimary"
+                app:civ_border_width="@dimen/_1sdp" />
+
+            <ImageView
+                android:layout_width="@dimen/_100sdp"
+                android:layout_height="@dimen/_100sdp"
+                android:layout_gravity="right"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:gravity="center"
+                android:src="@drawable/player_anim_arrow" />
+
+        </FrameLayout>
 
 
         <LinearLayout
@@ -182,7 +238,7 @@
                 android:layout_weight="1"
                 android:elevation="@dimen/_10sdp"
                 android:outlineProvider="none"
-                app:srcCompat="@drawable/player_ic_filter" />
+                app:srcCompat="@drawable/player_ic_equilizer" />
 
             <ImageView
                 android:id="@+id/btn_4"
@@ -309,7 +365,7 @@
             app:layout_constraintTop_toBottomOf="@id/audio_name_text_view_min" />
 
         <ImageView
-            android:id="@+id/btn_refresh"
+            android:id="@+id/btn_playMode"
             android:layout_width="@dimen/_30sdp"
             android:layout_height="@dimen/_30sdp"
             android:layout_gravity="center"
@@ -320,7 +376,7 @@
             app:layout_constraintEnd_toStartOf="@id/btn_previous"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/play_pause_layout"
-            app:srcCompat="@drawable/player_ic_refresh" />
+            app:srcCompat="@drawable/player_ic_playmode_loop_all" />
 
         <ImageView
             android:id="@+id/btn_previous"
@@ -384,13 +440,13 @@
             android:elevation="@dimen/_10sdp"
             android:outlineProvider="none"
             app:layout_constraintBottom_toBottomOf="@+id/play_pause_layout"
-            app:layout_constraintEnd_toStartOf="@+id/btn_equilizer"
+            app:layout_constraintEnd_toStartOf="@+id/btn_queue"
             app:layout_constraintStart_toEndOf="@+id/play_pause_layout"
             app:layout_constraintTop_toTopOf="@+id/play_pause_layout"
             app:srcCompat="@drawable/player_ic_next" />
 
         <ImageView
-            android:id="@+id/btn_equilizer"
+            android:id="@+id/btn_queue"
             android:layout_width="@dimen/_30sdp"
             android:layout_height="@dimen/_30sdp"
             android:layout_gravity="center"
@@ -400,6 +456,6 @@
             app:layout_constraintBottom_toBottomOf="@+id/play_pause_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/play_pause_layout"
-            app:srcCompat="@drawable/player_ic_equilizer" />
+            app:srcCompat="@drawable/player_ic_queue" />
     </com.app.musicplayer.utils.PlayerScreenMotionLayout>
 </layout>

@@ -13,11 +13,15 @@
     <color name="offwhite">#ffFCFCFC</color>
     <color name="txt_offwhite">#bdFFFFFF</color>
     <color name="txt_white35">#59FFFFFF</color>
+    <color name="txt_white75">#D9FFFFFF</color>
     <color name="et_background">#282828</color>
 
+    <color name="gif_background">#BF101010</color>
+
+    <color name="bottomsheet_background">#262626</color>
+
+
     <color name="divider_color">#4B4B4B</color>
-
-
 
 
     <color name="playerBackground">#212529</color>

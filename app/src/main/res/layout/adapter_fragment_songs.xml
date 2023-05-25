@@ -7,17 +7,47 @@
     android:orientation="horizontal"
     android:padding="@dimen/_10sdp">
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/imageView"
-        android:layout_width="@dimen/_40sdp"
-        android:layout_height="@dimen/_40sdp"
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/cb_delete"
+        style="@style/checkBoxStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:buttonTint="@color/checkbox_tint"
+        android:gravity="center_vertical"
         android:visibility="gone" />
 
-    <com.app.musicplayer.visualizer.VisualizerView
-        android:id="@+id/visualizerView"
-        android:layout_width="@dimen/_40sdp"
-        android:layout_height="@dimen/_40sdp"
-        android:visibility="gone" />
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/_5sdp"
+        android:background="@android:color/transparent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imageView"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:visibility="gone" />
+
+        <pl.droidsonroids.gif.GifImageView
+            android:id="@+id/gifView"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:background="@color/gif_background"
+            android:padding="@dimen/_6sdp"
+            android:src="@drawable/ic_player_gif"
+            android:tint="@color/colorAccent"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+
+    <!--    <com.app.musicplayer.visualizer.VisualizerView-->
+    <!--        android:id="@+id/visualizerView"-->
+    <!--        android:layout_width="@dimen/_40sdp"-->
+    <!--        android:layout_height="@dimen/_40sdp"-->
+    <!--        android:visibility="gone" />-->
+
 
     <LinearLayout
         android:layout_width="0dp"

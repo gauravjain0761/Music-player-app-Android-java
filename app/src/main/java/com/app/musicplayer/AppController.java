@@ -2,7 +2,6 @@ package com.app.musicplayer;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.StrictMode;
 import android.security.keystore.KeyGenParameterSpec;
@@ -42,6 +41,7 @@ public class AppController extends MultiDexApplication {
 
             StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
             StrictMode.setVmPolicy(builder.build());
+
         } catch (Exception e) {
             e.printStackTrace();
         }

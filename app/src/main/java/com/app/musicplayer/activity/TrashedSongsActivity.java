@@ -2,6 +2,7 @@ package com.app.musicplayer.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -10,12 +11,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.app.musicplayer.R;
-import com.app.musicplayer.adapter.DeleteSongsAdapter;
+import com.app.musicplayer.adapter.TrashedSongsAdapter;
 import com.app.musicplayer.databinding.ActivityTrashedSongsBinding;
 import com.app.musicplayer.db.DBUtils;
 import com.app.musicplayer.db.SongModel;
 import com.app.musicplayer.fragment.BottomSheetFragmentSortBy;
 import com.app.musicplayer.presenter.TrashedActivityPresenter;
+import com.app.musicplayer.utils.AppUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,9 @@ public class TrashedSongsActivity extends AppCompatActivity implements TrashedAc
     String TAG = TrashedSongsActivity.class.getSimpleName();
     public static List<SongModel> songsList = new ArrayList<>();
     int selectedSortByRadio = 0;
+    boolean isKeyboardShowing = false;
+
+    TrashedSongsAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +46,29 @@ public class TrashedSongsActivity extends AppCompatActivity implements TrashedAc
         presenter = new TrashedActivityPresenter(this, binding);
 
         try {
+            binding.getRoot().getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+                try {
+                    Rect r = new Rect();
+                    binding.getRoot().getWindowVisibleDisplayFrame(r);
+                    int screenHeight = binding.getRoot().getRootView().getHeight();
+                    int keypadHeight = screenHeight - r.bottom;
+
+                    if (keypadHeight > screenHeight * 0.15) { // 0.15 ratio is perhaps enough to determine keypad height.
+                        // keyboard is opened
+                        if (!isKeyboardShowing) {
+                            isKeyboardShowing = true;
+                        }
+                    } else {
+                        // keyboard is closed
+                        if (isKeyboardShowing) {
+                            isKeyboardShowing = false;
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+
             binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 try {
                     if (songsList != null && songsList.size() > 0) {
@@ -68,9 +96,34 @@ public class TrashedSongsActivity extends AppCompatActivity implements TrashedAc
 
             binding.icBack.setOnClickListener(v -> {
                 try {
+//                    if (isKeyboardShowing) {
+//                        AppUtils.closeKeyboard(this);
+//                    } else {
+//                        clear();
+//                        setResult(Activity.RESULT_OK, new Intent());
+//                        finish();
+//                    }
+                    AppUtils.closeKeyboard(this);
                     clear();
                     setResult(Activity.RESULT_OK, new Intent());
                     finish();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            binding.txtDone.setOnClickListener(v -> {
+                try {
+                    clear();
+                    if (adapter != null) adapter.clearLongPress();
+                    checkTopLayout();
+//                    if (isKeyboardShowing) {
+//                        AppUtils.closeKeyboard(this);
+//                    } else {
+//                        clear();
+//                        setResult(Activity.RESULT_OK, new Intent());
+//                        finish();
+//                    }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -99,8 +152,10 @@ public class TrashedSongsActivity extends AppCompatActivity implements TrashedAc
 
             binding.btnDelete.setOnClickListener(v -> {
                 try {
-                    if (songsList != null && songsList.size() > 0) {
+                    if (songsList != null && songsList.size() > 0 && isAnyChecked()) {
                         showDeleteAlertDialog();
+                    } else {
+                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.alert_saved_error_msg), Toast.LENGTH_SHORT).show();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -109,8 +164,10 @@ public class TrashedSongsActivity extends AppCompatActivity implements TrashedAc
 
             binding.btnRestore.setOnClickListener(v -> {
                 try {
-                    if (songsList != null && songsList.size() > 0) {
+                    if (songsList != null && songsList.size() > 0 && isAnyChecked()) {
                         showRestoreAlertDialog();
+                    } else {
+                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.alert_saved_error_msg), Toast.LENGTH_SHORT).show();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -132,7 +189,7 @@ public class TrashedSongsActivity extends AppCompatActivity implements TrashedAc
     @Override
     protected void onRestart() {
         super.onRestart();
-        setListView();
+        refreshView();
     }
 
     @Override
@@ -140,28 +197,28 @@ public class TrashedSongsActivity extends AppCompatActivity implements TrashedAc
         try {
             if (songsList != null) songsList.clear();
             if (selectedSortByRadio == 0) {
-                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_name));
+                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_nameA2Z));
                 songsList = DBUtils.getTrashedSongByNameAsc();
             } else if (selectedSortByRadio == 1) {
-                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_name));
+                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_nameZ2A));
                 songsList = DBUtils.getTrashedSongByNameDesc();
             } else if (selectedSortByRadio == 2) {
-                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_date));
+                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_date_new));
                 songsList = DBUtils.getTrashedSongByDateAsc();
             } else if (selectedSortByRadio == 3) {
-                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_date));
+                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_date_old));
                 songsList = DBUtils.getTrashedSongByDateDesc();
             } else if (selectedSortByRadio == 4) {
-                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_duration));
+                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_duration_short));
                 songsList = DBUtils.getTrashedSongByDurationAsc();
             } else if (selectedSortByRadio == 5) {
-                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_duration));
+                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_duration_long));
                 songsList = DBUtils.getTrashedSongByDurationDesc();
             } else if (selectedSortByRadio == 6) {
-                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_size));
+                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_size_small));
                 songsList = DBUtils.getTrashedSongBySizeAsc();
             } else if (selectedSortByRadio == 7) {
-                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_size));
+                binding.txtSort.setText(getResources().getString(R.string.txt_sort_by_size_large));
                 songsList = DBUtils.getTrashedSongBySizeDesc();
             } else {
                 songsList = DBUtils.getAllTrashSongs();
@@ -188,14 +245,27 @@ public class TrashedSongsActivity extends AppCompatActivity implements TrashedAc
     public void showListView() {
         try {
             presenter.setListView();
-            binding.listView.setAdapter(new DeleteSongsAdapter(songsList, TrashedSongsActivity.this, (result, isChecked, position) -> {
-                try {
-                    songsList.set(position, result);
-                    checkTopLayout();
-                } catch (Exception e) {
-                    e.printStackTrace();
+
+            adapter = new TrashedSongsAdapter(songsList, TrashedSongsActivity.this, new TrashedSongsAdapter.DeleteSongsListner() {
+                @Override
+                public void deleteSongs(SongModel result, boolean isChecked, int position) {
+                    try {
+                        songsList.set(position, result);
+                        checkTopLayout();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            }));
+
+                @Override
+                public void longPressSongs(boolean isAnyLongPress) {
+                    if (isKeyboardShowing) {
+                        AppUtils.closeKeyboard(TrashedSongsActivity.this);
+                    }
+                    checkTopLayout();
+                }
+            });
+            binding.listView.setAdapter(adapter);
             checkTopLayout();
         } catch (Exception e) {
             e.printStackTrace();
@@ -205,7 +275,8 @@ public class TrashedSongsActivity extends AppCompatActivity implements TrashedAc
     private void checkTopLayout() {
         try {
             if (songsList != null && songsList.size() > 0) {
-                if (isAnyChecked()) {
+                if (adapter != null && adapter.getLongPress()) {
+                    //if (adapter != null) adapter.setLongPress();
                     binding.layoutTopCheckBox.setVisibility(View.VISIBLE);
                     binding.layoutTopSearch.setVisibility(View.GONE);
                     binding.btnEmptyTrash.setVisibility(View.GONE);
@@ -318,6 +389,7 @@ public class TrashedSongsActivity extends AppCompatActivity implements TrashedAc
 
     private void clear() {
         try {
+            binding.cbDelete.setChecked(false);
             if (songsList != null && songsList.size() > 0) {
                 for (int i = 0; i < songsList.size(); i++) {
                     SongModel songs = songsList.get(i);

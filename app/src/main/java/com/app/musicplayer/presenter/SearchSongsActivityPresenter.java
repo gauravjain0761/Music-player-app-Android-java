@@ -55,7 +55,11 @@ public class SearchSongsActivityPresenter {
         try {
             binding.layoutListView.setVisibility(android.view.View.GONE);
             binding.listView.setVisibility(android.view.View.GONE);
-            binding.txtNoData.setVisibility(android.view.View.GONE);
+            if (binding.etSearch.getText().toString().isEmpty()) {
+                binding.txtNoData.setVisibility(android.view.View.GONE);
+            } else {
+                binding.txtNoData.setVisibility(android.view.View.VISIBLE);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
