@@ -20,7 +20,7 @@ import org.greenrobot.greendao.database.Database;
 
 public class AppController extends MultiDexApplication {
     static final String TAG = AppController.class.getSimpleName();
-    static SharedPreferences sp_userinfo;
+    static SharedPreferences sp_searchSongInfo;
     static SharedPreferences sp_songInfo;
     public static DaoSession daoSession;
 
@@ -54,9 +54,9 @@ public class AppController extends MultiDexApplication {
     private void initSharedPreferences() {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                sp_userinfo = EncryptedSharedPreferences.create(getApplicationContext(), SPUtils.USER_INFO, new MasterKey.Builder(getApplicationContext()).setKeyGenParameterSpec(new KeyGenParameterSpec.Builder(MasterKey.DEFAULT_MASTER_KEY_ALIAS, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT).setBlockModes(KeyProperties.BLOCK_MODE_GCM).setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE).setKeySize(256).build()).build(), EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV, EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
+                sp_searchSongInfo = EncryptedSharedPreferences.create(getApplicationContext(), SPUtils.SEARCH_SONG_INFO, new MasterKey.Builder(getApplicationContext()).setKeyGenParameterSpec(new KeyGenParameterSpec.Builder(MasterKey.DEFAULT_MASTER_KEY_ALIAS, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT).setBlockModes(KeyProperties.BLOCK_MODE_GCM).setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE).setKeySize(256).build()).build(), EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV, EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
             } else {
-                sp_userinfo = getApplicationContext().getSharedPreferences(SPUtils.USER_INFO, Context.MODE_PRIVATE);
+                sp_searchSongInfo = getApplicationContext().getSharedPreferences(SPUtils.SEARCH_SONG_INFO, Context.MODE_PRIVATE);
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -69,8 +69,8 @@ public class AppController extends MultiDexApplication {
         }
     }
 
-    public static synchronized SharedPreferences getSpUserInfo() {
-        return sp_userinfo;
+    public static synchronized SharedPreferences getSpSearchSongInfo() {
+        return sp_searchSongInfo;
     }
 
     public static synchronized SharedPreferences getSpSongInfo() {

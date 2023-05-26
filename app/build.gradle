@@ -80,5 +80,6 @@ dependencies {
 
     implementation 'de.hdodenhof:circleimageview:3.1.0'
 
+
 //    implementation 'com.github.annhienktuit:CircularImageviewRotation:1.0.8'
 }

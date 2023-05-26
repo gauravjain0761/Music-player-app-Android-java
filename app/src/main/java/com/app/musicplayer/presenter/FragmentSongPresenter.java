@@ -8,14 +8,8 @@ import android.view.View;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.app.musicplayer.AppController;
-import com.app.musicplayer.activity.DeleteSongsActivity;
 import com.app.musicplayer.activity.HomeActivity;
-import com.app.musicplayer.adapter.FragmentSongsAdapter;
-import com.app.musicplayer.databinding.ActivityDeleteSongsBinding;
 import com.app.musicplayer.databinding.FragmentSongsBinding;
-import com.app.musicplayer.db.SongModel;
-import com.google.gson.Gson;
 
 public class FragmentSongPresenter {
 
@@ -60,6 +54,10 @@ public class FragmentSongPresenter {
             binding.rgLayout.setVisibility(android.view.View.GONE);
             binding.layoutTopListView.setVisibility(android.view.View.GONE);
             binding.layoutNoData.setVisibility(android.view.View.VISIBLE);
+            binding.fabDelete.setVisibility(android.view.View.GONE);
+            binding.layoutTopCheckBox.setVisibility(android.view.View.GONE);
+            HomeActivity.bindingHome.tabLayout.setVisibility(android.view.View.VISIBLE);
+            binding.fab.setVisibility(android.view.View.VISIBLE);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,12 +1,15 @@
 package com.app.musicplayer.activity;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -51,6 +54,8 @@ public class SearchSongsActivity extends AppCompatActivity implements SearchSong
             binding.etSearch.mSearchActivity = this;
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(binding.etSearch, InputMethodManager.SHOW_IMPLICIT);
+
+            registerReceiver(playSongReceiver, new IntentFilter("GetPlaySong"));
 
             binding.getRoot().getViewTreeObserver().addOnGlobalLayoutListener(() -> {
                 try {
@@ -155,6 +160,27 @@ public class SearchSongsActivity extends AppCompatActivity implements SearchSong
         }
     }
 
+    private final BroadcastReceiver playSongReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try {
+                Log.e("", "Search Receiver called");
+                if (intent.getAction() != null && intent.getAction().equals("GetPlaySong")) {
+                    if (AppController.getSpSearchSongInfo().getBoolean("isPlayingSearch", false) && !AppController.getSpSearchSongInfo().getString("CurrentSongSearch", "").isEmpty()) {
+                        Log.e("", "Search Receiver called");
+                        if (adapter != null)
+                            adapter.setPlayerInfo(new Gson().fromJson(AppController.getSpSearchSongInfo().getString("CurrentSongSearch", ""), SongModel.class), true);
+                    } else {
+                        adapter.setPlayerInfo(null, false);
+                    }
+                    AppController.getSpSearchSongInfo().edit().clear().apply();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
     private boolean isAnyChecked() {
         try {
             for (SongModel songModel : songsList) {
@@ -222,7 +248,7 @@ public class SearchSongsActivity extends AppCompatActivity implements SearchSong
                 @Override
                 public void onSongsClick(SongModel result, int position) {
                     try {
-                        finish();
+                        //finish();
                         if (HomeActivity.bindingHome.playScreenFrameLayout.getVisibility() == View.GONE) {
                             HomeActivity.bindingHome.playScreenFrameLayout.setVisibility(View.VISIBLE);
                         }
@@ -328,12 +354,13 @@ public class SearchSongsActivity extends AppCompatActivity implements SearchSong
                 Toast.makeText(getApplicationContext(), deleteCount + " " + getResources().getString(R.string.alert_trash_msg), Toast.LENGTH_SHORT).show();
                 Intent updatePlayBroadCast = new Intent("DeletePlaySong");
                 sendBroadcast(updatePlayBroadCast);
-                if (songListCount == deleteCount) {
-                    setResult(Activity.RESULT_OK, new Intent());
-                    finish();
-                } else {
-                    getSearchedList(binding.etSearch.getText().toString());
-                }
+//                if (songListCount == deleteCount) {
+//                    setResult(Activity.RESULT_OK, new Intent());
+//                    finish();
+//                } else {
+//                    getSearchedList(binding.etSearch.getText().toString());
+//                }
+                getSearchedList(binding.etSearch.getText().toString());
 
 //                DBUtils.deleteMultipleSongs(songsList.stream().filter(SongModel::getIsChecked).collect(Collectors.toList()));
 //                setResult(Activity.RESULT_OK, new Intent());

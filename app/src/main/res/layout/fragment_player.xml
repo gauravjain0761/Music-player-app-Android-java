@@ -149,30 +149,30 @@
             app:layout_constraintVertical_chainStyle="packed">
 
             <ImageView
-                android:layout_width="@dimen/_240sdp"
-                android:layout_height="@dimen/_240sdp"
+                android:layout_width="@dimen/_200sdp"
+                android:layout_height="@dimen/_200sdp"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:src="@drawable/player_anim_4" />
 
             <ImageView
-                android:layout_width="@dimen/_240sdp"
-                android:layout_height="@dimen/_240sdp"
+                android:layout_width="@dimen/_200sdp"
+                android:layout_height="@dimen/_200sdp"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:src="@drawable/player_anim_1" />
 
             <ImageView
-                android:layout_width="@dimen/_225sdp"
-                android:layout_height="@dimen/_225sdp"
+                android:layout_width="@dimen/_180sdp"
+                android:layout_height="@dimen/_180sdp"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:src="@drawable/player_anim_2" />
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/imageViewRotate"
-                android:layout_width="@dimen/_140sdp"
-                android:layout_height="@dimen/_140sdp"
+                android:layout_width="@dimen/_100sdp"
+                android:layout_height="@dimen/_100sdp"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:src="@drawable/ic_medieview"
@@ -180,10 +180,11 @@
                 app:civ_border_width="@dimen/_1sdp" />
 
             <ImageView
-                android:layout_width="@dimen/_100sdp"
+                android:layout_width="@dimen/_90sdp"
                 android:layout_height="@dimen/_100sdp"
-                android:layout_gravity="right"
-                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_gravity="center|right"
+                android:layout_marginEnd="@dimen/_15sdp"
+                android:layout_marginBottom="@dimen/_40sdp"
                 android:gravity="center"
                 android:src="@drawable/player_anim_arrow" />
 

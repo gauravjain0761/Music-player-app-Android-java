@@ -30,6 +30,8 @@ public class HomeActivity extends AppCompatActivity {
     String TAG = HomeActivity.class.getSimpleName();
     ArrayList<String> tabsList = new ArrayList<>();
 
+    public static FragmentPlayer fragmentPlayer = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +42,7 @@ public class HomeActivity extends AppCompatActivity {
         setSupportActionBar(bindingHome.toolbar);
 
         try {
+            fragmentPlayer = FragmentPlayer.class.newInstance();
             createTabsList();
             for (String tabs : tabsList) {
                 bindingHome.tabLayout.addTab(bindingHome.tabLayout.newTab().setText(tabs));
@@ -137,7 +140,7 @@ public class HomeActivity extends AppCompatActivity {
 
     public void setupPlayScreenFragment() {
         try {
-            getSupportFragmentManager().beginTransaction().replace(R.id.play_screen_frame_layout, FragmentPlayer.class.newInstance(), "FragmentPlayer").commitAllowingStateLoss();
+            getSupportFragmentManager().beginTransaction().replace(R.id.play_screen_frame_layout, fragmentPlayer, "FragmentPlayer").commitAllowingStateLoss();
             bindingHome.playScreenFrameLayout.setVisibility(View.GONE);
         } catch (Exception e) {
             e.printStackTrace();

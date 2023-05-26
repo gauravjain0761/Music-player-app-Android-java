@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicplayer.R;
+import com.app.musicplayer.activity.HomeActivity;
 import com.app.musicplayer.databinding.AdapterFragmentSongsBinding;
 import com.app.musicplayer.db.SongModel;
 import com.app.musicplayer.fragment.FragmentPlayer;
@@ -69,7 +70,8 @@ public class FragmentSongsAdapter extends RecyclerView.Adapter<FragmentSongsAdap
 
     private void getFragment() {
         try {
-            fragmentPlayer = (FragmentPlayer) ((FragmentActivity) context).getSupportFragmentManager().findFragmentByTag("FragmentPlayer");
+            fragmentPlayer = HomeActivity.fragmentPlayer;
+            //fragmentPlayer = (FragmentPlayer) ((FragmentActivity) context).getSupportFragmentManager().findFragmentByTag("FragmentPlayer");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -136,7 +138,7 @@ public class FragmentSongsAdapter extends RecyclerView.Adapter<FragmentSongsAdap
 //            holder.binding.visualizerView.flash();
 //            holder.binding.visualizerView.release();
 
-            if (fragmentPlayer != null && fragmentPlayer.mediaPlayer != null && playSongModel != null && Objects.equals(playSongModel.getId(), result.getId()) && isPlaying) {
+            if (!isAnyLongPress && fragmentPlayer != null && fragmentPlayer.mediaPlayer != null && playSongModel != null && Objects.equals(playSongModel.getId(), result.getId()) && isPlaying) {
                 Log.e("isPlaying", "isPlaying : " + isPlaying);
 
                 holder.binding.gifView.setVisibility(View.VISIBLE);
@@ -181,7 +183,14 @@ public class FragmentSongsAdapter extends RecyclerView.Adapter<FragmentSongsAdap
             try {
                 binding.getRoot().setOnClickListener(v -> {
                     try {
-                        songsClickListner.onSongsClick(songList.get(getPosition()), getPosition());
+                        if (isAnyLongPress) {
+                            SongModel songModel = songList.get(getPosition());
+                            songsClickListner.deleteSongs(songModel, !songModel.getIsChecked(), getPosition());
+                            songModel.setIsChecked(!songModel.getIsChecked());
+                            notifyDataSetChanged();
+                        } else {
+                            songsClickListner.onSongsClick(songList.get(getPosition()), getPosition());
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

@@ -36,8 +36,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class FragmentPlayer extends Fragment {
     String TAG = FragmentPlayer.class.getSimpleName();
@@ -45,6 +45,7 @@ public class FragmentPlayer extends Fragment {
     public MediaPlayer mediaPlayer = new MediaPlayer();
     Handler handler = new Handler();
     List<SongModel> songsList = new ArrayList<>();
+    List<SongModel> originalSongsList = new ArrayList<>();
     int position = 0;
     public SongModel playSongModel;
 
@@ -119,7 +120,7 @@ public class FragmentPlayer extends Fragment {
 
         binding.btnPlayMode.setOnClickListener(v -> {
             try {
-                Log.e("TAG", "playMode clicked");
+                Log.e("TAG", "playMode clicked" + playMode);
 
                 //String item = ThreadLocalRandom.current().ints(0, songsList.size()).distinct().limit(1).asLongStream().toString();
                 //Log.e("TAG", "playMode clicked" + item);
@@ -129,8 +130,6 @@ public class FragmentPlayer extends Fragment {
                 } else if (playMode == 2) {
                     playMode = 3;
                 } else if (playMode == 3) {
-                    playMode = 1;
-                } else {
                     playMode = 1;
                 }
                 setMediaPlayerPlayMode();
@@ -190,6 +189,7 @@ public class FragmentPlayer extends Fragment {
         try {
             if (songsList != null && songsList.size() > 0 && songsList.size() > position) {
                 setMediaPlayer(songsList.get(position));
+                startStopOnClick();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -215,8 +215,11 @@ public class FragmentPlayer extends Fragment {
             try {
                 if (intent.getAction() != null && intent.getAction().equals("SongClick")) {
                     if (songsList != null) songsList.clear();
+                    if (originalSongsList != null) originalSongsList.clear();
                     position = AppController.getSpSongInfo().getInt("position", 0);
                     songsList = new Gson().fromJson(AppController.getSpSongInfo().getString("songList", ""), new TypeToken<List<SongModel>>() {
+                    }.getType());
+                    originalSongsList = new Gson().fromJson(AppController.getSpSongInfo().getString("songList", ""), new TypeToken<List<SongModel>>() {
                     }.getType());
                     AppController.getSpSongInfo().edit().clear().apply();
 
@@ -237,20 +240,28 @@ public class FragmentPlayer extends Fragment {
 
     public void setMediaPlayerPlayMode() {
         try {
+            Log.e("TAG", "playMode setMediaPlayerPlayMode" + playMode);
             //int playMode = 1;//1 for loop-all,2 for single,3 for random
             if (mediaPlayer != null) {
                 if (playMode == 1) {
-                    binding.btnPlayMode.setImageResource(R.drawable.player_ic_playmode_loop_all);
                     mediaPlayer.setLooping(false);
-                } else if (playMode == 2) {
-                    binding.btnPlayMode.setImageResource(R.drawable.player_ic_playmode_single_loop);
-                    mediaPlayer.setLooping(true);
-                } else if (playMode == 3) {
-                    binding.btnPlayMode.setImageResource(R.drawable.player_ic_playmode_random);
-                } else {
                     binding.btnPlayMode.setImageResource(R.drawable.player_ic_playmode_loop_all);
+                    if (songsList != null) songsList.clear();
+                    songsList.addAll(originalSongsList);
+                } else if (playMode == 2) {
+                    mediaPlayer.setLooping(true);
+                    binding.btnPlayMode.setImageResource(R.drawable.player_ic_playmode_single_loop);
+                    if (songsList != null) songsList.clear();
+                    songsList.addAll(originalSongsList);
+                } else if (playMode == 3) {
+                    mediaPlayer.setLooping(false);
+                    binding.btnPlayMode.setImageResource(R.drawable.player_ic_playmode_random);
+                    if (songsList != null) Collections.shuffle(songsList);
                 }
             }
+
+            Log.e("TAG", "playMode setMediaPlayerPlayMode" + songsList.size());
+            Log.e("TAG", "playMode setMediaPlayerPlayMode" + mediaPlayer.isLooping());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -262,7 +273,10 @@ public class FragmentPlayer extends Fragment {
             try {
                 if (intent.getAction() != null && intent.getAction().equals("SongListAfterDelete")) {
                     if (songsList != null) songsList.clear();
+                    if (originalSongsList != null) originalSongsList.clear();
                     songsList = new Gson().fromJson(AppController.getSpSongInfo().getString("songList", ""), new TypeToken<List<SongModel>>() {
+                    }.getType());
+                    originalSongsList = new Gson().fromJson(AppController.getSpSongInfo().getString("songList", ""), new TypeToken<List<SongModel>>() {
                     }.getType());
 
                     boolean isSongDelete = true;
@@ -308,6 +322,7 @@ public class FragmentPlayer extends Fragment {
 
                         Intent updatePlayBroadCast = new Intent("GetPlaySong");
                         AppController.getSpSongInfo().edit().putBoolean("isPlaying", false).putString("CurrentSong", "").apply();
+                        AppController.getSpSearchSongInfo().edit().putBoolean("isPlayingSearch", false).putString("CurrentSongSearch", "").apply();
                         requireActivity().sendBroadcast(updatePlayBroadCast);
                     } else {
                         mediaPlayer.start();
@@ -319,6 +334,7 @@ public class FragmentPlayer extends Fragment {
                         if (playSongModel != null) {
                             Intent updatePlayBroadCast = new Intent("GetPlaySong");
                             AppController.getSpSongInfo().edit().putBoolean("isPlaying", true).putString("CurrentSong", new Gson().toJson(playSongModel)).apply();
+                            AppController.getSpSearchSongInfo().edit().putBoolean("isPlayingSearch", true).putString("CurrentSongSearch", new Gson().toJson(playSongModel)).apply();
                             requireActivity().sendBroadcast(updatePlayBroadCast);
                         }
                     }
@@ -394,6 +410,7 @@ public class FragmentPlayer extends Fragment {
 
             Intent updatePlayBroadCast = new Intent("GetPlaySong");
             AppController.getSpSongInfo().edit().putBoolean("isPlaying", true).putString("CurrentSong", new Gson().toJson(songModel)).apply();
+            AppController.getSpSearchSongInfo().edit().putBoolean("isPlayingSearch", true).putString("CurrentSongSearch", new Gson().toJson(songModel)).apply();
             requireActivity().sendBroadcast(updatePlayBroadCast);
 
 //                int audioSessionId = mediaPlayer.getAudioSessionId();
@@ -565,6 +582,7 @@ public class FragmentPlayer extends Fragment {
             if (mediaPlayer != null) {
                 Intent updatePlayBroadCast = new Intent("GetPlaySong");
                 AppController.getSpSongInfo().edit().putBoolean("isPlaying", false).putString("CurrentSong", "").apply();
+                AppController.getSpSearchSongInfo().edit().putBoolean("isPlayingSearch", true).putString("CurrentSongSearch", "").apply();
                 requireActivity().sendBroadcast(updatePlayBroadCast);
 
                 mediaPlayer.stop();
