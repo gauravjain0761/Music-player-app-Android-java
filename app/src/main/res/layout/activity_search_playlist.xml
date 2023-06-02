@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary">
@@ -20,8 +19,10 @@
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/imageViewBack"
-                android:layout_width="@dimen/_45sdp"
+                android:layout_width="@dimen/_40sdp"
                 android:layout_height="@dimen/_30sdp"
+                android:layout_marginLeft="@dimen/_minus5sdp"
+                android:padding="@dimen/_5sdp"
                 android:src="@drawable/ic_arrow_back" />
 
             <com.app.musicplayer.utils.CustomEditText
@@ -30,6 +31,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/_5sdp"
                 android:background="@drawable/et_white_selector"
+                android:fontFamily="@font/roboto_medium"
                 android:hint="@string/txt_search"
                 android:imeOptions="actionDone"
                 android:paddingLeft="@dimen/_15sdp"
@@ -37,9 +39,14 @@
                 android:paddingRight="@dimen/_15sdp"
                 android:paddingBottom="@dimen/_7sdp"
                 android:singleLine="true"
-                android:textColor="@color/txt_offwhite"
-                android:textColorHint="@color/txt_white35"
-                android:textSize="@dimen/_12sdp" />
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@android:color/white"
+                android:textColorHint="@android:color/darker_gray"
+                android:textFontWeight="600"
+                android:textSize="@dimen/_12ssp">
+
+                <requestFocus />
+            </com.app.musicplayer.utils.CustomEditText>
 
         </LinearLayout>
 
@@ -79,15 +86,13 @@
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/txt_no_data"
-                    style="@style/txt_white_style"
+                    style="@style/txt_title"
                     android:layout_height="match_parent"
-                    android:fontFamily="@font/roboto_medium"
                     android:gravity="center"
                     android:padding="@dimen/_20sdp"
                     android:singleLine="false"
-                    android:text="@string/txt_no_data_found"
-                    android:textColor="@color/offwhite"
-                    android:textFontWeight="400"
+                    android:text="@string/txt_no_results"
+                    android:textColor="@color/grey"
                     android:visibility="gone" />
 
             </LinearLayout>

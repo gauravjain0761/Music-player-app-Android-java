@@ -1,40 +1,45 @@
 package com.app.musicplayer.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicplayer.R;
 import com.app.musicplayer.databinding.AdapterSongsTrashedBinding;
-import com.app.musicplayer.db.SongModel;
+import com.app.musicplayer.entity.SongEntity;
 import com.app.musicplayer.utils.ImageUtil;
 
-import java.util.List;
+import java.util.Objects;
 
-public class TrashedSongsAdapter extends RecyclerView.Adapter<TrashedSongsAdapter.MyViewHolder> {
+public class TrashedSongsAdapter extends ListAdapter<SongEntity, TrashedSongsAdapter.ItemViewHolder> {
+
     String TAG = TrashedSongsAdapter.class.getSimpleName();
+    TrashSongsListener trashSongsListener;
     Context context;
-    List<SongModel> songList;
-    DeleteSongsListner deleteSongsListner;
     boolean isAnyLongPress = false;
 
-    public TrashedSongsAdapter(List<SongModel> list, Context context, DeleteSongsListner deleteSongs) {
-        this.context = context;
-        songList = list;
-        deleteSongsListner = deleteSongs;
-    }
+    public TrashedSongsAdapter(Context con, TrashSongsListener listener) {
+        super(new DiffUtil.ItemCallback<SongEntity>() {
+            @Override
+            public boolean areItemsTheSame(@NonNull SongEntity oldItem, @NonNull SongEntity newItem) {
+                return Objects.equals(oldItem.getId(), newItem.getId());
+            }
 
-    public void setLongPress() {
-        try {
-            isAnyLongPress = true;
-            notifyDataSetChanged();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            @SuppressLint("DiffUtilEquals")
+            @Override
+            public boolean areContentsTheSame(@NonNull SongEntity oldItem, @NonNull SongEntity newItem) {
+                return oldItem == newItem;
+            }
+        });
+        trashSongsListener = listener;
+        context = con;
     }
 
     public boolean getLongPress() {
@@ -52,57 +57,44 @@ public class TrashedSongsAdapter extends RecyclerView.Adapter<TrashedSongsAdapte
 
     @NonNull
     @Override
-    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new MyViewHolder(AdapterSongsTrashedBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+    public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new ItemViewHolder(AdapterSongsTrashedBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         try {
-            bindListLayout(holder, position);
+            holder.bindHolder(getItem(position), position);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void bindListLayout(MyViewHolder holder, int position) {
-        try {
-            final SongModel result = songList.get(position);
-            holder.binding.txtTitle.setText("" + (("" + result.getTitle()).replace("null", "").replace("Null", "")));
-            holder.binding.txtMsg.setText("" + (("" + result.getArtistName()).replace("null", "").replace("Null", "")));
-            if (("" + (("" + result.getBitmapCover()).replace("null", "").replace("Null", ""))).isEmpty()) {
-                holder.binding.imageView.setImageResource(R.drawable.icv_songs);
-            } else {
-                holder.binding.imageView.setImageBitmap(ImageUtil.convertToBitmap(result.getBitmapCover()));
-            }
-            holder.binding.cbDelete.setChecked(result.getIsChecked());
-            if (isAnyLongPress) {
-                holder.binding.cbDelete.setVisibility(View.VISIBLE);
-            } else {
-                holder.binding.cbDelete.setVisibility(View.GONE);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public int getItemCount() {
-        return songList.size();
-    }
-
-    public class MyViewHolder extends RecyclerView.ViewHolder {
+    public class ItemViewHolder extends RecyclerView.ViewHolder {
         final AdapterSongsTrashedBinding binding;
 
-        public MyViewHolder(AdapterSongsTrashedBinding itemBinding) {
+        public ItemViewHolder(@NonNull AdapterSongsTrashedBinding itemBinding) {
             super(itemBinding.getRoot());
             this.binding = itemBinding;
             try {
+                binding.getRoot().setOnClickListener(v -> {
+                    try {
+                        SongEntity songEntity = getItem(getPosition());
+                        if (isAnyLongPress) {
+                            trashSongsListener.deleteSongs(songEntity, !songEntity.getIsChecked(), getPosition());
+                            songEntity.setIsChecked(!songEntity.getIsChecked());
+                            notifyDataSetChanged();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
                 binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     try {
-                        SongModel songModel = songList.get(getPosition());
-                        songModel.setIsChecked(isChecked);
-                        deleteSongsListner.deleteSongs(songModel, isChecked, getPosition());
+                        SongEntity songEntity = getItem(getPosition());
+                        songEntity.setIsChecked(isChecked);
+                        trashSongsListener.deleteSongs(songEntity, isChecked, getPosition());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -111,7 +103,7 @@ public class TrashedSongsAdapter extends RecyclerView.Adapter<TrashedSongsAdapte
                 binding.getRoot().setOnLongClickListener(v -> {
                     try {
                         isAnyLongPress = true;
-                        deleteSongsListner.longPressSongs(isAnyLongPress);
+                        trashSongsListener.longPressSongs(isAnyLongPress);
                         notifyDataSetChanged();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -122,10 +114,32 @@ public class TrashedSongsAdapter extends RecyclerView.Adapter<TrashedSongsAdapte
                 e.printStackTrace();
             }
         }
+
+        public void bindHolder(final SongEntity entity, final int position) {
+            try {
+                if (binding != null) {
+                    binding.txtTitle.setText("" + (("" + entity.getTitle()).replace("null", "").replace("Null", "")));
+                    binding.txtMsg.setText("" + (("" + entity.getArtistName()).replace("null", "").replace("Null", "")));
+                    if (("" + (("" + entity.getBitmapCover()).replace("null", "").replace("Null", ""))).isEmpty()) {
+                        binding.imageView.setImageResource(R.drawable.icv_songs);
+                    } else {
+                        binding.imageView.setImageBitmap(ImageUtil.convertToBitmap(entity.getBitmapCover()));
+                    }
+                    binding.cbDelete.setChecked(entity.getIsChecked());
+                    if (isAnyLongPress) {
+                        binding.cbDelete.setVisibility(View.VISIBLE);
+                    } else {
+                        binding.cbDelete.setVisibility(View.GONE);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    public interface DeleteSongsListner {
-        void deleteSongs(SongModel result, boolean isChecked, int position);
+    public interface TrashSongsListener {
+        void deleteSongs(SongEntity result, boolean isChecked, int position);
 
         void longPressSongs(boolean isAnyLongPress);
     }

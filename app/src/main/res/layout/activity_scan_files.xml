@@ -14,25 +14,22 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:layout_gravity="center_vertical"
-            android:layout_marginRight="@dimen/_5sdp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/imageViewBack"
-                android:layout_width="@dimen/_45sdp"
+                android:layout_width="@dimen/_40sdp"
                 android:layout_height="@dimen/_30sdp"
+                android:layout_marginLeft="@dimen/_minus5sdp"
+                android:padding="@dimen/_5sdp"
                 android:src="@drawable/ic_arrow_back" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/txt_title"
-                style="@style/txt_white_style"
-                android:layout_width="match_parent"
-                android:fontFamily="@font/roboto_bold"
-                android:text="@string/txt_scanFiles"
-                android:textColor="@color/white"
-                android:textFontWeight="600"
-                android:textSize="@dimen/_14sdp" />
+                style="@style/txt_toolbar"
+                android:layout_marginLeft="@dimen/_5sdp"
+                android:text="@string/txt_scanFiles" />
 
         </LinearLayout>
 
@@ -72,17 +69,16 @@
 
                         <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/txt_sort"
-                            style="@style/txt_white_style"
+                            style="@style/txt_title"
                             android:layout_width="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:layout_marginStart="@dimen/_10sdp"
                             android:drawableRight="@drawable/selector_ic_dropdown"
                             android:drawablePadding="@dimen/_5sdp"
-                            android:fontFamily="@font/roboto_regular"
+                            android:drawableTint="@color/grey"
                             android:gravity="center_vertical"
                             android:text="@string/txt_sort_by_nameA2Z"
-                            android:textColor="@color/txt_offwhite"
-                            android:textSize="@dimen/_11sdp" />
+                            android:textColor="@color/grey" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -94,13 +90,14 @@
                         android:gravity="right|center_vertical"
                         android:orientation="horizontal">
 
-
                         <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/imageViewSearch"
-                            android:layout_width="@dimen/_35sdp"
-                            android:layout_height="@dimen/_35sdp"
+                            android:layout_width="@dimen/_33sdp"
+                            android:layout_height="@dimen/_33sdp"
                             android:padding="@dimen/_3sdp"
-                            android:src="@drawable/ic_search" />
+                            android:src="@drawable/ic_search"
+                            android:tint="@color/grey"
+                            app:tint="@color/grey" />
 
                         <androidx.appcompat.widget.AppCompatCheckBox
                             android:id="@+id/cb_delete"
@@ -136,15 +133,13 @@
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/txt_no_data"
-                    style="@style/txt_white_style"
+                    style="@style/txt_title"
                     android:layout_height="match_parent"
-                    android:fontFamily="@font/roboto_medium"
                     android:gravity="center"
                     android:padding="@dimen/_20sdp"
                     android:singleLine="false"
-                    android:text="@string/txt_no_songs_scan"
-                    android:textColor="@color/offwhite"
-                    android:textFontWeight="400"
+                    android:text="@string/txt_no_results"
+                    android:textColor="@color/grey"
                     android:visibility="gone" />
 
             </LinearLayout>
@@ -155,11 +150,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|end"
                 android:layout_marginEnd="@dimen/fab_margin"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="@dimen/fab_margin"
                 android:backgroundTint="@color/colorAccent"
                 android:gravity="bottom|end"
                 app:srcCompat="@drawable/ic_file_move"
-                app:tint="@color/white" />
+                app:tint="@android:color/white" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -207,41 +202,15 @@
             </FrameLayout>
 
             <androidx.appcompat.widget.AppCompatTextView
-                style="@style/txt_white_style"
-                android:layout_width="match_parent"
+                style="@style/txt_toolbar"
                 android:layout_gravity="center"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:fontFamily="@font/roboto_regular"
                 android:gravity="center"
                 android:text="@string/txt_scanning"
-                android:textColor="@color/white"
                 android:textFontWeight="400"
-                android:textSize="@dimen/_14sdp" />
+                android:textStyle="normal" />
 
         </LinearLayout>
-
-
-        <!--        <LinearLayout-->
-        <!--            android:id="@+id/layout_scan"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="match_parent"-->
-        <!--            android:layout_gravity="center"-->
-        <!--            android:gravity="center"-->
-        <!--            android:orientation="vertical">-->
-
-        <!--            <com.radar.widget.RadarScanView-->
-        <!--                android:id="@+id/radar_scan"-->
-        <!--                android:layout_width="@dimen/_150sdp"-->
-        <!--                android:layout_height="@dimen/_150sdp"-->
-        <!--                app:circleColor="@color/et_background"-->
-        <!--                app:circleWidth="1"-->
-        <!--                app:innerRingAlpha="94"-->
-        <!--                app:innerRingWidth="6"-->
-        <!--                app:outerRingAlpha="64"-->
-        <!--                app:outerRingWidth="4"-->
-        <!--                app:radarColor="@color/et_background"-->
-        <!--                app:tailColor="@color/colorAccent" />-->
-
-        <!--        </LinearLayout>-->
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

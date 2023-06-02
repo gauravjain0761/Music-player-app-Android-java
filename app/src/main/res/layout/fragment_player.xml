@@ -55,30 +55,16 @@
 
                 <TextView
                     android:id="@+id/audio_name_text_view"
-                    style="@style/txt_white_style"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:elevation="@dimen/_10sdp"
+                    style="@style/txt_title"
                     android:ellipsize="end"
-                    android:fontFamily="@font/roboto_medium"
-                    android:outlineProvider="none"
-                    android:singleLine="true"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/_12sdp" />
+                    android:outlineProvider="none" />
 
                 <TextView
                     android:id="@+id/artist_name_text_view"
-                    style="@style/txt_white_style"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    style="@style/txt_titleMsg"
                     android:layout_marginTop="@dimen/_5sdp"
-                    android:elevation="@dimen/_10sdp"
                     android:ellipsize="end"
-                    android:fontFamily="@font/roboto_regular"
-                    android:maxLines="1"
-                    android:outlineProvider="none"
-                    android:textColor="@color/txt_offwhite"
-                    android:textSize="@dimen/_10sdp" />
+                    android:outlineProvider="none" />
 
             </LinearLayout>
 
@@ -271,16 +257,10 @@
 
             <TextView
                 android:id="@+id/seek_time_text_view"
-                style="@style/txt_white_style"
+                style="@style/txt_titleMsg"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:elevation="@dimen/_10sdp"
                 android:ellipsize="end"
-                android:fontFamily="@font/roboto_regular"
-                android:maxLines="1"
-                android:outlineProvider="none"
-                android:textColor="@color/txt_offwhite"
-                android:textSize="@dimen/_9sdp" />
+                android:outlineProvider="none" />
 
             <SeekBar
                 android:id="@+id/seekBar"
@@ -293,16 +273,10 @@
 
             <TextView
                 android:id="@+id/seek_duration_text_view"
-                style="@style/txt_white_style"
+                style="@style/txt_titleMsg"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:elevation="@dimen/_10sdp"
                 android:ellipsize="end"
-                android:fontFamily="@font/roboto_regular"
-                android:maxLines="1"
-                android:outlineProvider="none"
-                android:textColor="@color/txt_offwhite"
-                android:textSize="@dimen/_9sdp" />
+                android:outlineProvider="none" />
 
         </LinearLayout>
 
@@ -327,40 +301,31 @@
 
         </LinearLayout>
 
-
         <TextView
             android:id="@+id/audio_name_text_view_min"
-            style="@style/txt_white_style"
+            style="@style/txt_title"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:elevation="@dimen/_10sdp"
+            android:layout_gravity="center_vertical"
             android:ellipsize="end"
-            android:fontFamily="@font/roboto_medium"
+            android:gravity="center_vertical"
             android:outlineProvider="none"
             android:paddingStart="@dimen/_15sdp"
             android:paddingEnd="@dimen/_15sdp"
-            android:singleLine="true"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_12sdp"
             app:layout_constraintEnd_toStartOf="@id/btn_previous"
             app:layout_constraintStart_toEndOf="@id/visualizerView"
             app:layout_constraintTop_toTopOf="@id/visualizerView" />
 
         <TextView
             android:id="@+id/artist_name_text_view_min"
-            style="@style/txt_white_style"
+            style="@style/txt_titleMsg"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:layout_marginTop="@dimen/_5sdp"
-            android:elevation="@dimen/_10sdp"
             android:ellipsize="end"
-            android:fontFamily="@font/roboto_regular"
-            android:maxLines="1"
+            android:gravity="center_vertical"
             android:outlineProvider="none"
             android:paddingStart="@dimen/_15sdp"
             android:paddingEnd="@dimen/_15sdp"
-            android:textColor="@color/txt_offwhite"
-            android:textSize="@dimen/_10sdp"
             app:layout_constraintEnd_toStartOf="@id/btn_previous"
             app:layout_constraintStart_toEndOf="@id/visualizerView"
             app:layout_constraintTop_toBottomOf="@id/audio_name_text_view_min" />

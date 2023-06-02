@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +15,35 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AppUtils {
     public static final int PERMISSION_REQUESTS = 1;
+
+    public static String getDate(long milliSecond) {
+        try {
+            return DateFormat.format("dd/MM/yyyy", new Date(milliSecond)).toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public static String secondToTime(int sec) {
+        int seconds = sec % 60;
+        int minutes = sec / 60;
+        if (minutes >= 60) {
+            int hours = minutes / 60;
+            minutes %= 60;
+            if (hours >= 24) {
+                int days = hours / 24;
+                return String.format("%d days %02d:%02d:%02d", days, hours % 24, minutes, seconds);
+            }
+            return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        }
+        return String.format("00:%02d:%02d", minutes, seconds);
+    }
 
     public static void setMargins(View view, int left, int top, int right, int bottom) {
         if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {

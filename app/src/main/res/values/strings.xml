@@ -7,19 +7,9 @@
     <string name="txt_confirm">Confirm</string>
     <string name="error_playlistname">Please enter playlist name!</string>
 
-    <string name="txt_no_data">Sorry! We could not found any result, due to there was an issue with processing this request.</string>
-    <string name="txt_no_data_found">No results</string>
-    <string name="txt_no_songs">Tap the<font color="#FF5B24"> + </font>button to create something new</string>
+    <string name="txt_no_results">Sorry! No results</string>
+    <string name="txt_no_songs">Tap the<font color="#FF5B24" size="24"> + </font>button to create something new</string>
     <string name="txt_no_songs_msg">A Place for all your Music</string>
-    <string name="txt_no_songs_delete">Sorry! No songs found for trash</string>
-    <string name="txt_no_songs_trash">Sorry! No songs found in trash</string>
-    <string name="txt_no_songs_scan">Sorry! No songs found in scan</string>
-
-    <string name="txt_delete_zero">Please select anyone. No one is selected for delete.</string>
-    <string name="txt_restore_zero">Please select anyone. No one is selected for restore.</string>
-
-
-
 
 
     <string name="txt_scanning">Scanning...</string>
@@ -34,16 +24,14 @@
     <string name="txt_playAll">Play All</string>
     <string name="txt_DONE">DONE</string>
     <string name="txt_createPlaylist">Create Playlist</string>
+    <string name="txt_currentPlayed">Current Played</string>
+    <string name="txt_lastPlayed">Last Played</string>
+    <string name="txt_count">(0)</string>
 
     <string name="txt_album">Albums</string>
     <string name="txt_artist">Artists</string>
     <string name="txt_genres">Genres</string>
 
-
-    <string name="txt_sort_by_name">Sort by name</string>
-    <string name="txt_sort_by_date">Sort by date</string>
-    <string name="txt_sort_by_duration">Sort by duration</string>
-    <string name="txt_sort_by_size">Sort by size</string>
 
     <string name="txt_sort_by_nameA2Z">Name (A to Z)</string>
     <string name="txt_sort_by_nameZ2A">Name (Z to A)</string>
@@ -53,6 +41,7 @@
     <string name="txt_sort_by_duration_long">Duration (long first)</string>
     <string name="txt_sort_by_size_small">Size (small first)</string>
     <string name="txt_sort_by_size_large">Size (large first)</string>
+    <string name="txt_clear">Clear</string>
 
     <string name="txt_yes">Yes</string>
     <string name="txt_no">No</string>
@@ -71,6 +60,13 @@
 
     <string name="alert_saved_msg">music moved successfully!</string>
     <string name="alert_saved_error_msg">No one is selected!</string>
+
+
+    <string name="inserting">Inserting</string>
+    <string name="deleting">Deleting</string>
+    <string name="initializing">initializing</string>
+
+    <string name="error_song">This song can\'t played!</string>
 
 
 </resources>

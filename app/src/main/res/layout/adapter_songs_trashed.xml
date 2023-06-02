@@ -6,50 +6,41 @@
     android:background="@android:color/transparent"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingLeft="@dimen/_5sdp"
-    android:paddingTop="@dimen/_10sdp"
-    android:paddingRight="@dimen/_10sdp"
-    android:paddingBottom="@dimen/_10sdp">
+    android:padding="@dimen/_10sdp">
 
     <androidx.appcompat.widget.AppCompatCheckBox
         android:id="@+id/cb_delete"
         style="@style/checkBoxStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:buttonTint="@color/checkbox_tint"
+        android:layout_gravity="center_vertical"
+        android:button="@drawable/cb_selector_white"
+        android:gravity="center_vertical"
         android:visibility="gone" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/imageView"
         android:layout_width="@dimen/_40sdp"
         android:layout_height="@dimen/_40sdp"
-        android:layout_marginLeft="@dimen/_5sdp" />
+        android:layout_marginLeft="@dimen/_10sdp" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="@dimen/_5sdp"
+        android:layout_marginLeft="@dimen/_10sdp"
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:orientation="vertical">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/txt_title"
-            style="@style/txt_white_style"
-            android:layout_width="match_parent"
-            android:fontFamily="@font/roboto_medium"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_12sdp"
+            style="@style/txt_title"
             tools:text="Play love me a lot" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/txt_msg"
-            style="@style/txt_white_style"
-            android:layout_width="match_parent"
-            android:fontFamily="@font/roboto_regular"
-            android:textColor="@color/txt_offwhite"
-            android:textSize="@dimen/_10sdp"
+            style="@style/txt_titleMsg"
             tools:text="YARLE" />
 
     </LinearLayout>

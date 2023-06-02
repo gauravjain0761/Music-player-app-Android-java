@@ -17,17 +17,13 @@
             android:layout_height="@dimen/_2sdp"
             android:layout_gravity="center"
             android:layout_marginTop="@dimen/_5sdp"
-            android:background="@color/txt_offwhite" />
+            android:background="@color/grey" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/txt_title"
-            style="@style/txt_white_style"
-            android:layout_width="match_parent"
+            style="@style/txt_toolbar"
             android:layout_margin="@dimen/_10sdp"
-            android:fontFamily="@font/roboto_medium"
-            android:text="@string/txt_sortBy"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_14sdp" />
+            android:text="@string/txt_sortBy" />
 
         <View
             android:layout_width="match_parent"
@@ -47,123 +43,99 @@
 
                 <RadioButton
                     android:id="@+id/rb1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    style="@style/txt_title"
                     android:layout_gravity="start"
                     android:layout_marginTop="@dimen/_7sdp"
                     android:layout_marginBottom="@dimen/_7sdp"
                     android:buttonTint="@color/radio_tint"
-                    android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
                     android:text="@string/txt_sort_by_nameA2Z"
                     android:textAlignment="textStart"
-                    android:textColor="@color/radio_tint"
-                    android:textSize="@dimen/_10sdp" />
+                    android:textColor="@color/radio_tint" />
 
                 <RadioButton
                     android:id="@+id/rb2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    style="@style/txt_title"
                     android:layout_gravity="start"
                     android:layout_marginTop="@dimen/_7sdp"
                     android:layout_marginBottom="@dimen/_7sdp"
                     android:buttonTint="@color/radio_tint"
-                    android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
                     android:text="@string/txt_sort_by_nameZ2A"
                     android:textAlignment="textStart"
-                    android:textColor="@color/radio_tint"
-                    android:textSize="@dimen/_10sdp" />
+                    android:textColor="@color/radio_tint"/>
 
                 <RadioButton
                     android:id="@+id/rb3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    style="@style/txt_title"
                     android:layout_gravity="start"
                     android:layout_marginTop="@dimen/_7sdp"
                     android:layout_marginBottom="@dimen/_7sdp"
                     android:buttonTint="@color/radio_tint"
-                    android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
                     android:text="@string/txt_sort_by_date_new"
                     android:textAlignment="textStart"
-                    android:textColor="@color/radio_tint"
-                    android:textSize="@dimen/_10sdp" />
+                    android:textColor="@color/radio_tint" />
 
                 <RadioButton
                     android:id="@+id/rb4"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    style="@style/txt_title"
                     android:layout_gravity="start"
                     android:layout_marginTop="@dimen/_7sdp"
                     android:layout_marginBottom="@dimen/_7sdp"
                     android:buttonTint="@color/radio_tint"
-                    android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
                     android:text="@string/txt_sort_by_date_old"
                     android:textAlignment="textStart"
-                    android:textColor="@color/radio_tint"
-                    android:textSize="@dimen/_10sdp" />
+                    android:textColor="@color/radio_tint"/>
 
                 <RadioButton
                     android:id="@+id/rb5"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    style="@style/txt_title"
                     android:layout_gravity="start"
                     android:layout_marginTop="@dimen/_7sdp"
                     android:layout_marginBottom="@dimen/_7sdp"
                     android:buttonTint="@color/radio_tint"
-                    android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
                     android:text="@string/txt_sort_by_duration_short"
                     android:textAlignment="textStart"
-                    android:textColor="@color/radio_tint"
-                    android:textSize="@dimen/_10sdp" />
+                    android:textColor="@color/radio_tint" />
 
                 <RadioButton
                     android:id="@+id/rb6"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    style="@style/txt_title"
                     android:layout_gravity="start"
                     android:layout_marginTop="@dimen/_7sdp"
                     android:layout_marginBottom="@dimen/_7sdp"
                     android:buttonTint="@color/radio_tint"
-                    android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
                     android:text="@string/txt_sort_by_duration_long"
                     android:textAlignment="textStart"
-                    android:textColor="@color/radio_tint"
-                    android:textSize="@dimen/_10sdp" />
+                    android:textColor="@color/radio_tint" />
 
                 <RadioButton
                     android:id="@+id/rb7"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    style="@style/txt_title"
                     android:layout_gravity="start"
                     android:layout_marginTop="@dimen/_7sdp"
                     android:layout_marginBottom="@dimen/_7sdp"
                     android:buttonTint="@color/radio_tint"
-                    android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
                     android:text="@string/txt_sort_by_size_small"
                     android:textAlignment="textStart"
-                    android:textColor="@color/radio_tint"
-                    android:textSize="@dimen/_10sdp" />
+                    android:textColor="@color/radio_tint" />
 
                 <RadioButton
                     android:id="@+id/rb8"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    style="@style/txt_title"
                     android:layout_gravity="start"
                     android:layout_marginTop="@dimen/_7sdp"
                     android:layout_marginBottom="@dimen/_7sdp"
                     android:buttonTint="@color/radio_tint"
-                    android:fontFamily="@font/roboto_regular"
                     android:layoutDirection="rtl"
                     android:text="@string/txt_sort_by_size_large"
                     android:textAlignment="textStart"
-                    android:textColor="@color/radio_tint"
-                    android:textSize="@dimen/_10sdp" />
+                    android:textColor="@color/radio_tint" />
 
             </RadioGroup>
         </LinearLayout>

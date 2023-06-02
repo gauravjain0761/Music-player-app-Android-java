@@ -2,67 +2,63 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/et_background"
-    android:gravity="center"
-    android:orientation="horizontal"
-    android:padding="@dimen/_30sdp">
+    android:background="@android:color/transparent"
+    android:orientation="horizontal">
 
     <LinearLayout
-        android:id="@+id/layoutLocalFiles"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_weight="1"
-        android:background="@color/et_background"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:background="@drawable/sortby_bottomsheet"
+        android:orientation="horizontal"
+        android:padding="@dimen/_20sdp">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="@dimen/_80sdp"
-            android:layout_height="@dimen/_80sdp"
-            android:padding="@dimen/_10sdp"
-            android:src="@drawable/ic_localfiles" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/txt_white_style"
+        <LinearLayout
+            android:id="@+id/layoutLocalFiles"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:fontFamily="@font/roboto_medium"
+            android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/txt_localFiles"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_12sdp" />
+            android:orientation="vertical">
 
-    </LinearLayout>
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="@dimen/_80sdp"
+                android:layout_height="@dimen/_80sdp"
+                android:padding="@dimen/_10sdp"
+                android:src="@drawable/ic_localfiles" />
 
-    <LinearLayout
-        android:id="@+id/layoutScan"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_weight="1"
-        android:background="@color/et_background"
-        android:gravity="center"
-        android:orientation="vertical">
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/txt_title"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:gravity="center"
+                android:text="@string/txt_localFiles" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="@dimen/_80sdp"
-            android:layout_height="@dimen/_80sdp"
-            android:padding="@dimen/_10sdp"
-            android:src="@drawable/ic_scanfiles" />
+        </LinearLayout>
 
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/txt_white_style"
+        <LinearLayout
+            android:id="@+id/layoutScan"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:fontFamily="@font/roboto_medium"
+            android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/txt_scanFiles"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_12sdp" />
+            android:orientation="vertical">
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="@dimen/_80sdp"
+                android:layout_height="@dimen/_80sdp"
+                android:padding="@dimen/_10sdp"
+                android:src="@drawable/ic_scanfiles" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/txt_title"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:gravity="center"
+                android:text="@string/txt_scanFiles" />
+
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

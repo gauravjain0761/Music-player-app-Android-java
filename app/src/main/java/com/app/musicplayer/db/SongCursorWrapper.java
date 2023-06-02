@@ -11,6 +11,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import com.app.musicplayer.R;
+import com.app.musicplayer.entity.SongEntity;
 import com.app.musicplayer.utils.ImageUtil;
 
 public class SongCursorWrapper extends CursorWrapper {
@@ -18,8 +19,8 @@ public class SongCursorWrapper extends CursorWrapper {
         super(cursor);
     }
 
-    public SongModel getSong(Context context) {
-        SongModel songModel = new SongModel();
+    public SongEntity getSong(Context context) {
+        SongEntity songEntity = new SongEntity();
         try {
             int id = getInt(getColumnIndex(MediaStore.Audio.Media._ID));
             String title = getString(getColumnIndex(MediaStore.Audio.Media.TITLE));
@@ -65,27 +66,27 @@ public class SongCursorWrapper extends CursorWrapper {
             else
                 songCoverBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_medieview);
 
-            songModel.setGenreId(genreId);
-            songModel.setGenreName(genreName);
-            songModel.setSongId(id);
-            songModel.setTrackNumber(trackNumber);
-            songModel.setYear(year);
-            songModel.setAlbumId(albumId);
-            songModel.setArtistId(artistId);
-            songModel.setDuration(duration);
-            songModel.setDateModified(dateModified);
-            songModel.setDateAdded(dateAdded);
-            songModel.setBookmark(bookmark);
-            songModel.setTitle("" + title);
-            songModel.setArtistName("" + artistName);
-            songModel.setComposer("" + composer);
-            songModel.setAlbumName("" + albumName);
-            songModel.setData("" + data);
-            songModel.setSize(size);
-            songModel.setBitmapCover(ImageUtil.convertToString(songCoverBitmap));
+            songEntity.setGenreId(genreId);
+            songEntity.setGenreName(genreName);
+            songEntity.setSongId(id);
+            songEntity.setTrackNumber(trackNumber);
+            songEntity.setYear(year);
+            songEntity.setAlbumId(albumId);
+            songEntity.setArtistId(artistId);
+            songEntity.setDuration(duration);
+            songEntity.setDateModified(dateModified);
+            songEntity.setDateAdded(dateAdded);
+            songEntity.setBookmark(bookmark);
+            songEntity.setTitle("" + title);
+            songEntity.setArtistName("" + artistName);
+            songEntity.setComposer("" + composer);
+            songEntity.setAlbumName("" + albumName);
+            songEntity.setData("" + data);
+            songEntity.setSize(size);
+            songEntity.setBitmapCover(ImageUtil.convertToString(songCoverBitmap));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return songModel;
+        return songEntity;
     }
 }

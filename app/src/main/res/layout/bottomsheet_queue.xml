@@ -13,7 +13,7 @@
         android:layout_height="@dimen/_320sdp"
         android:background="@color/bottomsheet_background" />
 
-    <com.app.musicplayer.pageindicator.PageIndicatorView
+    <com.app.musicplayer.utils.pageindicator.PageIndicatorView
         android:id="@+id/pageIndicatorView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

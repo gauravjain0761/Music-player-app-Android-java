@@ -5,6 +5,7 @@
 
     <Transition
         app:motionInterpolator="easeInOut"
+        android:interpolator="@android:anim/accelerate_decelerate_interpolator"
         motion:constraintSetEnd="@id/play_screen_expanded_normal"
         motion:constraintSetStart="@id/play_screen_minimized"
         motion:duration="0">
@@ -122,6 +123,7 @@
             android:id="@id/layout_seekBarMin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             app:layout_constraintTop_toTopOf="@id/player_background_view">
             <CustomAttribute
                 app:attributeName="alpha"

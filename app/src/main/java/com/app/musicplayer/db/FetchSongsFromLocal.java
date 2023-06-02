@@ -2,24 +2,26 @@ package com.app.musicplayer.db;
 
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
+import android.database.MergeCursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
+
+import com.app.musicplayer.entity.SongEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FetchSongsFromLocal {
 
-    public static List<SongModel> getAllSongs(Context context) {
-        List<SongModel> songs = new ArrayList();
+    public static List<SongEntity> getAllSongs(Context context) {
+        List<SongEntity> songs = new ArrayList();
         SongCursorWrapper cursor = queryAllSong(context, null, null);
         try {
             if (cursor.moveToFirst()) {
                 do {
-                    SongModel song = cursor.getSong(context);
+                    SongEntity song = cursor.getSong(context);
                     song.setAlbumArt("" + getAlbumUri(song.getAlbumId()).toString());
                     songs.add(song);
                 } while (cursor.moveToNext());
@@ -35,7 +37,7 @@ public class FetchSongsFromLocal {
     }
 
     static SongCursorWrapper queryAllSong(Context context, String whereClause, String[] whereArgs) {
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+
         String selection;
         if (whereClause != null) {
             selection = MediaStore.Audio.Media.IS_MUSIC + "!=0 AND " + whereClause;
@@ -43,9 +45,17 @@ public class FetchSongsFromLocal {
             selection = MediaStore.Audio.Media.IS_MUSIC + "!=0";
         }
         String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
-        Cursor cursor = context.getContentResolver().query(uri, null, selection, // where clause
+        Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, selection, // where clause
                 whereArgs,       //whereargs
                 sortOrder);
+
+//        MergeCursor cursor = new MergeCursor(new Cursor[]{context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, selection, // where clause
+//                whereArgs,       //whereargs
+//                sortOrder),
+//                context.getContentResolver().query(MediaStore.Audio.Media.INTERNAL_CONTENT_URI, null, selection, // where clause
+//                whereArgs,       //whereargs
+//                sortOrder)});
+
 
         if (cursor == null) Log.e("TAG", "cursor is null called ");
 
@@ -58,13 +68,13 @@ public class FetchSongsFromLocal {
     }
 
 
-    public static List<SongModel> getSelectedSongs(Context context, String path) {
-        List<SongModel> songs = new ArrayList();
+    public static List<SongEntity> getSelectedSongs(Context context, String path) {
+        List<SongEntity> songs = new ArrayList();
         SongCursorWrapper cursor = querySelectedSong(context, path);
         try {
             if (cursor.moveToFirst()) {
                 do {
-                    SongModel song = cursor.getSong(context);
+                    SongEntity song = cursor.getSong(context);
                     song.setAlbumArt("" + getAlbumUri(song.getAlbumId()).toString());
                     songs.add(song);
                 } while (cursor.moveToNext());

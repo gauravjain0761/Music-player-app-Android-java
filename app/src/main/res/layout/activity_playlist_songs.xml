@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -14,23 +15,21 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:layout_gravity="center_vertical"
-            android:layout_marginRight="@dimen/_5sdp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/imageViewBack"
-                android:layout_width="@dimen/_45sdp"
+                android:layout_width="@dimen/_40sdp"
                 android:layout_height="@dimen/_30sdp"
+                android:layout_marginLeft="@dimen/_minus5sdp"
+                android:padding="@dimen/_5sdp"
                 android:src="@drawable/ic_arrow_back" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/txt_title"
-                style="@style/txt_white_style"
-                android:layout_width="match_parent"
-                android:fontFamily="@font/roboto_bold"
-                android:textColor="@color/white"
-                android:textSize="@dimen/_14sdp"
+                style="@style/txt_toolbar"
+                android:layout_marginLeft="@dimen/_5sdp"
                 tools:text="Play love me a lot" />
 
         </LinearLayout>
@@ -73,12 +72,9 @@
                             android:src="@drawable/ic_play" />
 
                         <androidx.appcompat.widget.AppCompatTextView
-                            style="@style/txt_white_style"
-                            android:layout_width="match_parent"
-                            android:fontFamily="@font/roboto_medium"
-                            android:text="@string/txt_playAll"
-                            android:textColor="@color/white"
-                            android:textSize="@dimen/_11sdp" />
+                            android:id="@+id/txt_playAll"
+                            style="@style/txt_title"
+                            android:text="@string/txt_playAll" />
 
                     </LinearLayout>
 
@@ -93,28 +89,27 @@
 
                         <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/txt_sort"
-                            style="@style/txt_white_style"
+                            style="@style/txt_title"
                             android:layout_width="wrap_content"
                             android:layout_gravity="center_vertical"
-                            android:layout_marginEnd="@dimen/_10sdp"
+                            android:layout_marginStart="@dimen/_10sdp"
                             android:drawableRight="@drawable/selector_ic_dropdown"
                             android:drawablePadding="@dimen/_5sdp"
-                            android:fontFamily="@font/roboto_regular"
+                            android:drawableTint="@color/grey"
                             android:gravity="center_vertical"
                             android:text="@string/txt_sort_by_nameA2Z"
-                            android:textColor="@color/txt_offwhite"
-                            android:textSize="@dimen/_11sdp" />
+                            android:textColor="@color/grey" />
 
                         <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/imageViewSearch"
-                            android:layout_width="@dimen/_35sdp"
-                            android:layout_height="@dimen/_35sdp"
+                            android:layout_width="@dimen/_33sdp"
+                            android:layout_height="@dimen/_33sdp"
                             android:padding="@dimen/_3sdp"
-                            android:src="@drawable/ic_search" />
+                            android:src="@drawable/ic_search"
+                            android:tint="@color/grey"
+                            app:tint="@color/grey" />
 
                     </LinearLayout>
-
-
                 </LinearLayout>
 
                 <LinearLayout
@@ -138,15 +133,13 @@
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/txt_no_data"
-                    style="@style/txt_white_style"
+                    style="@style/txt_title"
                     android:layout_height="match_parent"
-                    android:fontFamily="@font/roboto_medium"
                     android:gravity="center"
                     android:padding="@dimen/_20sdp"
                     android:singleLine="false"
-                    android:text="@string/txt_no_data_found"
-                    android:textColor="@color/offwhite"
-                    android:textFontWeight="400"
+                    android:text="@string/txt_no_results"
+                    android:textColor="@color/grey"
                     android:visibility="gone" />
 
             </LinearLayout>
