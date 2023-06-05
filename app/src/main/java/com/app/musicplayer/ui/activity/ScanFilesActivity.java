@@ -1,22 +1,17 @@
 package com.app.musicplayer.ui.activity;
 
-import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewPropertyAnimator;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -26,6 +21,7 @@ import com.app.musicplayer.R;
 import com.app.musicplayer.adapter.ScanFilesAdapter;
 import com.app.musicplayer.databinding.ActivityScanFilesBinding;
 import com.app.musicplayer.db.DBUtils;
+import com.app.musicplayer.db.ExecuteTask;
 import com.app.musicplayer.db.FetchSongsFromLocal;
 import com.app.musicplayer.entity.SongEntity;
 import com.app.musicplayer.ui.IActivityContract;
@@ -86,6 +82,18 @@ public class ScanFilesActivity extends BaseActivity<ScanFilesActivityPresenter> 
     @Override
     protected void initWidget() {
         try {
+            try {
+                ObjectAnimator.class.getMethod("setDurationScale", float.class).invoke(binding.imageViewRotate, 1f);
+            } catch (Throwable t) {
+                Log.e(TAG, t.getMessage());
+            }
+
+            try {
+                ValueAnimator.class.getMethod("setDurationScale", float.class).invoke(binding.imageViewRotate, 1f);
+            } catch (Throwable t) {
+                Log.e(TAG, t.getMessage());
+            }
+
             binding.imageViewBack.setOnClickListener(v -> {
                 AppUtils.hideKeyboardOnClick(ScanFilesActivity.this, v);
                 finish();
@@ -174,107 +182,44 @@ public class ScanFilesActivity extends BaseActivity<ScanFilesActivityPresenter> 
     @Override
     protected void initData() {
         try {
-            new AsyncScanList().execute();
+            new ExecuteTask() {
+
+                @Override
+                public void onPreExecute() {
+                    try {
+                        RotateAnimation rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                        rotate.setDuration(4000);
+                        rotate.setRepeatCount(ValueAnimator.INFINITE);
+                        rotate.setInterpolator(new LinearInterpolator());
+                        binding.imageViewRotate.startAnimation(rotate);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void doInBackground() {
+                    try {
+                        if (songsList != null) songsList.clear();
+                        songsList = FetchSongsFromLocal.getAllSongs(ScanFilesActivity.this);
+                        Collections.sort(songsList, new SortComparator.SortByName.Ascending());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onPostExecute() {
+                    try {
+                        binding.layoutScan.setVisibility(View.GONE);
+                        refreshView();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.execute();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    class AsyncScanList extends AsyncTask<String, String, List<SongEntity>> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            try {
-                ObjectAnimator.class.getMethod("setDurationScale", float.class).invoke(binding.imageViewRotate, 1f);
-            } catch (Throwable t) {
-                Log.e(TAG, t.getMessage());
-            }
-
-            try {
-                ValueAnimator.class.getMethod("setDurationScale", float.class).invoke(binding.imageViewRotate, 1f);
-            } catch (Throwable t) {
-                Log.e(TAG, t.getMessage());
-            }
-////            rotate.setDuration(5000);
-////            rotate.setRepeatCount(Animation.INFINITE);
-////            rotate.setInterpolator(new LinearInterpolator());
-
-//            animator = binding.imageViewRotate.animate().rotation(360).setInterpolator(new LinearInterpolator()).setDuration(1000);
-//            animator.setListener(new Animator.AnimatorListener() {
-//
-//                @Override
-//                public void onAnimationStart(@NonNull Animator animation) {
-//
-//                }
-//
-//                @Override
-//                public void onAnimationEnd(final Animator animation) {
-//                    animation.addListener(null);
-//                    binding.imageViewRotate.setRotation(0);
-//                    binding.imageViewRotate.animate().rotation(360).setInterpolator(new LinearInterpolator()).setDuration(1000).setListener(this).start();
-//                }
-//
-//                @Override
-//                public void onAnimationCancel(@NonNull Animator animation) {
-//
-//                }
-//
-//                @Override
-//                public void onAnimationRepeat(@NonNull Animator animation) {
-//
-//                }
-//
-//            });
-
-
-            //binding.imageViewRotate.animate().rotationBy(360f).setDuration(4000).setInterpolator(new LinearInterpolator()).start();
-
-
-//            ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(binding.imageViewRotate, View.ROTATION, 1f, 360f).setDuration(5000);
-//            objectAnimator.setInterpolator(new LinearInterpolator());
-//            objectAnimator.setRepeatCount(ValueAnimator.INFINITE);
-//            if (objectAnimator != null) objectAnimator.start();
-
-            RotateAnimation rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-            rotate.setDuration(4000);
-            rotate.setRepeatCount(ValueAnimator.INFINITE);
-            rotate.setInterpolator(new LinearInterpolator());
-            binding.imageViewRotate.startAnimation(rotate);
-
-//            ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(binding.imageViewRotate, View.ROTATION, 1f, 360f).setDuration(5000);
-//            objectAnimator.setInterpolator(new LinearInterpolator());
-//            objectAnimator.setRepeatCount(ValueAnimator.INFINITE);
-//            if (objectAnimator != null) objectAnimator.start();
-
-            //binding.imageViewRotate.startAnimation(rotate);
-//            binding.radarScan.startScan();
-        }
-
-        @Override
-        protected List<SongEntity> doInBackground(String... strings) {
-            try {
-                if (songsList != null) songsList.clear();
-                songsList = FetchSongsFromLocal.getAllSongs(ScanFilesActivity.this);
-                Collections.sort(songsList, new SortComparator.SortByName.Ascending());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return songsList;
-        }
-
-        @Override
-        protected void onPostExecute(List<SongEntity> list) {
-            super.onPostExecute(list);
-            try {
-//                animator.cancel();
-//                animator.setListener(null);
-                //binding.radarScan.stopScan();
-                binding.layoutScan.setVisibility(View.GONE);
-                refreshView();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 

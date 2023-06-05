@@ -238,6 +238,28 @@ public class SearchScanFilesActivity extends BaseActivity<SearchScanActivityPres
         }
     }
 
+    private boolean checkBoxAllIsChecked() {
+        try {
+            for (SongEntity songEntity : songsList) {
+                if (!songEntity.getIsChecked()) return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    private boolean checkBoxAllIsUnChecked() {
+        try {
+            for (SongEntity songEntity : songsList) {
+                if (songEntity.getIsChecked()) return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
     private void checkFabLayout() {
         try {
             if (ScanFilesActivity.songsList != null && ScanFilesActivity.songsList.size() > 0) {
@@ -246,6 +268,9 @@ public class SearchScanFilesActivity extends BaseActivity<SearchScanActivityPres
                 } else {
                     binding.fab.setVisibility(View.GONE);
                 }
+
+                if (checkBoxAllIsChecked()) binding.cbDelete.setChecked(true);
+                if (checkBoxAllIsUnChecked()) binding.cbDelete.setChecked(false);
             } else {
                 binding.fab.setVisibility(View.GONE);
             }

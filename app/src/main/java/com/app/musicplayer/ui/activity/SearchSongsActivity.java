@@ -31,6 +31,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresenter> implements IActivityContract.IActivityView {
@@ -149,6 +150,7 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
 
             binding.imageViewBack.setOnClickListener(v -> {
                 AppUtils.hideKeyboardOnClick(SearchSongsActivity.this, v);
+                clear();
                 finish();
             });
 
@@ -387,6 +389,9 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
 
     private boolean isAnyChecked() {
         try {
+
+
+
             for (SongEntity songEntity : songsList) {
                 if (songEntity.getIsChecked()) return true;
             }

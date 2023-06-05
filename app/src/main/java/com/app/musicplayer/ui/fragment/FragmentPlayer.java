@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -479,13 +480,26 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
                 mediaPlayer.stop();
                 mediaPlayer.reset();
                 mediaPlayer.release();
+                mediaPlayer = null;
             }
-            mediaPlayer = null;
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mediaPlayer.setDataSource(songEntity.getData());
-            mediaPlayer.prepare();
-            mediaPlayer.start();
+            try {
+                mediaPlayer = new MediaPlayer();
+                mediaPlayer.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
+                //mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                mediaPlayer.setDataSource(songEntity.getData());
+                mediaPlayer.prepareAsync();
+                mediaPlayer.setOnPreparedListener(mp -> {
+                    try {
+                        Log.e("TAG", "setOnPreparedListener called");
+                        mediaPlayer.start();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (Exception e) {
+                Toast.makeText(requireActivity(), "Error Occurred!", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
             playSongEntity = songEntity;
             Intent updatePlayBroadCast = new Intent("GetPlaySong");
             //AppController.getSpSongInfo().edit().putBoolean("isPlaying", true).putString("CurrentSong", new Gson().toJson(songEntity)).apply();
@@ -493,6 +507,7 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
             requireActivity().sendBroadcast(updatePlayBroadCast);
             mediaPlayer.setOnCompletionListener(mp -> {
                 try {
+                    Log.e("TAG", "setOnCompletionListener called");
                     if (objectAnimator != null) objectAnimator.pause();
                     playNextSong();
                 } catch (Exception e) {
@@ -502,6 +517,8 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
 
             mediaPlayer.setOnErrorListener((mp, what, extra) -> {
                 try {
+                    Log.e("TAG", "setOnErrorListener what " + what);
+                    Log.e("TAG", "setOnErrorListener extra " + extra);
                     if (objectAnimator != null) objectAnimator.pause();
                     playNextSong();
                     requireActivity().runOnUiThread(() -> {

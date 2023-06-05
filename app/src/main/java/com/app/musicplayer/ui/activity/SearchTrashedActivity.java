@@ -102,6 +102,7 @@ public class SearchTrashedActivity extends BaseActivity<SearchTrashedActivityPre
 
             binding.imageViewBack.setOnClickListener(v -> {
                 AppUtils.hideKeyboardOnClick(SearchTrashedActivity.this, v);
+                clear();
                 finish();
             });
 

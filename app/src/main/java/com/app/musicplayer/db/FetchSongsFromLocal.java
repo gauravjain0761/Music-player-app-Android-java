@@ -88,7 +88,10 @@ public class FetchSongsFromLocal {
     }
 
     static SongCursorWrapper querySelectedSong(Context context, String path) {
-        Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Audio.Media.DATA + " = ?", new String[]{path}, "");
+        //Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Audio.Media.DATA + " = ?", new String[]{path}, "");
+        MergeCursor cursor = new MergeCursor(new Cursor[]{
+                context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Audio.Media.DATA + " = ?", new String[]{path}, ""),
+                context.getContentResolver().query(MediaStore.Audio.Media.INTERNAL_CONTENT_URI, null, MediaStore.Audio.Media.DATA + " = ?", new String[]{path}, "")});
         return new SongCursorWrapper(cursor);
     }
 }
