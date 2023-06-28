@@ -12,22 +12,20 @@ import com.app.musicplayer.R;
 import com.app.musicplayer.adapter.FragmentSongsAdapter;
 import com.app.musicplayer.databinding.ActivityPlaylistSongsBinding;
 import com.app.musicplayer.entity.SongEntity;
-import com.app.musicplayer.ui.IActivityContract;
-import com.app.musicplayer.ui.presenter.PlaylistActivityPresenter;
+import com.app.musicplayer.ui.contract.IActivityPlaylistSongsContract;
+import com.app.musicplayer.ui.presenter.PlaylistSongsActivityPresenter;
 import com.app.musicplayer.utils.AppUtils;
 import com.app.mvpdemo.businessframe.mvp.activity.BaseActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlaylistSongsActivity extends BaseActivity<PlaylistActivityPresenter> implements IActivityContract.IActivityView {
+public class PlaylistSongsActivity extends BaseActivity<PlaylistSongsActivityPresenter> implements IActivityPlaylistSongsContract.IActivityPlaylistSongsView {
 
     ActivityPlaylistSongsBinding binding;
-    PlaylistActivityPresenter presenter;
     FragmentSongsAdapter adapter;
     String TAG = SearchSongsActivity.class.getSimpleName();
     ArrayList<SongEntity> playList = new ArrayList<>();
-    int selectedSortTypeRadio = 0;
 
     @Override
     protected boolean isSupportHeadLayout() {
@@ -46,10 +44,8 @@ public class PlaylistSongsActivity extends BaseActivity<PlaylistActivityPresente
     }
 
     @Override
-    protected PlaylistActivityPresenter createPresenter(Context context) {
-        presenter = new PlaylistActivityPresenter(context, this);
-        presenter.setBinding(binding);
-        return presenter;
+    protected PlaylistSongsActivityPresenter createPresenter(Context context) {
+        return new PlaylistSongsActivityPresenter(context, this);
     }
 
     @Override
@@ -64,6 +60,7 @@ public class PlaylistSongsActivity extends BaseActivity<PlaylistActivityPresente
     @Override
     protected void initWidget() {
         try {
+            getPresenter().setBinding(binding);
             binding.imageViewBack.setOnClickListener(v -> {
                 AppUtils.hideKeyboardOnClick(PlaylistSongsActivity.this, v);
                 finish();
@@ -145,7 +142,7 @@ public class PlaylistSongsActivity extends BaseActivity<PlaylistActivityPresente
     public void showListView() {
         try {
             setListView();
-            adapter = new FragmentSongsAdapter(selectedSortTypeRadio, PlaylistSongsActivity.this, new FragmentSongsAdapter.SongsClickListener() {
+            adapter = new FragmentSongsAdapter(PlaylistSongsActivity.this, new FragmentSongsAdapter.SongsClickListener() {
 
                 @Override
                 public void deleteSongs(SongEntity result, boolean isChecked, int position) {

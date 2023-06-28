@@ -88,6 +88,8 @@ class PlayerScreenMotionLayout(
                     .forEach { it.onTransitionCompleted(p0, p1) }
             }
         })
+
+        setTransitionDuration(0);
     }
 
     override fun setTransitionListener(listener: TransitionListener?) {

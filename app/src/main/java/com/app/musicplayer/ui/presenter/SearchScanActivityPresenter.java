@@ -6,7 +6,7 @@ import com.app.musicplayer.R;
 import com.app.musicplayer.business.SampleManagerBusinessLogic;
 import com.app.musicplayer.databinding.ActivitySearchSongsBinding;
 import com.app.musicplayer.entity.SongEntity;
-import com.app.musicplayer.ui.IActivityContract;
+import com.app.musicplayer.ui.contract.IActivitySearchScanFilesContract;
 import com.app.mvpdemo.businessframe.BusinessLogicManager;
 import com.app.mvpdemo.businessframe.api.IBusinessLogicApi;
 import com.app.mvpdemo.businessframe.base.BusinessLogicException;
@@ -20,7 +20,7 @@ import com.app.mvpdemo.util.log.LogUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchScanActivityPresenter extends BasePresenter<IActivityContract.IActivityView> implements IActivityContract.IActivityPresenter, ICallback {
+public class SearchScanActivityPresenter extends BasePresenter<IActivitySearchScanFilesContract.IActivitySearchScanFilesView> implements IActivitySearchScanFilesContract.IActivitySearchScanFilesPresenter, ICallback {
 
     private static final String TAG = SearchScanActivityPresenter.class.getSimpleName();
     private IBusinessLogicApi mIBusinessLogicApi;
@@ -29,7 +29,7 @@ public class SearchScanActivityPresenter extends BasePresenter<IActivityContract
     Context context;
     ActivitySearchSongsBinding binding;
 
-    public SearchScanActivityPresenter(Context context, IActivityContract.IActivityView view) {
+    public SearchScanActivityPresenter(Context context, IActivitySearchScanFilesContract.IActivitySearchScanFilesView view) {
         super(context, view);
         this.context = context;
     }

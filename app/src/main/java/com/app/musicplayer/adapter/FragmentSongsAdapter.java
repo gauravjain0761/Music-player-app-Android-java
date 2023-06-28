@@ -15,7 +15,6 @@ import com.app.musicplayer.R;
 import com.app.musicplayer.entity.SongEntity;
 import com.app.musicplayer.databinding.AdapterFragmentSongsBinding;
 import com.app.musicplayer.ui.activity.HomeActivity;
-import com.app.musicplayer.ui.fragment.FragmentPlayer;
 import com.app.musicplayer.utils.ImageUtil;
 
 import java.util.Objects;
@@ -25,12 +24,6 @@ public class FragmentSongsAdapter extends ListAdapter<SongEntity, FragmentSongsA
     String TAG = FragmentSongsAdapter.class.getSimpleName();
     SongsClickListener songsClickListener;
     Context context;
-//    int selectedSortTypeRadio;
-
-//    SongEntity playSongEntity = null;
-//    Boolean isPlaying = false;
-//    FragmentPlayer fragmentPlayer = null;
-
     boolean isAnyLongPress = false;
 
     public boolean getLongPress() {
@@ -46,7 +39,7 @@ public class FragmentSongsAdapter extends ListAdapter<SongEntity, FragmentSongsA
         }
     }
 
-    public FragmentSongsAdapter(int selected, Context con, SongsClickListener listener) {
+    public FragmentSongsAdapter(Context con, SongsClickListener listener) {
         super(new DiffUtil.ItemCallback<SongEntity>() {
             @Override
             public boolean areItemsTheSame(@NonNull SongEntity oldItem, @NonNull SongEntity newItem) {
@@ -61,33 +54,7 @@ public class FragmentSongsAdapter extends ListAdapter<SongEntity, FragmentSongsA
         });
         songsClickListener = listener;
         context = con;
-//        selectedSortTypeRadio = selected;
-        //getFragment();
-        //getPlayerInfo();
     }
-
-//    private void getFragment() {
-//        try {
-//            fragmentPlayer = HomeActivity.fragmentPlayer;
-//            //fragmentPlayer = (FragmentPlayer) ((FragmentActivity) context).getSupportFragmentManager().findFragmentByTag("FragmentPlayer");
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    public void getPlayerInfo() {
-//        if (fragmentPlayer != null && fragmentPlayer.mediaPlayer != null && fragmentPlayer.playSongEntity != null && fragmentPlayer.mediaPlayer.isPlaying()) {
-//            playSongEntity = fragmentPlayer.playSongEntity;
-//            isPlaying = true;
-//        }
-//    }
-//
-//    public void setPlayerInfo(SongEntity sModel, Boolean playing) {
-//        playSongEntity = sModel;
-//        isPlaying = playing;
-//        getFragment();
-//        notifyDataSetChanged();
-//    }
 
     @NonNull
     @Override
@@ -165,7 +132,7 @@ public class FragmentSongsAdapter extends ListAdapter<SongEntity, FragmentSongsA
 //            }
 
                     if (("" + (("" + entity.getBitmapCover()).replace("null", "").replace("Null", ""))).isEmpty()) {
-                        binding.imageView.setImageResource(R.drawable.icv_songs);
+                        binding.imageView.setImageResource(R.drawable.ic_default_song);
                     } else {
                         binding.imageView.setImageBitmap(ImageUtil.convertToBitmap(entity.getBitmapCover()));
                     }

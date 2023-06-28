@@ -16,9 +16,9 @@
     <style name="MySeekBarMin" parent="Widget.AppCompat.SeekBar">
         <item name="android:progressBackgroundTint">@color/txt_white35</item>
         <item name="android:progressTint">@color/colorAccent</item>
-        <item name="android:thumbTint">@color/colorAccent</item>
-        <item name="android:minHeight">@dimen/_1sdp</item>
-        <item name="android:maxHeight">@dimen/_1sdp</item>
+        <item name="android:thumbTint">@android:color/transparent</item>
+        <item name="android:minHeight">0.2dp</item>
+        <item name="android:maxHeight">0.2dp</item>
     </style>
 
     <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">

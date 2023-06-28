@@ -64,7 +64,7 @@ public class SongCursorWrapper extends CursorWrapper {
             if (coverBytes != null && coverBytes.length > 0)
                 songCoverBitmap = BitmapFactory.decodeByteArray(coverBytes, 0, coverBytes.length);
             else
-                songCoverBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_medieview);
+                songCoverBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_default_song);
 
             songEntity.setGenreId(genreId);
             songEntity.setGenreName(genreName);

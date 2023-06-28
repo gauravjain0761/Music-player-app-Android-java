@@ -92,7 +92,7 @@
                 android:background="@color/colorPrimary"
                 android:clipToPadding="false"
                 android:divider="@null"
-                android:paddingBottom="@dimen/_50sdp"
+                android:paddingBottom="@dimen/_100sdp"
                 android:scrollbarStyle="outsideOverlay"
                 android:scrollbars="vertical" />
         </LinearLayout>
@@ -111,18 +111,39 @@
                 style="@style/txt_title"
                 android:layout_width="wrap_content"
                 android:layout_gravity="center"
-                android:background="@drawable/dashed_rect"
                 android:gravity="center"
                 android:padding="@dimen/_5sdp"
                 android:text="@string/txt_no_songs_msg" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                style="@style/txt_titleMsg"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:gravity="center"
-                android:text="@string/txt_no_songs" />
+                android:orientation="horizontal">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/txt_titleMsg"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="@string/txt_tab_the" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/txt_titleMsg"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="@string/txt_plus" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/txt_titleMsg"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="@string/txt_plus_msg" />
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -133,8 +154,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/_7sdp"
+        android:layout_marginBottom="@dimen/_7sdp"
         android:backgroundTint="@color/colorAccent"
         android:gravity="bottom|end"
         app:srcCompat="@android:drawable/ic_input_add"

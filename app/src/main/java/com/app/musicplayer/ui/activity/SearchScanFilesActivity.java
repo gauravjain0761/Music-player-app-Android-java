@@ -19,7 +19,7 @@ import com.app.musicplayer.adapter.ScanFilesAdapter;
 import com.app.musicplayer.databinding.ActivitySearchSongsBinding;
 import com.app.musicplayer.db.DBUtils;
 import com.app.musicplayer.entity.SongEntity;
-import com.app.musicplayer.ui.IActivityContract;
+import com.app.musicplayer.ui.contract.IActivitySearchScanFilesContract;
 import com.app.musicplayer.ui.presenter.SearchScanActivityPresenter;
 import com.app.musicplayer.utils.AppUtils;
 import com.app.mvpdemo.businessframe.mvp.activity.BaseActivity;
@@ -28,10 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SearchScanFilesActivity extends BaseActivity<SearchScanActivityPresenter> implements IActivityContract.IActivityView {
+public class SearchScanFilesActivity extends BaseActivity<SearchScanActivityPresenter> implements IActivitySearchScanFilesContract.IActivitySearchScanFilesView {
 
     ActivitySearchSongsBinding binding;
-    SearchScanActivityPresenter presenter;
     ScanFilesAdapter adapter;
     String TAG = SearchScanFilesActivity.class.getSimpleName();
     List<SongEntity> songsList = new ArrayList<>();
@@ -54,9 +53,7 @@ public class SearchScanFilesActivity extends BaseActivity<SearchScanActivityPres
 
     @Override
     protected SearchScanActivityPresenter createPresenter(Context context) {
-        presenter = new SearchScanActivityPresenter(context, this);
-        presenter.setBinding(binding);
-        return presenter;
+        return new SearchScanActivityPresenter(context, this);
     }
 
     @Override
@@ -72,6 +69,7 @@ public class SearchScanFilesActivity extends BaseActivity<SearchScanActivityPres
     @Override
     protected void initWidget() {
         try {
+            getPresenter().setBinding(binding);
             binding.etSearch.mSearchActivity = this;
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(binding.etSearch, InputMethodManager.SHOW_IMPLICIT);
@@ -249,15 +247,15 @@ public class SearchScanFilesActivity extends BaseActivity<SearchScanActivityPres
         return true;
     }
 
-    private boolean checkBoxAllIsUnChecked() {
+    private boolean checkBoxIsAnyUnChecked() {
         try {
             for (SongEntity songEntity : songsList) {
-                if (songEntity.getIsChecked()) return false;
+                if (!songEntity.getIsChecked()) return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return true;
+        return false;
     }
 
     private void checkFabLayout() {
@@ -270,10 +268,10 @@ public class SearchScanFilesActivity extends BaseActivity<SearchScanActivityPres
                 }
 
                 if (checkBoxAllIsChecked()) binding.cbDelete.setChecked(true);
-                if (checkBoxAllIsUnChecked()) binding.cbDelete.setChecked(false);
             } else {
                 binding.fab.setVisibility(View.GONE);
             }
+            if (checkBoxIsAnyUnChecked()) binding.cbDelete.setChecked(false);
         } catch (Exception e) {
             e.printStackTrace();
         }

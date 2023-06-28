@@ -4,29 +4,27 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.view.View;
 
-import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.viewbinding.ViewBinding;
 
 import com.app.musicplayer.adapter.FragmentQueueAdapter;
 import com.app.musicplayer.entity.SongEntity;
-import com.app.musicplayer.ui.IActivityContract;
 import com.app.musicplayer.databinding.FragmentQueueCurrentPlayedBinding;
 import com.app.musicplayer.ui.activity.HomeActivity;
+import com.app.musicplayer.ui.contract.IFragmentQueueCurrentPlayedContract;
 import com.app.musicplayer.ui.presenter.FragmentQueueCurrentPlayedPresenter;
 import com.app.mvpdemo.businessframe.mvp.fragment.BaseFragment;
 
 import java.util.List;
 
-public class FragmentQueueCurrentPlayed extends BaseFragment<FragmentQueueCurrentPlayedPresenter> implements IActivityContract.IActivityView {
+public class FragmentQueueCurrentPlayed extends BaseFragment<FragmentQueueCurrentPlayedPresenter> implements IFragmentQueueCurrentPlayedContract.IFragmentQueueCurrentPlayedView {
     String TAG = FragmentQueueCurrentPlayed.class.getSimpleName();
     FragmentQueueCurrentPlayedBinding binding;
     FragmentQueueAdapter adapter;
-    FragmentQueueCurrentPlayedPresenter presenter;
 
     @Override
     protected ViewBinding getContentView() {
@@ -36,14 +34,14 @@ public class FragmentQueueCurrentPlayed extends BaseFragment<FragmentQueueCurren
 
     @Override
     protected FragmentQueueCurrentPlayedPresenter createPresenter(Context context) {
-        presenter = new FragmentQueueCurrentPlayedPresenter(context, this);
-        presenter.setBinding(binding);
-        return presenter;
+        return new FragmentQueueCurrentPlayedPresenter(context, this);
     }
 
     @Override
     protected void initWidget(View root) {
         try {
+            getPresenter().setBinding(binding);
+
             binding.txtClear.setOnClickListener(v -> {
                 try {
                     if (HomeActivity.fragmentPlayer != null) {
@@ -114,15 +112,19 @@ public class FragmentQueueCurrentPlayed extends BaseFragment<FragmentQueueCurren
     @Override
     protected void registerEvent() {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                ContextCompat.registerReceiver(requireActivity(), playSongReceiver, new IntentFilter("GetPlaySong"), ContextCompat.RECEIVER_NOT_EXPORTED);
-                ContextCompat.registerReceiver(requireActivity(), deletePlaySongReceiver, new IntentFilter("DeletePlaySong"), ContextCompat.RECEIVER_NOT_EXPORTED);
-                ContextCompat.registerReceiver(requireActivity(), lastQueuePlaySongReceiver, new IntentFilter("LastQueuePlaySong"), ContextCompat.RECEIVER_NOT_EXPORTED);
-            } else {
-                requireActivity().registerReceiver(playSongReceiver, new IntentFilter("GetPlaySong"));
-                requireActivity().registerReceiver(deletePlaySongReceiver, new IntentFilter("DeletePlaySong"));
-                requireActivity().registerReceiver(lastQueuePlaySongReceiver, new IntentFilter("LastQueuePlaySong"));
-            }
+
+            LocalBroadcastManager.getInstance(requireActivity()).registerReceiver(playSongReceiver, new IntentFilter("GetPlaySong"));
+            LocalBroadcastManager.getInstance(requireActivity()).registerReceiver(deletePlaySongReceiver, new IntentFilter("DeletePlaySong"));
+            LocalBroadcastManager.getInstance(requireActivity()).registerReceiver(lastQueuePlaySongReceiver, new IntentFilter("LastQueuePlaySong"));
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                ContextCompat.registerReceiver(requireActivity(), playSongReceiver, new IntentFilter("GetPlaySong"), ContextCompat.RECEIVER_NOT_EXPORTED);
+//                ContextCompat.registerReceiver(requireActivity(), deletePlaySongReceiver, new IntentFilter("DeletePlaySong"), ContextCompat.RECEIVER_NOT_EXPORTED);
+//                ContextCompat.registerReceiver(requireActivity(), lastQueuePlaySongReceiver, new IntentFilter("LastQueuePlaySong"), ContextCompat.RECEIVER_NOT_EXPORTED);
+//            } else {
+//                requireActivity().registerReceiver(playSongReceiver, new IntentFilter("GetPlaySong"));
+//                requireActivity().registerReceiver(deletePlaySongReceiver, new IntentFilter("DeletePlaySong"));
+//                requireActivity().registerReceiver(lastQueuePlaySongReceiver, new IntentFilter("LastQueuePlaySong"));
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -133,11 +135,14 @@ public class FragmentQueueCurrentPlayed extends BaseFragment<FragmentQueueCurren
         try {
             try {
                 if (playSongReceiver != null)
-                    requireActivity().unregisterReceiver(playSongReceiver);
+                    LocalBroadcastManager.getInstance(requireActivity()).unregisterReceiver(playSongReceiver);
+//                    requireActivity().unregisterReceiver(playSongReceiver);
                 if (deletePlaySongReceiver != null)
-                    requireActivity().unregisterReceiver(deletePlaySongReceiver);
+                    LocalBroadcastManager.getInstance(requireActivity()).unregisterReceiver(deletePlaySongReceiver);
+//                    requireActivity().unregisterReceiver(deletePlaySongReceiver);
                 if (lastQueuePlaySongReceiver != null)
-                    requireActivity().unregisterReceiver(lastQueuePlaySongReceiver);
+                    LocalBroadcastManager.getInstance(requireActivity()).unregisterReceiver(lastQueuePlaySongReceiver);
+//                    requireActivity().unregisterReceiver(lastQueuePlaySongReceiver);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -199,9 +204,6 @@ public class FragmentQueueCurrentPlayed extends BaseFragment<FragmentQueueCurren
                         if (HomeActivity.fragmentPlayer != null) {
                             HomeActivity.fragmentPlayer.playQueueSong(position, result);
                         }
-//                        Intent updateDataBroadCast = new Intent("SongClick");
-//                        AppController.getSpSongInfo().edit().putInt("position", position).putString("songList", new Gson().toJson(HomeActivity.fragmentPlayer.songsList)).apply();
-//                        requireActivity().sendBroadcast(updateDataBroadCast);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

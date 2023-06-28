@@ -13,35 +13,31 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.viewbinding.ViewBinding;
 
-import com.app.musicplayer.AppController;
 import com.app.musicplayer.R;
 import com.app.musicplayer.adapter.FragmentSongsAdapter;
 import com.app.musicplayer.databinding.ActivitySearchSongsBinding;
 import com.app.musicplayer.db.DBUtils;
 import com.app.musicplayer.entity.SongEntity;
-import com.app.musicplayer.ui.IActivityContract;
+import com.app.musicplayer.ui.contract.IActivitySearchSongsContract;
 import com.app.musicplayer.ui.presenter.SearchSongsActivityPresenter;
 import com.app.musicplayer.utils.AppUtils;
 import com.app.mvpdemo.businessframe.mvp.activity.BaseActivity;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresenter> implements IActivityContract.IActivityView {
+public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresenter> implements IActivitySearchSongsContract.IActivitySearchSongsView {
 
     ActivitySearchSongsBinding binding;
-    SearchSongsActivityPresenter presenter;
     FragmentSongsAdapter adapter;
     String TAG = SearchSongsActivity.class.getSimpleName();
     List<SongEntity> songsList = new ArrayList<>();
-    int selectedSortTypeRadio = 0;
     boolean isKeyboardShowing = false;
 
     @Override
@@ -62,9 +58,7 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
 
     @Override
     protected SearchSongsActivityPresenter createPresenter(Context context) {
-        presenter = new SearchSongsActivityPresenter(context, this);
-        presenter.setBinding(binding);
-        return presenter;
+        return new SearchSongsActivityPresenter(context, this);
     }
 
     @Override
@@ -80,6 +74,8 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
     @Override
     protected void initWidget() {
         try {
+            getPresenter().setBinding(binding);
+
             binding.etSearch.mSearchActivity = this;
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(binding.etSearch, InputMethodManager.SHOW_IMPLICIT);
@@ -107,10 +103,10 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
                 }
             });
 
-            binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            binding.cbDelete.setOnClickListener(v -> {
                 try {
                     if (songsList != null && songsList.size() > 0) {
-                        if (isChecked) {
+                        if (binding.cbDelete.isChecked()) {
                             for (int i = 0; i < songsList.size(); i++) {
                                 SongEntity songs = songsList.get(i);
                                 songs.setIsChecked(true);
@@ -131,18 +127,35 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
                 }
             });
 
+//            binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
+//                try {
+//                    if (songsList != null && songsList.size() > 0) {
+//                        if (isChecked) {
+//                            for (int i = 0; i < songsList.size(); i++) {
+//                                SongEntity songs = songsList.get(i);
+//                                songs.setIsChecked(true);
+//                                songsList.set(i, songs);
+//                            }
+//                        } else {
+//                            for (int i = 0; i < songsList.size(); i++) {
+//                                SongEntity songs = songsList.get(i);
+//                                songs.setIsChecked(false);
+//                                songsList.set(i, songs);
+//                            }
+//                        }
+//                        notifyAdapter();
+//                        checkBottomLayout();
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            });
+
             binding.txtDone.setOnClickListener(v -> {
                 try {
                     clear();
                     if (adapter != null) adapter.clearLongPress();
                     checkBottomLayout();
-//                    if (isKeyboardShowing) {
-//                        AppUtils.closeKeyboard(this);
-//                    } else {
-//                        clear();
-//                        setResult(Activity.RESULT_OK, new Intent());
-//                        finish();
-//                    }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -199,7 +212,8 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
     @Override
     protected void registerEvent() {
         try {
-            registerReceiver(playSongReceiver, new IntentFilter("GetPlaySong"));
+            LocalBroadcastManager.getInstance(this).registerReceiver(playSongReceiver, new IntentFilter("GetPlaySong"));
+            //registerReceiver(playSongReceiver, new IntentFilter("GetPlaySong"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -208,7 +222,8 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
     protected void unRegisterEvent() {
         try {
             if (playSongReceiver != null)
-                registerReceiver(playSongReceiver, new IntentFilter("GetPlaySong"));
+                LocalBroadcastManager.getInstance(this).unregisterReceiver(playSongReceiver);
+            //.unregisterReceiver(playSongReceiver);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -220,13 +235,6 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
             try {
                 if (intent.getAction() != null && intent.getAction().equals("GetPlaySong")) {
                     notifyAdapter();
-//                    if (AppController.getSpSearchSongInfo().getBoolean("isPlayingSearch", false) && !AppController.getSpSearchSongInfo().getString("CurrentSongSearch", "").isEmpty()) {
-//                        if (adapter != null)
-//                            adapter.setPlayerInfo(new Gson().fromJson(AppController.getSpSearchSongInfo().getString("CurrentSongSearch", ""), SongEntity.class), true);
-//                    } else {
-//                        adapter.setPlayerInfo(null, false);
-//                    }
-//                    AppController.getSpSearchSongInfo().edit().clear().apply();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -277,7 +285,7 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
     public void showListView() {
         try {
             setListView();
-            adapter = new FragmentSongsAdapter(selectedSortTypeRadio, SearchSongsActivity.this, new FragmentSongsAdapter.SongsClickListener() {
+            adapter = new FragmentSongsAdapter(SearchSongsActivity.this, new FragmentSongsAdapter.SongsClickListener() {
 
                 @Override
                 public void deleteSongs(SongEntity result, boolean isChecked, int position) {
@@ -291,14 +299,9 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
                 @Override
                 public void onSongsClick(SongEntity result, int position) {
                     try {
-                        //finish();
-//                        if (HomeActivity.bindingHome.playScreenFrameLayout.getVisibility() == View.GONE) {
-//                            HomeActivity.bindingHome.playScreenFrameLayout.setVisibility(View.VISIBLE);
-//                            //HomeActivity.fragmentPlayer.setPlayMotionFullScreen();
-//                        }
-                        Intent updateDataBroadCast = new Intent("SongClick");
-                        AppController.getSpSongInfo().edit().putInt("position", position).putString("songList", new Gson().toJson(songsList)).apply();
-                        sendBroadcast(updateDataBroadCast);
+                        if (HomeActivity.fragmentPlayer != null) {
+                            HomeActivity.fragmentPlayer.onSongClick(songsList, position);
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -306,16 +309,14 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
 
                 @Override
                 public void onSongLongClick(SongEntity result, int position) {
-//                    Intent intent = new Intent(SearchSongsActivity.this, DeleteSongsActivity.class);
-//                    intent.putExtra("selectedSortByRadio", 0);
-//                    intent.putExtra("searchText", binding.etSearch.getText().toString());
-//                    startActivityForResult(intent, 101);
-                    //startActivityForResult(new Intent(SearchSongsActivity.this, DeleteSongsActivity.class), 101);
-
-                    if (isKeyboardShowing) {
-                        AppUtils.closeKeyboard(SearchSongsActivity.this);
+                    try {
+                        if (isKeyboardShowing) {
+                            AppUtils.closeKeyboard(SearchSongsActivity.this);
+                        }
+                        checkBottomLayout();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    checkBottomLayout();
                 }
             });
             binding.listView.setAdapter(adapter);
@@ -354,26 +355,24 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
         return true;
     }
 
-    private boolean checkBoxAllIsUnChecked() {
+    private boolean checkBoxIsAnyUnChecked() {
         try {
             for (SongEntity songEntity : songsList) {
-                if (songEntity.getIsChecked()) return false;
+                if (!songEntity.getIsChecked()) return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return true;
+        return false;
     }
 
     private void checkBottomLayout() {
         try {
             if (songsList != null && songsList.size() > 0) {
                 if (adapter != null && adapter.getLongPress()) {
-                    //if (adapter != null) adapter.setLongPress();
                     binding.fabDelete.setVisibility(View.VISIBLE);
                     binding.layoutTopCheckBox.setVisibility(View.VISIBLE);
                     if (checkBoxAllIsChecked()) binding.cbDelete.setChecked(true);
-                    if (checkBoxAllIsUnChecked()) binding.cbDelete.setChecked(false);
                 } else {
                     binding.fabDelete.setVisibility(View.GONE);
                     binding.layoutTopCheckBox.setVisibility(View.GONE);
@@ -382,6 +381,7 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
                 binding.fabDelete.setVisibility(View.GONE);
                 binding.layoutTopCheckBox.setVisibility(View.GONE);
             }
+            if (checkBoxIsAnyUnChecked()) binding.cbDelete.setChecked(false);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -389,9 +389,6 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
 
     private boolean isAnyChecked() {
         try {
-
-
-
             for (SongEntity songEntity : songsList) {
                 if (songEntity.getIsChecked()) return true;
             }
@@ -423,22 +420,19 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
             builder.setTitle(R.string.app_name);
             builder.setCancelable(false);
             builder.setPositiveButton(getResources().getString(R.string.txt_yes), (dialog, id) -> {
-                int songListCount = songsList.size();
                 int deleteCount = songsList.stream().filter(SongEntity::getIsChecked).collect(Collectors.toList()).size();
                 DBUtils.trashMultipleSongs(songsList.stream().filter(SongEntity::getIsChecked).collect(Collectors.toList()), new DBUtils.TaskComplete() {
                     @Override
                     public void onTaskComplete() {
                         try {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        Intent updatePlayBroadCast = new Intent("DeletePlaySong");
-                                        sendBroadcast(updatePlayBroadCast);
-                                        Toast.makeText(getApplicationContext(), deleteCount + " " + getResources().getString(R.string.alert_trash_msg), Toast.LENGTH_SHORT).show();
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
+                            runOnUiThread(() -> {
+                                try {
+                                    getSearchedList(binding.etSearch.getText().toString());
+                                    Intent updatePlayBroadCast = new Intent("DeletePlaySong");
+                                    sendBroadcast(updatePlayBroadCast);
+                                    Toast.makeText(getApplicationContext(), deleteCount + " " + getResources().getString(R.string.alert_trash_msg), Toast.LENGTH_SHORT).show();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
                             });
                         } catch (Exception e) {
@@ -446,19 +440,6 @@ public class SearchSongsActivity extends BaseActivity<SearchSongsActivityPresent
                         }
                     }
                 });
-
-//                if (songListCount == deleteCount) {
-//                    setResult(Activity.RESULT_OK, new Intent());
-//                    finish();
-//                } else {
-//                    getSearchedList(binding.etSearch.getText().toString());
-//                }
-                getSearchedList(binding.etSearch.getText().toString());
-
-//                DBUtils.deleteMultipleSongs(songsList.stream().filter(SongModel::getIsChecked).collect(Collectors.toList()));
-//                setResult(Activity.RESULT_OK, new Intent());
-//                finish();
-//                Toast.makeText(getApplicationContext(), "Songs Deleted!", Toast.LENGTH_SHORT).show();
             }).setNegativeButton(getResources().getString(R.string.txt_no), (dialog, id) -> dialog.cancel());
             builder.create().show();
         } catch (Exception e) {

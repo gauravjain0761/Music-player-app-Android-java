@@ -13,7 +13,7 @@ import com.app.musicplayer.R;
 import com.app.musicplayer.adapter.FragmentPlaylistAdapter;
 import com.app.musicplayer.databinding.ActivitySearchPlaylistBinding;
 import com.app.musicplayer.entity.SongEntity;
-import com.app.musicplayer.ui.IActivityContract;
+import com.app.musicplayer.ui.contract.IActivitySearchPlaylistContract;
 import com.app.musicplayer.ui.presenter.SearchPlaylistActivityPresenter;
 import com.app.musicplayer.utils.AppUtils;
 import com.app.mvpdemo.businessframe.mvp.activity.BaseActivity;
@@ -21,10 +21,9 @@ import com.app.mvpdemo.businessframe.mvp.activity.BaseActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchPlaylistActivity extends BaseActivity<SearchPlaylistActivityPresenter> implements IActivityContract.IActivityView {
+public class SearchPlaylistActivity extends BaseActivity<SearchPlaylistActivityPresenter> implements IActivitySearchPlaylistContract.IActivitySearchPlaylistView {
 
     ActivitySearchPlaylistBinding binding;
-    SearchPlaylistActivityPresenter presenter;
     FragmentPlaylistAdapter adapter;
     String TAG = SearchPlaylistActivity.class.getSimpleName();
     ArrayList<SongEntity> playList = new ArrayList<>();
@@ -47,9 +46,7 @@ public class SearchPlaylistActivity extends BaseActivity<SearchPlaylistActivityP
 
     @Override
     protected SearchPlaylistActivityPresenter createPresenter(Context context) {
-        presenter = new SearchPlaylistActivityPresenter(context, this);
-        presenter.setBinding(binding);
-        return presenter;
+        return new SearchPlaylistActivityPresenter(context, this);
     }
 
     @Override
@@ -65,6 +62,8 @@ public class SearchPlaylistActivity extends BaseActivity<SearchPlaylistActivityP
     @Override
     protected void initWidget() {
         try {
+            getPresenter().setBinding(binding);
+
             binding.etSearch.mSearchActivity = this;
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(binding.etSearch, InputMethodManager.SHOW_IMPLICIT);

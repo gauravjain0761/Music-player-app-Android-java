@@ -6,7 +6,7 @@ import com.app.musicplayer.R;
 import com.app.musicplayer.business.SampleManagerBusinessLogic;
 import com.app.musicplayer.databinding.FragmentQueueCurrentPlayedBinding;
 import com.app.musicplayer.entity.SongEntity;
-import com.app.musicplayer.ui.IActivityContract;
+import com.app.musicplayer.ui.contract.IFragmentQueueCurrentPlayedContract;
 import com.app.mvpdemo.businessframe.BusinessLogicManager;
 import com.app.mvpdemo.businessframe.api.IBusinessLogicApi;
 import com.app.mvpdemo.businessframe.base.BusinessLogicException;
@@ -20,7 +20,7 @@ import com.app.mvpdemo.util.log.LogUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FragmentQueueCurrentPlayedPresenter extends BasePresenter<IActivityContract.IActivityView> implements IActivityContract.IActivityPresenter, ICallback {
+public class FragmentQueueCurrentPlayedPresenter extends BasePresenter<IFragmentQueueCurrentPlayedContract.IFragmentQueueCurrentPlayedView> implements IFragmentQueueCurrentPlayedContract.IFragmentQueueCurrentPlayedPresenter, ICallback {
 
     private static final String TAG = FragmentQueueCurrentPlayedPresenter.class.getSimpleName();
     private IBusinessLogicApi mIBusinessLogicApi;
@@ -30,7 +30,7 @@ public class FragmentQueueCurrentPlayedPresenter extends BasePresenter<IActivity
     Context context;
     FragmentQueueCurrentPlayedBinding binding;
 
-    public FragmentQueueCurrentPlayedPresenter(Context context, IActivityContract.IActivityView view) {
+    public FragmentQueueCurrentPlayedPresenter(Context context, IFragmentQueueCurrentPlayedContract.IFragmentQueueCurrentPlayedView view) {
         super(context, view);
         this.context = context;
     }

@@ -2,16 +2,14 @@ package com.app.musicplayer.ui.fragment;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.media.AudioAttributes;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -19,32 +17,30 @@ import android.view.animation.LinearInterpolator;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
-import androidx.core.content.ContextCompat;
+import androidx.constraintlayout.motion.widget.MotionLayout;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.palette.graphics.Palette;
 import androidx.viewbinding.ViewBinding;
 
-import com.app.musicplayer.AppController;
 import com.app.musicplayer.R;
 import com.app.musicplayer.db.DBUtils;
 import com.app.musicplayer.entity.SongEntity;
-import com.app.musicplayer.ui.IActivityContract;
 import com.app.musicplayer.ui.activity.HomeActivity;
 import com.app.musicplayer.databinding.FragmentPlayerBinding;
+import com.app.musicplayer.ui.contract.IFragmentPlayerContract;
 import com.app.musicplayer.ui.presenter.FragmentPlayerPresenter;
 import com.app.musicplayer.utils.AppUtils;
 import com.app.musicplayer.utils.ImageUtil;
 import com.app.musicplayer.utils.visualizer.utils.TunnelPlayerWorkaround;
 import com.app.mvpdemo.businessframe.mvp.fragment.BaseFragment;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implements IActivityContract.IActivityView {
+public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implements IFragmentPlayerContract.IFragmentPlayerView {
     String TAG = FragmentPlaylist.class.getSimpleName();
     FragmentPlayerBinding binding;
-    FragmentPlayerPresenter presenter;
     public MediaPlayer mediaPlayer = new MediaPlayer();
     Handler handler = new Handler();
     public List<SongEntity> lastQueueSongsList = new ArrayList<>();
@@ -55,6 +51,7 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
     ObjectAnimator objectAnimator;
     int playMode = 1;//1 for loop-all,2 for single,3 for random
     BottomSheetFragmentQueue bottomSheetFragmentQueue;
+    int navigationBarColor;
 
     @Override
     protected ViewBinding getContentView() {
@@ -64,16 +61,15 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
 
     @Override
     protected FragmentPlayerPresenter createPresenter(Context context) {
-        presenter = new FragmentPlayerPresenter(context, this);
-        presenter.setBinding(binding);
-        return presenter;
+        return new FragmentPlayerPresenter(context, this);
     }
 
     @Override
     protected void initWidget(View root) {
         try {
+            getPresenter().setBinding(binding);
+            navigationBarColor = requireActivity().getWindow().getNavigationBarColor();
             initTunnelPlayerWorkaround();
-
             try {
                 ObjectAnimator.class.getMethod("setDurationScale", float.class).invoke(binding.imageViewRotate, 1f);
             } catch (Throwable t) {
@@ -113,10 +109,6 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
             binding.btnPlayMode.setOnClickListener(v -> {
                 try {
                     Log.e("TAG", "playMode clicked" + playMode);
-
-                    //String item = ThreadLocalRandom.current().ints(0, songsList.size()).distinct().limit(1).asLongStream().toString();
-                    //Log.e("TAG", "playMode clicked" + item);
-
                     if (playMode == 1) {
                         playMode = 2;
                     } else if (playMode == 2) {
@@ -147,7 +139,8 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
 
             binding.btnNext.setOnClickListener(v -> {
                 try {
-                    playNextSong();
+                    Log.e("TAG", "position : " + position);
+                    playNextSong(false);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -158,6 +151,30 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
                     playPreviousSong();
                 } catch (Exception e) {
                     e.printStackTrace();
+                }
+            });
+
+            binding.playerMotion.setTransitionListener(new MotionLayout.TransitionListener() {
+                @Override
+                public void onTransitionStarted(MotionLayout motionLayout, int startId, int endId) {
+                    Log.e("TAG", "onTransitionStarted called : ");
+                }
+
+                @Override
+                public void onTransitionChange(MotionLayout motionLayout, int startId, int endId, float progress) {
+                    Log.e("TAG", "onTransitionChange called : ");
+                    setColorPlatte1();
+                }
+
+                @Override
+                public void onTransitionCompleted(MotionLayout motionLayout, int currentId) {
+                    Log.e("TAG", "onTransitionCompleted called : ");
+                    setColorPlatte2();
+                }
+
+                @Override
+                public void onTransitionTrigger(MotionLayout motionLayout, int triggerId, boolean positive, float progress) {
+                    Log.e("TAG", "onTransitionTrigger called : ");
                 }
             });
         } catch (Exception e) {
@@ -186,13 +203,7 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
     @Override
     protected void registerEvent() {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                ContextCompat.registerReceiver(requireActivity(), songClickReceiver, new IntentFilter("SongClick"), ContextCompat.RECEIVER_NOT_EXPORTED);
-                ContextCompat.registerReceiver(requireActivity(), songListAfterDeleteReceiver, new IntentFilter("SongListAfterDelete"), ContextCompat.RECEIVER_NOT_EXPORTED);
-            } else {
-                requireActivity().registerReceiver(songClickReceiver, new IntentFilter("SongClick"));
-                requireActivity().registerReceiver(songListAfterDeleteReceiver, new IntentFilter("SongListAfterDelete"));
-            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -201,50 +212,87 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
     @Override
     protected void unRegisterEvent() {
         try {
-            if (songClickReceiver != null) requireActivity().unregisterReceiver(songClickReceiver);
-            if (songListAfterDeleteReceiver != null)
-                requireActivity().unregisterReceiver(songListAfterDeleteReceiver);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private final BroadcastReceiver songClickReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            try {
-                if (intent.getAction() != null && intent.getAction().equals("SongClick")) {
-                    if (lastQueueSongsList != null && lastQueueSongsList.size() > 0 && originalSongsList != null && originalSongsList.size() > 0) {
-                        lastQueueSongsList.clear();
-                        lastQueueSongsList.addAll(originalSongsList);
-                    }
-                    if (songsList != null) songsList.clear();
-                    if (originalSongsList != null) originalSongsList.clear();
-                    position = AppController.getSpSongInfo().getInt("position", 0);
-                    songsList = new Gson().fromJson(AppController.getSpSongInfo().getString("songList", ""), new TypeToken<List<SongEntity>>() {
-                    }.getType());
-                    originalSongsList = new Gson().fromJson(AppController.getSpSongInfo().getString("songList", ""), new TypeToken<List<SongEntity>>() {
-                    }.getType());
-                    if (lastQueueSongsList == null || lastQueueSongsList.size() == 0) {
-                        lastQueueSongsList = new Gson().fromJson(AppController.getSpSongInfo().getString("songList", ""), new TypeToken<List<SongEntity>>() {
-                        }.getType());
-                    }
-                    AppController.getSpSongInfo().edit().clear().apply();
+    public void onSongClick(List<SongEntity> songClickList, int positionClick) {
+        try {
 
-                    if (songsList != null && songsList.size() > 0 && songsList.size() > position) {
+            if (lastQueueSongsList != null && songsList != null && songClickList != null && songsList.size() > 0 && !songClickList.equals(songsList)) {
+                lastQueueSongsList.clear();
+                lastQueueSongsList.addAll(songsList);
+            }
+
+//            if (lastQueueSongsList != null && originalSongsList != null && originalSongsList.size() > 0) {
+////                if (!songClickList.containsAll(originalSongsList) && !originalSongsList.containsAll(songClickList)) {
+////                    lastQueueSongsList.clear();
+////                    lastQueueSongsList.addAll(originalSongsList);
+////                }
+//                if (!songClickList.equals(originalSongsList)) {
+//                    lastQueueSongsList.clear();
+//                    lastQueueSongsList.addAll(originalSongsList);
+//                }
+//            }
+            if (songsList != null) songsList.clear();
+            if (originalSongsList != null) originalSongsList.clear();
+            position = positionClick;
+            songsList.addAll(songClickList);
+            originalSongsList.addAll(songClickList);
+//            if (lastQueueSongsList == null || lastQueueSongsList.size() == 0) {
+//                lastQueueSongsList.clear();
+//                lastQueueSongsList.addAll(songClickList);
+//            }
+            if (songsList != null && songsList.size() > 0 && songsList.size() > position) {
 //                        try {
 //                            binding.playerMotion.transitionToEnd();
 //                        } catch (Exception e) {
 //                            e.printStackTrace();
 //                        }
-                        setMediaPlayer(songsList.get(position));
+
+                playSongEntity = songsList.get(position);
+                setMediaPlayer(playSongEntity);
+                setMediaPlayerPlayMode();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onSongDelete(List<SongEntity> songClickList) {
+        try {
+            if (songsList != null) songsList.clear();
+            if (originalSongsList != null) originalSongsList.clear();
+            songsList.addAll(songClickList);
+            originalSongsList.addAll(songClickList);
+            deleteSongsFromLastQueue();
+
+            boolean isSongDelete = true;
+            if (playSongEntity != null) {
+                for (SongEntity model : songsList) {
+                    if (model.getId() == playSongEntity.getId()) {
+                        isSongDelete = false;
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+            Log.e("songsList", "on delete songsList size " + songsList.size());
+            if (songsList != null && songsList.size() > 0) {
+                if (isSongDelete) {
+                    if (position > songsList.size()) {
+                        //position = songsList.size() - 1;
+                        position = 0;
+                    }
+                    playDeleteNextSong();
+                }
+            } else {
+                closeMediaPlayer();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    };
+    }
 
     private void deleteSongsFromLastQueue() {
         try {
@@ -252,84 +300,6 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private final BroadcastReceiver songListAfterDeleteReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            try {
-                if (intent.getAction() != null && intent.getAction().equals("SongListAfterDelete")) {
-                    if (songsList != null) songsList.clear();
-                    if (originalSongsList != null) originalSongsList.clear();
-                    songsList = new Gson().fromJson(AppController.getSpSongInfo().getString("songList", ""), new TypeToken<List<SongEntity>>() {
-                    }.getType());
-                    originalSongsList = new Gson().fromJson(AppController.getSpSongInfo().getString("songList", ""), new TypeToken<List<SongEntity>>() {
-                    }.getType());
-
-                    deleteSongsFromLastQueue();
-
-                    boolean isSongDelete = true;
-                    if (playSongEntity != null) {
-                        for (SongEntity model : songsList) {
-                            if (model.getId() == playSongEntity.getId()) {
-                                isSongDelete = false;
-                            }
-                        }
-                    }
-                    Log.e("songsList", "on delete songsList size " + songsList.size());
-                    if (songsList != null && songsList.size() > 0) {
-                        if (isSongDelete) {
-                            if (position > songsList.size()) {
-//                                position = songsList.size() - 1;
-                                position = 0;
-                            }
-                            playDeleteNextSong();
-                        }
-                    } else {
-                        closeMediaPlayer();
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    };
-
-    @Override
-    public void refreshView() {
-        try {
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void showListView() {
-        try {
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void showNoDataView() {
-        try {
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void notifyAdapter() {
-
-    }
-
-    @Override
-    public void setListView() {
-
     }
 
     private void initTunnelPlayerWorkaround() {
@@ -340,13 +310,92 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
         }
     }
 
-    private void playNextSong() {
+    private void playPreviousSong() {
         try {
-            if (songsList != null && position != songsList.size() - 1) {
-                position = position + 1;
-                if (songsList.size() > 0 && songsList.size() > position) {
-                    setMediaPlayer(songsList.get(position));
+//            if (songsList != null && position > 0) {
+//                position = position - 1;
+//                if (songsList != null && songsList.size() > 0 && songsList.size() > position) {
+//                    setMediaPlayer(songsList.get(position));
+//                }
+//            }
+
+//            if (songsList != null) songsList.clear();
+//            if (songsList != null && originalSongsList != null) songsList.addAll(originalSongsList);
+
+//            try {
+//                if (playMode == 3) {
+//                    if (songsList != null) songsList.clear();
+//                    if (songsList != null && originalSongsList != null)
+//                        songsList.addAll(originalSongsList);
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+
+            if (songsList != null && songsList.size() > 0) {
+                if (position == 0) {
+                    position = songsList.size() - 1;
+                } else if (position >= songsList.size()) {
+                    position = songsList.size() - 2;
+                } else if (position > 0) {
+                    position = position - 1;
                 }
+                Log.e("playPreviousSong", "position : " + position);
+                if (songsList.size() > position) {
+                    setMediaPlayer(songsList.get(position));
+                } else {
+                    Log.e("playPreviousSong", "Inner Loop caled");
+                }
+            } else {
+                Log.e("playPreviousSong", "Outer Loop caled");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void playNextSong(boolean isFromComplete) {
+        try {
+//            if (songsList != null && position != songsList.size() - 1) {
+//                position = position + 1;
+//                if (songsList.size() > 0 && songsList.size() > position) {
+//                    setMediaPlayer(songsList.get(position));
+//                }
+//            }
+
+//            if (isFromComplete && playMode == 3) {
+//                if (songsList != null) Collections.shuffle(songsList);
+//            } else {
+//                if (songsList != null) songsList.clear();
+//                if (songsList != null && originalSongsList != null)
+//                    songsList.addAll(originalSongsList);
+//            }
+
+//            try {
+//                if (!isFromComplete && playMode == 3) {
+//                    if (songsList != null) songsList.clear();
+//                    if (songsList != null && originalSongsList != null)
+//                        songsList.addAll(originalSongsList);
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+
+            if (songsList != null && songsList.size() > 0) {
+                if (position >= songsList.size() - 1) {
+                    position = 0;
+                } else if (position != songsList.size() - 1) {
+                    position = position + 1;
+                }
+
+                if (songsList.size() > position) {
+                    Log.e("TAG", "media player position : " + position);
+                    setMediaPlayer(songsList.get(position));
+                } else {
+                    Log.e("TAG", "Inner Loop caled" + position);
+                }
+            } else {
+                Log.e("TAG", "Outer Loop caled" + position);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -366,13 +415,25 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
 
     public void playLastQueueSong(int position, SongEntity songEntity) {
         try {
-            songsList = lastQueueSongsList;
-            originalSongsList = lastQueueSongsList;
+
+            if (songsList != null) songsList.clear();
+            songsList.addAll(lastQueueSongsList);
+
+            if (lastQueueSongsList != null && originalSongsList != null && originalSongsList.size() > 0) {
+                if (!lastQueueSongsList.equals(originalSongsList)) {
+                    lastQueueSongsList.clear();
+                    lastQueueSongsList.addAll(originalSongsList);
+                }
+            }
+
+            if (originalSongsList != null) originalSongsList.clear();
+            originalSongsList.addAll(songsList);
             this.position = position;
             Intent updatePlayBroadCast = new Intent("LastQueuePlaySong");
-            requireActivity().sendBroadcast(updatePlayBroadCast);
+            LocalBroadcastManager.getInstance(requireActivity()).sendBroadcast(updatePlayBroadCast);
 
             if (songsList != null && songsList.size() > 0 && songsList.size() > position) {
+                setMediaPlayerPlayMode();
                 setMediaPlayer(songEntity);
             }
         } catch (Exception e) {
@@ -383,21 +444,9 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
     private void playDeleteNextSong() {
         try {
             if (songsList != null && songsList.size() > 0 && songsList.size() > position) {
+                setMediaPlayerPlayMode();
                 setMediaPlayer(songsList.get(position));
                 startStopOnClick();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void playPreviousSong() {
-        try {
-            if (songsList != null && position > 0) {
-                position = position - 1;
-                if (songsList != null && songsList.size() > 0 && songsList.size() > position) {
-                    setMediaPlayer(songsList.get(position));
-                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -425,6 +474,16 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
                     mediaPlayer.setLooping(false);
                     binding.btnPlayMode.setImageResource(R.drawable.player_ic_playmode_random);
                     if (songsList != null) Collections.shuffle(songsList);
+                    try {
+                        int pos = songsList.indexOf(playSongEntity);
+                        Log.e("TAG", "pos : " + pos);
+                        if (pos >= 0) {
+                            position = pos;
+                        }
+                        Log.e("TAG", "position : " + position);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -447,9 +506,7 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
                         binding.playPauseImageView.setImageResource(R.drawable.player_ic_play);
 
                         Intent updatePlayBroadCast = new Intent("GetPlaySong");
-                        //AppController.getSpSongInfo().edit().putBoolean("isPlaying", false).putString("CurrentSong", "").apply();
-                        //AppController.getSpSearchSongInfo().edit().putBoolean("isPlayingSearch", false).putString("CurrentSongSearch", "").apply();
-                        requireActivity().sendBroadcast(updatePlayBroadCast);
+                        LocalBroadcastManager.getInstance(requireActivity()).sendBroadcast(updatePlayBroadCast);
                     } else {
                         mediaPlayer.start();
                         //binding.musicPlayerView.start();
@@ -459,9 +516,7 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
 
                         if (playSongEntity != null) {
                             Intent updatePlayBroadCast = new Intent("GetPlaySong");
-                            //AppController.getSpSongInfo().edit().putBoolean("isPlaying", true).putString("CurrentSong", new Gson().toJson(playSongEntity)).apply();
-                            //AppController.getSpSearchSongInfo().edit().putBoolean("isPlayingSearch", true).putString("CurrentSongSearch", new Gson().toJson(playSongEntity)).apply();
-                            requireActivity().sendBroadcast(updatePlayBroadCast);
+                            LocalBroadcastManager.getInstance(requireActivity()).sendBroadcast(updatePlayBroadCast);
                         }
                     }
                 }
@@ -477,7 +532,7 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
         try {
             Log.e("TAG", "setMediaPlayer called");
             if (mediaPlayer != null) {
-                mediaPlayer.stop();
+                if (mediaPlayer.isPlaying()) mediaPlayer.stop();
                 mediaPlayer.reset();
                 mediaPlayer.release();
                 mediaPlayer = null;
@@ -487,52 +542,60 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
                 mediaPlayer.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
                 //mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 mediaPlayer.setDataSource(songEntity.getData());
-                mediaPlayer.prepareAsync();
                 mediaPlayer.setOnPreparedListener(mp -> {
                     try {
                         Log.e("TAG", "setOnPreparedListener called");
                         mediaPlayer.start();
+                        mediaPlayer.setOnCompletionListener(mp1 -> {
+                            try {
+                                Log.e("TAG", "setOnCompletionListener called");
+                                if (objectAnimator != null) objectAnimator.pause();
+                                playNextSong(true);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                        setMediaPlayerData(songEntity);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 });
+                mediaPlayer.prepareAsync();
             } catch (Exception e) {
                 Toast.makeText(requireActivity(), "Error Occurred!", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setMediaPlayerData(SongEntity songEntity) {
+        try {
             playSongEntity = songEntity;
             Intent updatePlayBroadCast = new Intent("GetPlaySong");
-            //AppController.getSpSongInfo().edit().putBoolean("isPlaying", true).putString("CurrentSong", new Gson().toJson(songEntity)).apply();
-            //AppController.getSpSearchSongInfo().edit().putBoolean("isPlayingSearch", true).putString("CurrentSongSearch", new Gson().toJson(songEntity)).apply();
-            requireActivity().sendBroadcast(updatePlayBroadCast);
-            mediaPlayer.setOnCompletionListener(mp -> {
-                try {
-                    Log.e("TAG", "setOnCompletionListener called");
-                    if (objectAnimator != null) objectAnimator.pause();
-                    playNextSong();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+            LocalBroadcastManager.getInstance(requireActivity()).sendBroadcast(updatePlayBroadCast);
 
-            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
-                try {
-                    Log.e("TAG", "setOnErrorListener what " + what);
-                    Log.e("TAG", "setOnErrorListener extra " + extra);
-                    if (objectAnimator != null) objectAnimator.pause();
-                    playNextSong();
-                    requireActivity().runOnUiThread(() -> {
-                        try {
-                            Toast.makeText(requireActivity(), requireActivity().getResources().getString(R.string.error_song), Toast.LENGTH_SHORT).show();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return false;
-            });
+//            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+//                try {
+//                    Log.e("TAG", "setOnErrorListener what " + what);
+//                    Log.e("TAG", "setOnErrorListener extra " + extra);
+//                    if (objectAnimator != null) objectAnimator.pause();
+//                    playNextSong();
+//                    requireActivity().runOnUiThread(() -> {
+//                        try {
+//                            Toast.makeText(requireActivity(), "what : " + what + " extra : " + extra, Toast.LENGTH_SHORT).show();
+//                            //Toast.makeText(requireActivity(), requireActivity().getResources().getString(R.string.error_song), Toast.LENGTH_SHORT).show();
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    });
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                return false;
+//            });
 
             binding.audioNameTextView.setText("" + (("" + songEntity.getTitle()).replace("null", "").replace("Null", "")));
             binding.artistNameTextView.setText("" + (("" + songEntity.getArtistName()).replace("null", "").replace("Null", "")));
@@ -540,14 +603,14 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
             binding.artistNameTextViewMin.setText("" + (("" + songEntity.getArtistName()).replace("null", "").replace("Null", "")));
 
             if (("" + (("" + songEntity.getBitmapCover()).replace("null", "").replace("Null", ""))).isEmpty()) {
-                binding.visualizerView.setImageResource(R.drawable.icv_songs);
+                binding.visualizerView.setImageResource(R.drawable.ic_default_song);
             } else {
                 binding.visualizerView.setImageBitmap(ImageUtil.convertToBitmap(songEntity.getBitmapCover()));
             }
 
             try {
                 if (("" + (("" + songEntity.getBitmapCover()).replace("null", "").replace("Null", ""))).isEmpty()) {
-                    binding.imageViewRotate.setImageDrawable(new BitmapDrawable(getResources(), BitmapFactory.decodeResource(getResources(), R.drawable.ic_medieview)));
+                    binding.imageViewRotate.setImageDrawable(new BitmapDrawable(getResources(), BitmapFactory.decodeResource(getResources(), R.drawable.ic_default_song_player)));
                 } else {
                     binding.imageViewRotate.setImageDrawable(new BitmapDrawable(getResources(), ImageUtil.convertToBitmap(songEntity.getBitmapCover())));
                 }
@@ -555,10 +618,140 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
                 e.printStackTrace();
             }
 
-            if (objectAnimator != null) objectAnimator.start();
             binding.playPauseImageView.setImageResource(R.drawable.player_ic_pause);
-            setAudioProgress();
             HomeActivity.bindingHome.playScreenFrameLayout.setVisibility(View.VISIBLE);
+
+            setAudioProgress();
+            //setMediaPlayerPlayMode();
+            setColorPlatte1();
+            setColorPlatte2();
+
+            if (playMode == 2) {
+                mediaPlayer.setLooping(true);
+            } else {
+                mediaPlayer.setLooping(false);
+            }
+
+
+            if (objectAnimator != null) objectAnimator.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setColorPlatte1() {
+        try {
+            try {
+                if (binding.playerMotion.getCurrentState() == 2131296702) {
+                    Bitmap bitmap = ((BitmapDrawable) binding.imageViewRotate.getDrawable()).getBitmap();
+                    Palette.from(bitmap).generate(palette -> {
+                        int color1 = 0, color2 = 0;
+
+                        try {
+                            int vibrant = palette.getVibrantColor(0x000000); // <=== color you want
+                            int vibrantLight = palette.getLightVibrantColor(0x000000);
+                            int vibrantDark = palette.getDarkVibrantColor(0x000000);
+                            int muted = palette.getMutedColor(0x000000);
+                            int mutedLight = palette.getLightMutedColor(0x000000);
+                            int mutedDark = palette.getDarkMutedColor(0x000000);
+
+                            if (vibrant != 0 && muted != 0) {
+                                color1 = vibrant;
+                                color2 = muted;
+                            } else if (vibrantLight != 0 && mutedLight != 0) {
+                                color1 = vibrantLight;
+                                color2 = mutedLight;
+                            } else if (vibrantDark != 0 && mutedDark != 0) {
+                                color1 = vibrantDark;
+                                color2 = mutedDark;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        try {
+                            if (color1 != 0 && color2 != 0) {
+                                GradientDrawable gd = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{color1, color2});
+                                gd.setCornerRadius(0f);
+                                binding.playerBackgroundView.setBackgroundDrawable(gd);
+                                requireActivity().getWindow().setStatusBarColor(color1);
+                                requireActivity().getWindow().setNavigationBarColor(color2);
+                            } else {
+                                requireActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.playerBackground));
+                                //requireActivity().getWindow().setNavigationBarColor(navigationBarColor);
+                                //binding.playerBackgroundView.setBackgroundColor(requireActivity().getResources().getColor(R.color.playerBackground));
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                } else {
+                    requireActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.playerBackground));
+                    //requireActivity().getWindow().setNavigationBarColor(navigationBarColor);
+                    //binding.playerBackgroundView.setBackgroundColor(requireActivity().getResources().getColor(R.color.playerBackground));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setColorPlatte2() {
+        try {
+            try {
+                if (binding.playerMotion.getCurrentState() == 2131296702) {
+                    Bitmap bitmap = ((BitmapDrawable) binding.imageViewRotate.getDrawable()).getBitmap();
+                    Palette.from(bitmap).generate(palette -> {
+                        int color1 = 0, color2 = 0;
+
+                        try {
+                            int vibrant = palette.getVibrantColor(0x000000); // <=== color you want
+                            int vibrantLight = palette.getLightVibrantColor(0x000000);
+                            int vibrantDark = palette.getDarkVibrantColor(0x000000);
+                            int muted = palette.getMutedColor(0x000000);
+                            int mutedLight = palette.getLightMutedColor(0x000000);
+                            int mutedDark = palette.getDarkMutedColor(0x000000);
+
+                            if (vibrant != 0 && muted != 0) {
+                                color1 = vibrant;
+                                color2 = muted;
+                            } else if (vibrantLight != 0 && mutedLight != 0) {
+                                color1 = vibrantLight;
+                                color2 = mutedLight;
+                            } else if (vibrantDark != 0 && mutedDark != 0) {
+                                color1 = vibrantDark;
+                                color2 = mutedDark;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        try {
+                            if (color1 != 0 && color2 != 0) {
+                                GradientDrawable gd = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{color1, color2});
+                                gd.setCornerRadius(0f);
+                                binding.playerBackgroundView.setBackgroundDrawable(gd);
+                                requireActivity().getWindow().setStatusBarColor(color1);
+                                requireActivity().getWindow().setNavigationBarColor(color2);
+                            } else {
+                                requireActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.playerBackground));
+                                requireActivity().getWindow().setNavigationBarColor(navigationBarColor);
+                                binding.playerBackgroundView.setBackgroundColor(requireActivity().getResources().getColor(R.color.playerBackground));
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                } else {
+                    requireActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.playerBackground));
+                    requireActivity().getWindow().setNavigationBarColor(navigationBarColor);
+                    binding.playerBackgroundView.setBackgroundColor(requireActivity().getResources().getColor(R.color.playerBackground));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -566,15 +759,22 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
 
     public void setAudioProgress() {
         try {
-            binding.seekDurationTextView.setText(AppUtils.secondToTime(((int) mediaPlayer.getDuration()) / 1000));
-            binding.seekTimeTextView.setText(AppUtils.secondToTime(((int) mediaPlayer.getCurrentPosition()) / 1000));
+            int duration = mediaPlayer.getDuration();
+            if (duration <= 0) {
+                duration = (int) playSongEntity.getDuration();
+            }
+
+            binding.seekDurationTextView.setText(AppUtils.secondToTime(((int) duration) / 1000));
+            binding.seekTimeTextView.setText(AppUtils.secondToTime(((int) duration) / 1000));
 
             //binding.musicPlayerView.setMax(mediaPlayer.getDuration());
             binding.seekBar.setProgress(0);
-            binding.seekBar.setMax(mediaPlayer.getDuration());
+            binding.seekBar.setMax(duration);
 
             binding.seekBarMin.setProgress(0);
-            binding.seekBarMin.setMax(mediaPlayer.getDuration());
+            binding.seekBarMin.setMax(duration);
+
+            binding.seekBarMin.setOnTouchListener((view, motionEvent) -> true);
 
             binding.seekBarMin.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
@@ -649,10 +849,12 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
     public void closeMediaPlayer() {
         try {
             if (mediaPlayer != null) {
+
+                binding.playerMotion.transitionToCollapse();
+                binding.playerMotion.setProgress(0);
+
                 Intent updatePlayBroadCast = new Intent("GetPlaySong");
-                //AppController.getSpSongInfo().edit().putBoolean("isPlaying", false).putString("CurrentSong", "").apply();
-                //AppController.getSpSearchSongInfo().edit().putBoolean("isPlayingSearch", true).putString("CurrentSongSearch", "").apply();
-                requireActivity().sendBroadcast(updatePlayBroadCast);
+                LocalBroadcastManager.getInstance(requireActivity()).sendBroadcast(updatePlayBroadCast);
 
                 mediaPlayer.stop();
                 mediaPlayer.reset();
@@ -672,6 +874,11 @@ public class FragmentPlayer extends BaseFragment<FragmentPlayerPresenter> implem
 //                HomeActivity.fragmentPlayer = FragmentPlayer.class.newInstance();
 //                (requireActivity().getSupportFragmentManager()).beginTransaction().replace(R.id.play_screen_frame_layout, HomeActivity.fragmentPlayer, "FragmentPlayer").commitAllowingStateLoss();
                 HomeActivity.bindingHome.playScreenFrameLayout.setVisibility(View.GONE);
+
+
+                requireActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.playerBackground));
+                requireActivity().getWindow().setNavigationBarColor(navigationBarColor);
+                binding.playerBackgroundView.setBackgroundColor(requireActivity().getResources().getColor(R.color.playerBackground));
             }
         } catch (Exception e) {
             e.printStackTrace();

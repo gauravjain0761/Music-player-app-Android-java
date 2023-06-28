@@ -4,29 +4,27 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.view.View;
 
-import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.viewbinding.ViewBinding;
 
 import com.app.musicplayer.adapter.FragmentQueueAdapter;
-import com.app.musicplayer.ui.IActivityContract;
 import com.app.musicplayer.databinding.FragmentQueueLastPlayedBinding;
 import com.app.musicplayer.entity.SongEntity;
 import com.app.musicplayer.ui.activity.HomeActivity;
+import com.app.musicplayer.ui.contract.IFragmentQueueLastPlayedContract;
 import com.app.musicplayer.ui.presenter.FragmentQueueLastPlayedPresenter;
 import com.app.mvpdemo.businessframe.mvp.fragment.BaseFragment;
 
 import java.util.List;
 
-public class FragmentQueueLastPlayed extends BaseFragment<FragmentQueueLastPlayedPresenter> implements IActivityContract.IActivityView {
+public class FragmentQueueLastPlayed extends BaseFragment<FragmentQueueLastPlayedPresenter> implements IFragmentQueueLastPlayedContract.IFragmentQueueLastPlayedView {
     String TAG = FragmentQueueLastPlayed.class.getSimpleName();
     FragmentQueueLastPlayedBinding binding;
     FragmentQueueAdapter adapter;
-    FragmentQueueLastPlayedPresenter presenter;
 
     @Override
     protected ViewBinding getContentView() {
@@ -36,15 +34,13 @@ public class FragmentQueueLastPlayed extends BaseFragment<FragmentQueueLastPlaye
 
     @Override
     protected FragmentQueueLastPlayedPresenter createPresenter(Context context) {
-        presenter = new FragmentQueueLastPlayedPresenter(context, this);
-        presenter.setBinding(binding);
-        return presenter;
+        return new FragmentQueueLastPlayedPresenter(context, this);
     }
 
     @Override
     protected void initWidget(View root) {
         try {
-
+            getPresenter().setBinding(binding);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -88,13 +84,16 @@ public class FragmentQueueLastPlayed extends BaseFragment<FragmentQueueLastPlaye
     @Override
     protected void registerEvent() {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                ContextCompat.registerReceiver(requireActivity(), playSongReceiver, new IntentFilter("GetPlaySong"), ContextCompat.RECEIVER_NOT_EXPORTED);
-                ContextCompat.registerReceiver(requireActivity(), deletePlaySongReceiver, new IntentFilter("DeletePlaySong"), ContextCompat.RECEIVER_NOT_EXPORTED);
-            } else {
-                requireActivity().registerReceiver(playSongReceiver, new IntentFilter("GetPlaySong"));
-                requireActivity().registerReceiver(deletePlaySongReceiver, new IntentFilter("DeletePlaySong"));
-            }
+            LocalBroadcastManager.getInstance(requireActivity()).registerReceiver(playSongReceiver, new IntentFilter("GetPlaySong"));
+            LocalBroadcastManager.getInstance(requireActivity()).registerReceiver(deletePlaySongReceiver, new IntentFilter("DeletePlaySong"));
+
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                ContextCompat.registerReceiver(requireActivity(), playSongReceiver, new IntentFilter("GetPlaySong"), ContextCompat.RECEIVER_NOT_EXPORTED);
+//                ContextCompat.registerReceiver(requireActivity(), deletePlaySongReceiver, new IntentFilter("DeletePlaySong"), ContextCompat.RECEIVER_NOT_EXPORTED);
+//            } else {
+//                requireActivity().registerReceiver(playSongReceiver, new IntentFilter("GetPlaySong"));
+//                requireActivity().registerReceiver(deletePlaySongReceiver, new IntentFilter("DeletePlaySong"));
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -105,9 +104,11 @@ public class FragmentQueueLastPlayed extends BaseFragment<FragmentQueueLastPlaye
         try {
             try {
                 if (playSongReceiver != null)
-                    requireActivity().unregisterReceiver(playSongReceiver);
+                    LocalBroadcastManager.getInstance(requireActivity()).unregisterReceiver(playSongReceiver);
+                //requireActivity().unregisterReceiver(playSongReceiver);
                 if (deletePlaySongReceiver != null)
-                    requireActivity().unregisterReceiver(deletePlaySongReceiver);
+                    LocalBroadcastManager.getInstance(requireActivity()).unregisterReceiver(deletePlaySongReceiver);
+                //requireActivity().unregisterReceiver(deletePlaySongReceiver);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -165,9 +166,11 @@ public class FragmentQueueLastPlayed extends BaseFragment<FragmentQueueLastPlaye
                 @Override
                 public void onSongsClick(SongEntity result, int position) {
                     try {
-                        if (HomeActivity.fragmentPlayer != null) {
+                        if (HomeActivity.fragmentPlayer != null)
                             HomeActivity.fragmentPlayer.playLastQueueSong(position, result);
-                        }
+
+                        if (BottomSheetFragmentQueue.dialogBottomSheet != null)
+                            BottomSheetFragmentQueue.dialogBottomSheet.dismiss();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

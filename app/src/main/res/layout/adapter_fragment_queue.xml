@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/transparent"
     android:gravity="center_vertical"
     android:orientation="horizontal"
@@ -13,7 +14,8 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent">
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <com.rishabhharit.roundedimageview.RoundedImageView
+            app:cornerRadius="@dimen/_3sdp"
             android:id="@+id/imageView"
             android:layout_width="@dimen/_40sdp"
             android:layout_height="@dimen/_40sdp"

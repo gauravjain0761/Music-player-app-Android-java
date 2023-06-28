@@ -1,11 +1,12 @@
 package com.app.musicplayer.ui.presenter;
 
 import android.content.Context;
+
 import com.app.musicplayer.R;
 import com.app.musicplayer.business.SampleManagerBusinessLogic;
 import com.app.musicplayer.databinding.FragmentPlayerBinding;
 import com.app.musicplayer.entity.SongEntity;
-import com.app.musicplayer.ui.IActivityContract;
+import com.app.musicplayer.ui.contract.IFragmentPlayerContract;
 import com.app.mvpdemo.businessframe.BusinessLogicManager;
 import com.app.mvpdemo.businessframe.api.IBusinessLogicApi;
 import com.app.mvpdemo.businessframe.base.BusinessLogicException;
@@ -19,7 +20,7 @@ import com.app.mvpdemo.util.log.LogUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FragmentPlayerPresenter extends BasePresenter<IActivityContract.IActivityView> implements IActivityContract.IActivityPresenter, ICallback {
+public class FragmentPlayerPresenter extends BasePresenter<IFragmentPlayerContract.IFragmentPlayerView> implements IFragmentPlayerContract.IFragmentPlayerPresenter, ICallback {
 
     private static final String TAG = FragmentPlayerPresenter.class.getSimpleName();
     private IBusinessLogicApi mIBusinessLogicApi;
@@ -29,7 +30,7 @@ public class FragmentPlayerPresenter extends BasePresenter<IActivityContract.IAc
     Context context;
     FragmentPlayerBinding binding;
 
-    public FragmentPlayerPresenter(Context context, IActivityContract.IActivityView view) {
+    public FragmentPlayerPresenter(Context context, IFragmentPlayerContract.IFragmentPlayerView view) {
         super(context, view);
         this.context = context;
     }

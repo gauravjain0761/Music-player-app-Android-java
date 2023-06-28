@@ -14,12 +14,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.viewbinding.ViewBinding;
 
 import com.app.musicplayer.R;
-import com.app.musicplayer.ui.IActivityContract;
 import com.app.musicplayer.ui.activity.HomeActivity;
 import com.app.musicplayer.ui.activity.SearchPlaylistActivity;
 import com.app.musicplayer.adapter.FragmentPlaylistAdapter;
 import com.app.musicplayer.databinding.FragmentPlaylistBinding;
 import com.app.musicplayer.entity.SongEntity;
+import com.app.musicplayer.ui.contract.IFragmentPlaylistContract;
 import com.app.musicplayer.ui.presenter.FragmentPlaylistPresenter;
 import com.app.musicplayer.utils.AppUtils;
 import com.app.mvpdemo.businessframe.mvp.fragment.BaseFragment;
@@ -27,11 +27,10 @@ import com.app.mvpdemo.businessframe.mvp.fragment.BaseFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FragmentPlaylist extends BaseFragment<FragmentPlaylistPresenter> implements IActivityContract.IActivityView {
+public class FragmentPlaylist extends BaseFragment<FragmentPlaylistPresenter> implements IFragmentPlaylistContract.IFragmentPlaylistView {
     String TAG = FragmentPlaylist.class.getSimpleName();
     FragmentPlaylistBinding binding;
     FragmentPlaylistAdapter adapter;
-    FragmentPlaylistPresenter presenter;
     ArrayList<SongEntity> playList = new ArrayList<>();
     int selectedSortByRadio = 0;
 
@@ -43,14 +42,14 @@ public class FragmentPlaylist extends BaseFragment<FragmentPlaylistPresenter> im
 
     @Override
     protected FragmentPlaylistPresenter createPresenter(Context context) {
-        presenter = new FragmentPlaylistPresenter(context, this);
-        presenter.setBinding(binding);
-        return presenter;
+        return new FragmentPlaylistPresenter(context, this);
     }
 
     @Override
     protected void initWidget(View root) {
         try {
+            getPresenter().setBinding(binding);
+
             binding.txtSort.setOnClickListener(v -> {
                 if (playList != null && playList.size() > 0) {
                     new BottomSheetFragmentSortBy(selectedSortByRadio, selected -> {
@@ -70,9 +69,11 @@ public class FragmentPlaylist extends BaseFragment<FragmentPlaylistPresenter> im
             HomeActivity.bindingHome.playScreenFrameLayout.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
                 try {
                     if (HomeActivity.bindingHome.playScreenFrameLayout.getVisibility() == View.VISIBLE) {
-                        AppUtils.setMargins(binding.fab, 0, 0, (int) getResources().getDimension(R.dimen.fab_margin), (int) getResources().getDimension(com.intuit.sdp.R.dimen._55sdp));
+                        AppUtils.setMargins(binding.fab, 0, 0, (int) getResources().getDimension(com.intuit.sdp.R.dimen._7sdp), (int) getResources().getDimension(com.intuit.sdp.R.dimen._65sdp));
+                        binding.listView.setPadding(0,0,0,(int) getResources().getDimension(com.intuit.sdp.R.dimen._100sdp));
                     } else {
-                        AppUtils.setMargins(binding.fab, 0, 0, (int) getResources().getDimension(R.dimen.fab_margin), (int) getResources().getDimension(R.dimen.fab_margin));
+                        AppUtils.setMargins(binding.fab, 0, 0, (int) getResources().getDimension(com.intuit.sdp.R.dimen._7sdp), (int) getResources().getDimension(com.intuit.sdp.R.dimen._7sdp));
+                        binding.listView.setPadding(0,0,0,(int) getResources().getDimension(com.intuit.sdp.R.dimen._50sdp));
                     }
                     int newVis = HomeActivity.bindingHome.playScreenFrameLayout.getVisibility();
                     if ((int) HomeActivity.bindingHome.playScreenFrameLayout.getTag() != newVis) {

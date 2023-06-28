@@ -5,31 +5,21 @@ import com.app.musicplayer.entity.SongEntity;
 import com.app.musicplayer.entity.SongEntityDao;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class DBUtils {
+
+    static final int NUMBER_OF_THREADS = 10;
+    static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
     public interface TaskComplete {
         void onTaskComplete();
     }
 
-    public static void insertSingleSongs(SongEntity song, TaskComplete taskComplete) {
+    public static void insertSingleSongs(final SongEntity song, final TaskComplete taskComplete) {
         try {
-            song.setIsChecked(false);
-            song.setIsTrashed(false);
-            if (!checkSongIsExistInDB(song.getSongId())) {
-                AppController.getDaoSession().getSongEntityDao().save(song);
-            } else {
-                restoreSongIsExistInDB(song.getSongId());
-            }
-            taskComplete.onTaskComplete();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void insertMultipleSongs(List<SongEntity> songs, TaskComplete taskComplete) {
-        try {
-            for (SongEntity song : songs) {
+            databaseWriteExecutor.execute(() -> {
                 song.setIsChecked(false);
                 song.setIsTrashed(false);
                 if (!checkSongIsExistInDB(song.getSongId())) {
@@ -37,105 +27,142 @@ public class DBUtils {
                 } else {
                     restoreSongIsExistInDB(song.getSongId());
                 }
-            }
-            taskComplete.onTaskComplete();
+                taskComplete.onTaskComplete();
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void updateSingleSongs(SongEntity song, TaskComplete taskComplete) {
+    public static void insertMultipleSongs(final List<SongEntity> songs, final TaskComplete taskComplete) {
         try {
-            AppController.getDaoSession().getSongEntityDao().update(song);
-            taskComplete.onTaskComplete();
+            databaseWriteExecutor.execute(() -> {
+                for (SongEntity song : songs) {
+                    song.setIsChecked(false);
+                    song.setIsTrashed(false);
+                    if (!checkSongIsExistInDB(song.getSongId())) {
+                        AppController.getDaoSession().getSongEntityDao().save(song);
+                    } else {
+                        restoreSongIsExistInDB(song.getSongId());
+                    }
+                }
+                taskComplete.onTaskComplete();
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void updateMultipleSongs(List<SongEntity> songs, TaskComplete taskComplete) {
+    public static void updateSingleSongs(final SongEntity song, final TaskComplete taskComplete) {
         try {
-            for (SongEntity song : songs) {
+            databaseWriteExecutor.execute(() -> {
                 AppController.getDaoSession().getSongEntityDao().update(song);
-            }
-            taskComplete.onTaskComplete();
+                taskComplete.onTaskComplete();
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void trashMultipleSongs(List<SongEntity> songs, TaskComplete taskComplete) {
+    public static void updateMultipleSongs(final List<SongEntity> songs, final TaskComplete taskComplete) {
         try {
-            for (SongEntity song : songs) {
+            databaseWriteExecutor.execute(() -> {
+                for (SongEntity song : songs) {
+                    AppController.getDaoSession().getSongEntityDao().update(song);
+                }
+                taskComplete.onTaskComplete();
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void trashMultipleSongs(final List<SongEntity> songs, final TaskComplete taskComplete) {
+        try {
+            databaseWriteExecutor.execute(() -> {
+                for (SongEntity song : songs) {
+                    song.setIsChecked(false);
+                    song.setIsTrashed(true);
+                    AppController.getDaoSession().getSongEntityDao().update(song);
+                }
+                taskComplete.onTaskComplete();
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void trashSingleSongs(final SongEntity song, final TaskComplete taskComplete) {
+        try {
+            databaseWriteExecutor.execute(() -> {
                 song.setIsChecked(false);
                 song.setIsTrashed(true);
-                AppController.getDaoSession().getSongEntityDao().update(song);
-            }
-            taskComplete.onTaskComplete();
+                AppController.getDaoSession().getSongEntityDao().delete(song);
+                taskComplete.onTaskComplete();
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void trashSingleSongs(SongEntity song, TaskComplete taskComplete) {
+    public static void restoreMultipleSongs(final List<SongEntity> songs, final TaskComplete taskComplete) {
         try {
-            song.setIsChecked(false);
-            song.setIsTrashed(true);
-            AppController.getDaoSession().getSongEntityDao().delete(song);
-            taskComplete.onTaskComplete();
+            databaseWriteExecutor.execute(() -> {
+                for (SongEntity song : songs) {
+                    song.setIsChecked(false);
+                    song.setIsTrashed(false);
+                    AppController.getDaoSession().getSongEntityDao().update(song);
+                }
+                taskComplete.onTaskComplete();
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void restoreMultipleSongs(List<SongEntity> songs, TaskComplete taskComplete) {
+    public static void restoreSingleSongs(final SongEntity song, final TaskComplete taskComplete) {
         try {
-            for (SongEntity song : songs) {
+            databaseWriteExecutor.execute(() -> {
                 song.setIsChecked(false);
                 song.setIsTrashed(false);
                 AppController.getDaoSession().getSongEntityDao().update(song);
-            }
-            taskComplete.onTaskComplete();
+                taskComplete.onTaskComplete();
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void restoreSingleSongs(SongEntity song, TaskComplete taskComplete) {
+    public static void deleteMultipleSongs(final List<SongEntity> songs, final TaskComplete taskComplete) {
         try {
-            song.setIsChecked(false);
-            song.setIsTrashed(false);
-            AppController.getDaoSession().getSongEntityDao().update(song);
-            taskComplete.onTaskComplete();
+            databaseWriteExecutor.execute(() -> {
+                for (SongEntity song : songs) {
+                    AppController.getDaoSession().getSongEntityDao().delete(song);
+                }
+                taskComplete.onTaskComplete();
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void deleteMultipleSongs(List<SongEntity> songs, TaskComplete taskComplete) {
+    public static void deleteSingleSongs(final SongEntity song, final TaskComplete taskComplete) {
         try {
-            for (SongEntity song : songs) {
+            databaseWriteExecutor.execute(() -> {
                 AppController.getDaoSession().getSongEntityDao().delete(song);
-            }
-            taskComplete.onTaskComplete();
+                taskComplete.onTaskComplete();
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void deleteSingleSongs(SongEntity song, TaskComplete taskComplete) {
+    public static void deleteAllSongs(final SongEntity song, final TaskComplete taskComplete) {
         try {
-            AppController.getDaoSession().getSongEntityDao().delete(song);
-            taskComplete.onTaskComplete();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void deleteAllSongs(SongEntity song, TaskComplete taskComplete) {
-        try {
-            AppController.getDaoSession().getSongEntityDao().deleteAll();
-            taskComplete.onTaskComplete();
+            databaseWriteExecutor.execute(() -> {
+                AppController.getDaoSession().getSongEntityDao().deleteAll();
+                taskComplete.onTaskComplete();
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -158,12 +185,8 @@ public class DBUtils {
     }
 
     public static void restoreSongIsExistInDB(int songId) {
-        restoreMultipleSongs(AppController.getDaoSession().getSongEntityDao().queryBuilder().where(SongEntityDao.Properties.SongId.eq(songId)).list(), new TaskComplete() {
-            @Override
-            public void onTaskComplete() {
-
-            }
-        });
+        databaseWriteExecutor.execute(() -> restoreMultipleSongs(AppController.getDaoSession().getSongEntityDao().queryBuilder().where(SongEntityDao.Properties.SongId.eq(songId)).list(), () -> {
+        }));
     }
 
     public static List<SongEntity> getAllSongByNameAsc() {

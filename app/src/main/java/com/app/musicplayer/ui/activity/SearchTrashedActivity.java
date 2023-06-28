@@ -19,7 +19,7 @@ import com.app.musicplayer.adapter.TrashedSongsAdapter;
 import com.app.musicplayer.databinding.ActivitySearchSongsBinding;
 import com.app.musicplayer.db.DBUtils;
 import com.app.musicplayer.entity.SongEntity;
-import com.app.musicplayer.ui.IActivityContract;
+import com.app.musicplayer.ui.contract.IActivitySearchTrashedContract;
 import com.app.musicplayer.ui.presenter.SearchTrashedActivityPresenter;
 import com.app.musicplayer.utils.AppUtils;
 import com.app.mvpdemo.businessframe.mvp.activity.BaseActivity;
@@ -28,10 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SearchTrashedActivity extends BaseActivity<SearchTrashedActivityPresenter> implements IActivityContract.IActivityView {
+public class SearchTrashedActivity extends BaseActivity<SearchTrashedActivityPresenter> implements IActivitySearchTrashedContract.IActivitySearchTrashedView {
 
     ActivitySearchSongsBinding binding;
-    SearchTrashedActivityPresenter presenter;
     String TAG = SearchTrashedActivity.class.getSimpleName();
     List<SongEntity> songsList = new ArrayList<>();
     boolean isKeyboardShowing = false;
@@ -55,9 +54,7 @@ public class SearchTrashedActivity extends BaseActivity<SearchTrashedActivityPre
 
     @Override
     protected SearchTrashedActivityPresenter createPresenter(Context context) {
-        presenter = new SearchTrashedActivityPresenter(context, this);
-        presenter.setBinding(binding);
-        return presenter;
+        return new SearchTrashedActivityPresenter(context, this);
     }
 
     @Override
@@ -73,6 +70,8 @@ public class SearchTrashedActivity extends BaseActivity<SearchTrashedActivityPre
     @Override
     protected void initWidget() {
         try {
+            getPresenter().setBinding(binding);
+
             binding.etSearch.mSearchActivity = this;
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(binding.etSearch, InputMethodManager.SHOW_IMPLICIT);
@@ -106,29 +105,56 @@ public class SearchTrashedActivity extends BaseActivity<SearchTrashedActivityPre
                 finish();
             });
 
-            binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                try {
-                    if (songsList != null && songsList.size() > 0) {
-                        if (isChecked) {
-                            for (int i = 0; i < songsList.size(); i++) {
-                                SongEntity songs = songsList.get(i);
-                                songs.setIsChecked(true);
-                                songsList.set(i, songs);
+            binding.cbDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        if (songsList != null && songsList.size() > 0) {
+                            if (binding.cbDelete.isChecked()) {
+                                for (int i = 0; i < songsList.size(); i++) {
+                                    SongEntity songs = songsList.get(i);
+                                    songs.setIsChecked(true);
+                                    songsList.set(i, songs);
+                                }
+                            } else {
+                                for (int i = 0; i < songsList.size(); i++) {
+                                    SongEntity songs = songsList.get(i);
+                                    songs.setIsChecked(false);
+                                    songsList.set(i, songs);
+                                }
                             }
-                        } else {
-                            for (int i = 0; i < songsList.size(); i++) {
-                                SongEntity songs = songsList.get(i);
-                                songs.setIsChecked(false);
-                                songsList.set(i, songs);
-                            }
+                            notifyAdapter();
+                            checkBottomLayout();
                         }
-                        notifyAdapter();
-                        checkBottomLayout();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             });
+
+//            binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
+//                try {
+//                    if (songsList != null && songsList.size() > 0) {
+//                        if (isChecked) {
+//                            for (int i = 0; i < songsList.size(); i++) {
+//                                SongEntity songs = songsList.get(i);
+//                                songs.setIsChecked(true);
+//                                songsList.set(i, songs);
+//                            }
+//                        } else {
+//                            for (int i = 0; i < songsList.size(); i++) {
+//                                SongEntity songs = songsList.get(i);
+//                                songs.setIsChecked(false);
+//                                songsList.set(i, songs);
+//                            }
+//                        }
+//                        notifyAdapter();
+//                        checkBottomLayout();
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            });
 
             binding.txtDone.setOnClickListener(v -> {
                 try {
@@ -335,26 +361,24 @@ public class SearchTrashedActivity extends BaseActivity<SearchTrashedActivityPre
         return true;
     }
 
-    private boolean checkBoxAllIsUnChecked() {
+    private boolean checkBoxIsAnyUnChecked() {
         try {
             for (SongEntity songEntity : songsList) {
-                if (songEntity.getIsChecked()) return false;
+                if (!songEntity.getIsChecked()) return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return true;
+        return false;
     }
 
     private void checkBottomLayout() {
         try {
             if (songsList != null && songsList.size() > 0) {
                 if (adapter != null && adapter.getLongPress()) {
-                    //if (adapter != null) adapter.setLongPress();
                     binding.layoutBottomButton.setVisibility(View.VISIBLE);
                     binding.layoutTopCheckBox.setVisibility(View.VISIBLE);
                     if (checkBoxAllIsChecked()) binding.cbDelete.setChecked(true);
-                    if (checkBoxAllIsUnChecked()) binding.cbDelete.setChecked(false);
                 } else {
                     binding.layoutBottomButton.setVisibility(View.GONE);
                     binding.layoutTopCheckBox.setVisibility(View.GONE);
@@ -363,6 +387,8 @@ public class SearchTrashedActivity extends BaseActivity<SearchTrashedActivityPre
                 binding.layoutBottomButton.setVisibility(View.GONE);
                 binding.layoutTopCheckBox.setVisibility(View.GONE);
             }
+
+            if (checkBoxIsAnyUnChecked()) binding.cbDelete.setChecked(false);
         } catch (Exception e) {
             e.printStackTrace();
         }

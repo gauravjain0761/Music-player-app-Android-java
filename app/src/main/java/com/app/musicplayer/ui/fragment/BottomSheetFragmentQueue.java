@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.app.musicplayer.R;
+import com.app.musicplayer.ui.activity.HomeActivity;
 import com.app.musicplayer.utils.pageindicator.PageIndicatorView;
 import com.app.musicplayer.utils.pageindicator.animation.type.AnimationType;
 import com.app.musicplayer.utils.Constants;
@@ -33,6 +34,8 @@ public class BottomSheetFragmentQueue extends BottomSheetDialogFragment {
     PageIndicatorView pageIndicatorView;
     ArrayList<String> tabsList = new ArrayList<>();
 
+    public static Dialog dialogBottomSheet;
+
     public BottomSheetFragmentQueue(BottomSheetClick click) {
         this.bottomSheetClick = click;
         createTabsList();
@@ -43,7 +46,9 @@ public class BottomSheetFragmentQueue extends BottomSheetDialogFragment {
             if (tabsList != null) tabsList.clear();
             if (tabsList != null) {
                 tabsList.add(Constants.TAB_CURRENT_PLAYED);
-                tabsList.add(Constants.TAB_LAST_PLAYED);
+                if (HomeActivity.fragmentPlayer != null && HomeActivity.fragmentPlayer.lastQueueSongsList != null && HomeActivity.fragmentPlayer.lastQueueSongsList.size() > 0) {
+                    tabsList.add(Constants.TAB_LAST_PLAYED);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -58,6 +63,7 @@ public class BottomSheetFragmentQueue extends BottomSheetDialogFragment {
             dialog.setContentView(contentView);
             ((View) contentView.getParent()).setBackgroundColor(getResources().getColor(android.R.color.transparent));
 
+            dialogBottomSheet = dialog;
             BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(((View) contentView.getParent()));
             bottomSheetBehavior.setDraggable(false);
 
@@ -100,9 +106,9 @@ public class BottomSheetFragmentQueue extends BottomSheetDialogFragment {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return new FragmentQueueLastPlayed();
-                case 1:
                     return new FragmentQueueCurrentPlayed();
+                case 1:
+                    return new FragmentQueueLastPlayed();
                 default:
                     return null;
             }

@@ -17,7 +17,7 @@ import com.app.musicplayer.adapter.TrashedSongsAdapter;
 import com.app.musicplayer.databinding.ActivityTrashedSongsBinding;
 import com.app.musicplayer.db.DBUtils;
 import com.app.musicplayer.entity.SongEntity;
-import com.app.musicplayer.ui.IActivityContract;
+import com.app.musicplayer.ui.contract.IActivityTrashedSongsContract;
 import com.app.musicplayer.ui.fragment.BottomSheetFragmentSortBy;
 import com.app.musicplayer.ui.presenter.TrashedActivityPresenter;
 import com.app.musicplayer.utils.AppUtils;
@@ -27,11 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TrashedSongsActivity extends BaseActivity<TrashedActivityPresenter> implements IActivityContract.IActivityView {
+public class TrashedSongsActivity extends BaseActivity<TrashedActivityPresenter> implements IActivityTrashedSongsContract.IActivityTrashedSongsView {
 
     String TAG = TrashedSongsActivity.class.getSimpleName();
     ActivityTrashedSongsBinding binding;
-    TrashedActivityPresenter presenter;
     TrashedSongsAdapter adapter;
     public static List<SongEntity> songsList = new ArrayList<>();
     int selectedSortByRadio = 0;
@@ -55,9 +54,7 @@ public class TrashedSongsActivity extends BaseActivity<TrashedActivityPresenter>
 
     @Override
     protected TrashedActivityPresenter createPresenter(Context context) {
-        presenter = new TrashedActivityPresenter(context, this);
-        presenter.setBinding(binding);
-        return presenter;
+        return new TrashedActivityPresenter(context, this);
     }
 
     @Override
@@ -72,6 +69,8 @@ public class TrashedSongsActivity extends BaseActivity<TrashedActivityPresenter>
     @Override
     protected void initWidget() {
         try {
+            getPresenter().setBinding(binding);
+
             binding.getRoot().getViewTreeObserver().addOnGlobalLayoutListener(() -> {
                 try {
                     Rect r = new Rect();
@@ -95,29 +94,56 @@ public class TrashedSongsActivity extends BaseActivity<TrashedActivityPresenter>
                 }
             });
 
-            binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                try {
-                    if (songsList != null && songsList.size() > 0) {
-                        if (isChecked) {
-                            for (int i = 0; i < songsList.size(); i++) {
-                                SongEntity songs = songsList.get(i);
-                                songs.setIsChecked(true);
-                                songsList.set(i, songs);
+            binding.cbDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        if (songsList != null && songsList.size() > 0) {
+                            if (binding.cbDelete.isChecked()) {
+                                for (int i = 0; i < songsList.size(); i++) {
+                                    SongEntity songs = songsList.get(i);
+                                    songs.setIsChecked(true);
+                                    songsList.set(i, songs);
+                                }
+                            } else {
+                                for (int i = 0; i < songsList.size(); i++) {
+                                    SongEntity songs = songsList.get(i);
+                                    songs.setIsChecked(false);
+                                    songsList.set(i, songs);
+                                }
                             }
-                        } else {
-                            for (int i = 0; i < songsList.size(); i++) {
-                                SongEntity songs = songsList.get(i);
-                                songs.setIsChecked(false);
-                                songsList.set(i, songs);
-                            }
+                            notifyAdapter();
+                            checkTopLayout();
                         }
-                        notifyAdapter();
-                        checkTopLayout();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             });
+
+//            binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
+//                try {
+//                    if (songsList != null && songsList.size() > 0) {
+//                        if (isChecked) {
+//                            for (int i = 0; i < songsList.size(); i++) {
+//                                SongEntity songs = songsList.get(i);
+//                                songs.setIsChecked(true);
+//                                songsList.set(i, songs);
+//                            }
+//                        } else {
+//                            for (int i = 0; i < songsList.size(); i++) {
+//                                SongEntity songs = songsList.get(i);
+//                                songs.setIsChecked(false);
+//                                songsList.set(i, songs);
+//                            }
+//                        }
+//                        notifyAdapter();
+//                        checkTopLayout();
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            });
 
             binding.imageViewBack.setOnClickListener(v -> {
                 try {
@@ -360,15 +386,15 @@ public class TrashedSongsActivity extends BaseActivity<TrashedActivityPresenter>
         return true;
     }
 
-    private boolean checkBoxAllIsUnChecked() {
+    private boolean checkBoxIsAnyUnChecked() {
         try {
             for (SongEntity songEntity : songsList) {
-                if (songEntity.getIsChecked()) return false;
+                if (!songEntity.getIsChecked()) return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return true;
+        return false;
     }
 
     private void checkTopLayout() {
@@ -381,7 +407,6 @@ public class TrashedSongsActivity extends BaseActivity<TrashedActivityPresenter>
                     binding.btnEmptyTrash.setVisibility(View.GONE);
                     binding.layoutBottomButton.setVisibility(View.VISIBLE);
                     if (checkBoxAllIsChecked()) binding.cbDelete.setChecked(true);
-                    if (checkBoxAllIsUnChecked()) binding.cbDelete.setChecked(false);
                 } else {
                     binding.layoutTopCheckBox.setVisibility(View.GONE);
                     binding.layoutTopSearch.setVisibility(View.VISIBLE);
@@ -391,6 +416,7 @@ public class TrashedSongsActivity extends BaseActivity<TrashedActivityPresenter>
             } else {
                 showNoDataView();
             }
+            if (checkBoxIsAnyUnChecked()) binding.cbDelete.setChecked(false);
         } catch (Exception e) {
             e.printStackTrace();
         }

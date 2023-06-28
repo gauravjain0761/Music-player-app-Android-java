@@ -6,7 +6,7 @@ import com.app.musicplayer.R;
 import com.app.musicplayer.business.SampleManagerBusinessLogic;
 import com.app.musicplayer.databinding.ActivityTrashedSongsBinding;
 import com.app.musicplayer.entity.SongEntity;
-import com.app.musicplayer.ui.IActivityContract;
+import com.app.musicplayer.ui.contract.IActivityTrashedSongsContract;
 import com.app.mvpdemo.businessframe.BusinessLogicManager;
 import com.app.mvpdemo.businessframe.api.IBusinessLogicApi;
 import com.app.mvpdemo.businessframe.base.BusinessLogicException;
@@ -20,7 +20,7 @@ import com.app.mvpdemo.util.log.LogUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TrashedActivityPresenter extends BasePresenter<IActivityContract.IActivityView> implements IActivityContract.IActivityPresenter, ICallback {
+public class TrashedActivityPresenter extends BasePresenter<IActivityTrashedSongsContract.IActivityTrashedSongsView> implements IActivityTrashedSongsContract.IActivityTrashedSongsPresenter, ICallback {
 
     private static final String TAG = TrashedActivityPresenter.class.getSimpleName();
     private IBusinessLogicApi mIBusinessLogicApi;
@@ -30,7 +30,7 @@ public class TrashedActivityPresenter extends BasePresenter<IActivityContract.IA
     Context context;
     ActivityTrashedSongsBinding binding;
 
-    public TrashedActivityPresenter(Context context, IActivityContract.IActivityView view) {
+    public TrashedActivityPresenter(Context context, IActivityTrashedSongsContract.IActivityTrashedSongsView view) {
         super(context, view);
         this.context = context;
     }

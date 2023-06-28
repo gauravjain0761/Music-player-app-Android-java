@@ -30,9 +30,9 @@ import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
 
-    public static ActivityHomeBinding bindingHome;
     String TAG = HomeActivity.class.getSimpleName();
     ArrayList<String> tabsList = new ArrayList<>();
+    public static ActivityHomeBinding bindingHome;
     public static FragmentPlayer fragmentPlayer = null;
 
     @Override

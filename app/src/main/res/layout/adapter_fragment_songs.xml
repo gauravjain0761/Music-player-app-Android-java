@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/transparent"
     android:orientation="horizontal"
     android:padding="@dimen/_10sdp">
@@ -23,7 +24,8 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent">
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <com.rishabhharit.roundedimageview.RoundedImageView
+            app:cornerRadius="@dimen/_3sdp"
             android:id="@+id/imageView"
             android:layout_width="@dimen/_40sdp"
             android:layout_height="@dimen/_40sdp"
@@ -78,7 +80,7 @@
             android:layout_height="@dimen/_40sdp"
             android:layout_marginRight="@dimen/_minus5sdp"
             android:padding="@dimen/_10sdp"
-            android:src="@drawable/icv_songs_filter" />
+            android:src="@drawable/ic_songs_filter" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/imageViewMenu"
@@ -86,7 +88,7 @@
             android:layout_height="@dimen/_40sdp"
             android:layout_marginLeft="@dimen/_minus5sdp"
             android:padding="@dimen/_10sdp"
-            android:src="@drawable/icv_songs_menu" />
+            android:src="@drawable/ic_three_dot" />
 
     </LinearLayout>
 </LinearLayout>

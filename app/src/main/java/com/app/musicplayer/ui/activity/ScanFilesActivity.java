@@ -24,7 +24,7 @@ import com.app.musicplayer.db.DBUtils;
 import com.app.musicplayer.db.ExecuteTask;
 import com.app.musicplayer.db.FetchSongsFromLocal;
 import com.app.musicplayer.entity.SongEntity;
-import com.app.musicplayer.ui.IActivityContract;
+import com.app.musicplayer.ui.contract.IActivityScanFilesContract;
 import com.app.musicplayer.ui.fragment.BottomSheetFragmentSortBy;
 import com.app.musicplayer.ui.presenter.ScanFilesActivityPresenter;
 import com.app.musicplayer.utils.AppUtils;
@@ -36,16 +36,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ScanFilesActivity extends BaseActivity<ScanFilesActivityPresenter> implements IActivityContract.IActivityView {
+public class ScanFilesActivity extends BaseActivity<ScanFilesActivityPresenter> implements IActivityScanFilesContract.IActivityScanFilesView {
 
     ActivityScanFilesBinding binding;
-    ScanFilesActivityPresenter presenter;
     ScanFilesAdapter adapter;
     String TAG = ScanFilesActivity.class.getSimpleName();
     public static List<SongEntity> songsList = new ArrayList<>();
     int selectedSortByRadio = 0;
-
-    //ViewPropertyAnimator animator;
 
     @Override
     protected boolean isSupportHeadLayout() {
@@ -65,9 +62,7 @@ public class ScanFilesActivity extends BaseActivity<ScanFilesActivityPresenter> 
 
     @Override
     protected ScanFilesActivityPresenter createPresenter(Context context) {
-        presenter = new ScanFilesActivityPresenter(context, this);
-        presenter.setBinding(binding);
-        return presenter;
+        return new ScanFilesActivityPresenter(context, this);
     }
 
     @Override
@@ -82,6 +77,7 @@ public class ScanFilesActivity extends BaseActivity<ScanFilesActivityPresenter> 
     @Override
     protected void initWidget() {
         try {
+            getPresenter().setBinding(binding);
             try {
                 ObjectAnimator.class.getMethod("setDurationScale", float.class).invoke(binding.imageViewRotate, 1f);
             } catch (Throwable t) {
@@ -99,10 +95,10 @@ public class ScanFilesActivity extends BaseActivity<ScanFilesActivityPresenter> 
                 finish();
             });
 
-            binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            binding.cbDelete.setOnClickListener(v -> {
                 try {
                     if (songsList != null && songsList.size() > 0) {
-                        if (isChecked) {
+                        if (binding.cbDelete.isChecked()) {
                             for (int i = 0; i < songsList.size(); i++) {
                                 SongEntity songs = songsList.get(i);
                                 songs.setIsChecked(true);
@@ -121,6 +117,29 @@ public class ScanFilesActivity extends BaseActivity<ScanFilesActivityPresenter> 
                     e.printStackTrace();
                 }
             });
+
+//            binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
+//                try {
+//                    if (songsList != null && songsList.size() > 0) {
+//                        if (isChecked) {
+//                            for (int i = 0; i < songsList.size(); i++) {
+//                                SongEntity songs = songsList.get(i);
+//                                songs.setIsChecked(true);
+//                                songsList.set(i, songs);
+//                            }
+//                        } else {
+//                            for (int i = 0; i < songsList.size(); i++) {
+//                                SongEntity songs = songsList.get(i);
+//                                songs.setIsChecked(false);
+//                                songsList.set(i, songs);
+//                            }
+//                        }
+//                        notifyAdapter();
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            });
 
             binding.txtSort.setOnClickListener(v -> {
                 try {
@@ -261,7 +280,7 @@ public class ScanFilesActivity extends BaseActivity<ScanFilesActivityPresenter> 
                 binding.listView.getAdapter().notifyDataSetChanged();
 
             if (checkBoxAllIsChecked()) binding.cbDelete.setChecked(true);
-            if (checkBoxAllIsUnChecked()) binding.cbDelete.setChecked(false);
+            if (checkBoxIsAnyUnChecked()) binding.cbDelete.setChecked(false);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -297,15 +316,15 @@ public class ScanFilesActivity extends BaseActivity<ScanFilesActivityPresenter> 
         return true;
     }
 
-    private boolean checkBoxAllIsUnChecked() {
+    private boolean checkBoxIsAnyUnChecked() {
         try {
             for (SongEntity songEntity : songsList) {
-                if (songEntity.getIsChecked()) return false;
+                if (!songEntity.getIsChecked()) return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -316,7 +335,7 @@ public class ScanFilesActivity extends BaseActivity<ScanFilesActivityPresenter> 
                 try {
                     songsList.set(position, result);
                     if (checkBoxAllIsChecked()) binding.cbDelete.setChecked(true);
-                    if (checkBoxAllIsUnChecked()) binding.cbDelete.setChecked(false);
+                    if (checkBoxIsAnyUnChecked()) binding.cbDelete.setChecked(false);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

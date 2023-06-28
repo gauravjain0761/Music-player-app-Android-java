@@ -9,7 +9,7 @@
         android:gravity="center">
         <bitmap
             android:gravity="fill"
-            android:src="@drawable/ic_app_logo" />
+            android:src="@drawable/ic_splash_logo" />
     </item>
 
     <!--    <item-->

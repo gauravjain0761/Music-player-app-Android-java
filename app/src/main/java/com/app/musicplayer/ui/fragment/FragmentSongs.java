@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -15,15 +14,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.viewbinding.ViewBinding;
 
-import com.app.musicplayer.AppController;
 import com.app.musicplayer.R;
 import com.app.musicplayer.entity.SongEntity;
-import com.app.musicplayer.ui.IActivityContract;
 import com.app.musicplayer.ui.activity.HomeActivity;
 import com.app.musicplayer.ui.activity.ScanFilesActivity;
 import com.app.musicplayer.ui.activity.SearchSongsActivity;
@@ -31,23 +28,21 @@ import com.app.musicplayer.adapter.FragmentSongsAdapter;
 import com.app.musicplayer.databinding.FragmentSongsBinding;
 import com.app.musicplayer.db.DBUtils;
 import com.app.musicplayer.db.FetchSongsFromLocal;
+import com.app.musicplayer.ui.contract.IFragmentSongsContract;
 import com.app.musicplayer.ui.presenter.FragmentSongPresenter;
 import com.app.musicplayer.utils.AppUtils;
 import com.app.musicplayer.utils.FileUtils1;
 import com.app.mvpdemo.businessframe.mvp.fragment.BaseFragment;
-import com.google.gson.Gson;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implements IActivityContract.IActivityView {
+public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implements IFragmentSongsContract.IFragmentSongsView {
     String TAG = FragmentPlaylist.class.getSimpleName();
     FragmentSongsBinding binding;
     FragmentSongsAdapter adapter;
-    FragmentSongPresenter presenter;
     List<SongEntity> songsList = new ArrayList<>();
     int selectedSortByRadio = 0;
     int selectedSortTypeRadio = 0;
@@ -62,14 +57,14 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
 
     @Override
     protected FragmentSongPresenter createPresenter(Context context) {
-        presenter = new FragmentSongPresenter(context, this);
-        presenter.setBinding(binding);
-        return presenter;
+        return new FragmentSongPresenter(context, this);
     }
 
     @Override
     protected void initWidget(View root) {
         try {
+            getPresenter().setBinding(binding);
+
             binding.getRoot().getViewTreeObserver().addOnGlobalLayoutListener(() -> {
                 try {
                     Rect r = new Rect();
@@ -93,10 +88,10 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
                 }
             });
 
-            binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            binding.cbDelete.setOnClickListener(v -> {
                 try {
                     if (songsList != null && songsList.size() > 0) {
-                        if (isChecked) {
+                        if (binding.cbDelete.isChecked()) {
                             for (int i = 0; i < songsList.size(); i++) {
                                 SongEntity songs = songsList.get(i);
                                 songs.setIsChecked(true);
@@ -117,18 +112,35 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
                 }
             });
 
+//            binding.cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
+//                try {
+//                    if (songsList != null && songsList.size() > 0) {
+//                        if (isChecked) {
+//                            for (int i = 0; i < songsList.size(); i++) {
+//                                SongEntity songs = songsList.get(i);
+//                                songs.setIsChecked(true);
+//                                songsList.set(i, songs);
+//                            }
+//                        } else {
+//                            for (int i = 0; i < songsList.size(); i++) {
+//                                SongEntity songs = songsList.get(i);
+//                                songs.setIsChecked(false);
+//                                songsList.set(i, songs);
+//                            }
+//                        }
+//                        notifyAdapter();
+//                        checkBottomLayout();
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            });
+
             binding.txtDone.setOnClickListener(v -> {
                 try {
                     clear();
                     if (adapter != null) adapter.clearLongPress();
                     checkBottomLayout();
-//                    if (isKeyboardShowing) {
-//                        AppUtils.closeKeyboard(this);
-//                    } else {
-//                        clear();
-//                        setResult(Activity.RESULT_OK, new Intent());
-//                        finish();
-//                    }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -181,14 +193,9 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
             binding.layoutPlayAll.setOnClickListener(v -> {
                 try {
                     if (songsList != null && songsList.size() > 0) {
-//                        if (HomeActivity.bindingHome.playScreenFrameLayout.getVisibility() == View.GONE) {
-//                            AppUtils.setMargins(binding.fab, 0, 0, (int) getResources().getDimension(R.dimen.fab_margin), (int) getResources().getDimension(com.intuit.sdp.R.dimen._55sdp));
-//                            AppUtils.setMargins(binding.fabDelete, 0, 0, (int) getResources().getDimension(R.dimen.fab_margin), (int) getResources().getDimension(com.intuit.sdp.R.dimen._55sdp));
-//                            //HomeActivity.bindingHome.playScreenFrameLayout.setVisibility(View.VISIBLE);
-//                        }
-                        Intent updateDataBroadCast = new Intent("SongClick");
-                        AppController.getSpSongInfo().edit().putInt("position", 0).putString("songList", new Gson().toJson(songsList)).apply();
-                        requireActivity().sendBroadcast(updateDataBroadCast);
+                        if (HomeActivity.fragmentPlayer != null) {
+                            HomeActivity.fragmentPlayer.onSongClick(songsList, 0);
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -199,11 +206,13 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
             HomeActivity.bindingHome.playScreenFrameLayout.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
                 try {
                     if (HomeActivity.bindingHome.playScreenFrameLayout.getVisibility() == View.VISIBLE) {
-                        AppUtils.setMargins(binding.fab, 0, 0, (int) getResources().getDimension(R.dimen.fab_margin), (int) getResources().getDimension(com.intuit.sdp.R.dimen._55sdp));
-                        AppUtils.setMargins(binding.fabDelete, 0, 0, (int) getResources().getDimension(R.dimen.fab_margin), (int) getResources().getDimension(com.intuit.sdp.R.dimen._55sdp));
+                        AppUtils.setMargins(binding.fab, 0, 0, (int) getResources().getDimension(com.intuit.sdp.R.dimen._7sdp), (int) getResources().getDimension(com.intuit.sdp.R.dimen._65sdp));
+                        AppUtils.setMargins(binding.fabDelete, 0, 0, (int) getResources().getDimension(com.intuit.sdp.R.dimen._7sdp), (int) getResources().getDimension(com.intuit.sdp.R.dimen._65sdp));
+                        binding.listView.setPadding(0, 0, 0, (int) getResources().getDimension(com.intuit.sdp.R.dimen._100sdp));
                     } else {
-                        AppUtils.setMargins(binding.fab, 0, 0, (int) getResources().getDimension(R.dimen.fab_margin), (int) getResources().getDimension(R.dimen.fab_margin));
-                        AppUtils.setMargins(binding.fabDelete, 0, 0, (int) getResources().getDimension(R.dimen.fab_margin), (int) getResources().getDimension(R.dimen.fab_margin));
+                        AppUtils.setMargins(binding.fab, 0, 0, (int) getResources().getDimension(com.intuit.sdp.R.dimen._7sdp), (int) getResources().getDimension(com.intuit.sdp.R.dimen._7sdp));
+                        AppUtils.setMargins(binding.fabDelete, 0, 0, (int) getResources().getDimension(com.intuit.sdp.R.dimen._7sdp), (int) getResources().getDimension(com.intuit.sdp.R.dimen._7sdp));
+                        binding.listView.setPadding(0, 0, 0, (int) getResources().getDimension(com.intuit.sdp.R.dimen._50sdp));
                     }
                     int newVis = HomeActivity.bindingHome.playScreenFrameLayout.getVisibility();
                     if ((int) HomeActivity.bindingHome.playScreenFrameLayout.getTag() != newVis) {
@@ -240,20 +249,10 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
         public void onReceive(Context context, Intent intent) {
             try {
                 if (intent.getAction() != null && intent.getAction().equals("DeletePlaySong")) {
-
                     refreshView();
-                    if (HomeActivity.fragmentPlayer != null && HomeActivity.fragmentPlayer.mediaPlayer != null && HomeActivity.fragmentPlayer.playSongEntity != null) {
-                        Intent updateDataBroadCast = new Intent("SongListAfterDelete");
-                        AppController.getSpSongInfo().edit().putString("songList", new Gson().toJson(songsList)).apply();
-                        requireActivity().sendBroadcast(updateDataBroadCast);
+                    if (HomeActivity.fragmentPlayer != null) {
+                        HomeActivity.fragmentPlayer.onSongDelete(songsList);
                     }
-
-//                    refreshList();
-//                    if (HomeActivity.bindingHome.playScreenFrameLayout.getVisibility() == View.VISIBLE) {
-//                        Intent updateDataBroadCast = new Intent("SongListAfterDelete");
-//                        AppController.getSpSongInfo().edit().putString("songList", new Gson().toJson(songsList)).apply();
-//                        requireActivity().sendBroadcast(updateDataBroadCast);
-//                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -267,13 +266,6 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
             try {
                 if (intent.getAction() != null && intent.getAction().equals("GetPlaySong")) {
                     notifyAdapter();
-//                    if (AppController.getSpSongInfo().getBoolean("isPlaying", false) && !AppController.getSpSongInfo().getString("CurrentSong", "").isEmpty()) {
-//                        if (adapter != null)
-//                            adapter.setPlayerInfo(new Gson().fromJson(AppController.getSpSongInfo().getString("CurrentSong", ""), SongEntity.class), true);
-//                    } else {
-//                        adapter.setPlayerInfo(null, false);
-//                    }
-//                    AppController.getSpSongInfo().edit().clear().apply();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -284,13 +276,15 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
     @Override
     protected void registerEvent() {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                ContextCompat.registerReceiver(requireActivity(), playSongReceiver, new IntentFilter("GetPlaySong"), ContextCompat.RECEIVER_NOT_EXPORTED);
-                ContextCompat.registerReceiver(requireActivity(), deletePlaySongReceiver, new IntentFilter("DeletePlaySong"), ContextCompat.RECEIVER_NOT_EXPORTED);
-            } else {
-                requireActivity().registerReceiver(playSongReceiver, new IntentFilter("GetPlaySong"));
-                requireActivity().registerReceiver(deletePlaySongReceiver, new IntentFilter("DeletePlaySong"));
-            }
+            LocalBroadcastManager.getInstance(requireActivity()).registerReceiver(playSongReceiver, new IntentFilter("GetPlaySong"));
+            LocalBroadcastManager.getInstance(requireActivity()).registerReceiver(deletePlaySongReceiver, new IntentFilter("DeletePlaySong"));
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                ContextCompat.registerReceiver(requireActivity(), playSongReceiver, new IntentFilter("GetPlaySong"), ContextCompat.RECEIVER_NOT_EXPORTED);
+//                ContextCompat.registerReceiver(requireActivity(), deletePlaySongReceiver, new IntentFilter("DeletePlaySong"), ContextCompat.RECEIVER_NOT_EXPORTED);
+//            } else {
+//                requireActivity().registerReceiver(playSongReceiver, new IntentFilter("GetPlaySong"));
+//                requireActivity().registerReceiver(deletePlaySongReceiver, new IntentFilter("DeletePlaySong"));
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -301,9 +295,11 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
         try {
             try {
                 if (playSongReceiver != null)
-                    requireActivity().unregisterReceiver(playSongReceiver);
+                    LocalBroadcastManager.getInstance(requireActivity()).unregisterReceiver(playSongReceiver);
+                //requireActivity().unregisterReceiver(playSongReceiver);
                 if (deletePlaySongReceiver != null)
-                    requireActivity().unregisterReceiver(deletePlaySongReceiver);
+                    LocalBroadcastManager.getInstance(requireActivity()).unregisterReceiver(deletePlaySongReceiver);
+                //requireActivity().unregisterReceiver(deletePlaySongReceiver);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -348,7 +344,7 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
     public void showListView() {
         try {
             setListView();
-            adapter = new FragmentSongsAdapter(selectedSortTypeRadio, requireActivity(), new FragmentSongsAdapter.SongsClickListener() {
+            adapter = new FragmentSongsAdapter(requireActivity(), new FragmentSongsAdapter.SongsClickListener() {
 
                 @Override
                 public void deleteSongs(SongEntity result, boolean isChecked, int position) {
@@ -362,14 +358,9 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
                 @Override
                 public void onSongsClick(SongEntity result, int position) {
                     try {
-//                        if (HomeActivity.bindingHome.playScreenFrameLayout.getVisibility() == View.GONE) {
-//                            AppUtils.setMargins(binding.fab, 0, 0, (int) getResources().getDimension(R.dimen.fab_margin), (int) getResources().getDimension(com.intuit.sdp.R.dimen._55sdp));
-//                            AppUtils.setMargins(binding.fabDelete, 0, 0, (int) getResources().getDimension(R.dimen.fab_margin), (int) getResources().getDimension(com.intuit.sdp.R.dimen._55sdp));
-//                            //HomeActivity.fragmentPlayer.setPlayMotionFullScreen();
-//                        }
-                        Intent updateDataBroadCast = new Intent("SongClick");
-                        AppController.getSpSongInfo().edit().putInt("position", position).putString("songList", new Gson().toJson(songsList)).apply();
-                        requireActivity().sendBroadcast(updateDataBroadCast);
+                        if (HomeActivity.fragmentPlayer != null) {
+                            HomeActivity.fragmentPlayer.onSongClick(songsList, position);
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -377,11 +368,6 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
 
                 @Override
                 public void onSongLongClick(SongEntity result, int position) {
-//                    Intent intent = new Intent(requireActivity(), DeleteSongsActivity.class);
-//                    intent.putExtra("selectedSortByRadio", selectedSortByRadio);
-//                    intent.putExtra("searchText", "");
-//                    startActivityForResult(intent, 101);
-
                     if (isKeyboardShowing) {
                         AppUtils.closeKeyboard(requireActivity());
                     }
@@ -491,26 +477,20 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
             builder.setTitle(R.string.app_name);
             builder.setCancelable(false);
             builder.setPositiveButton(getResources().getString(R.string.txt_yes), (dialog, id) -> {
-                int songListCount = songsList.size();
                 int deleteCount = songsList.stream().filter(SongEntity::getIsChecked).collect(Collectors.toList()).size();
                 DBUtils.trashMultipleSongs(songsList.stream().filter(SongEntity::getIsChecked).collect(Collectors.toList()), new DBUtils.TaskComplete() {
                     @Override
                     public void onTaskComplete() {
                         try {
-                            requireActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        refreshView();
-                                        if (HomeActivity.fragmentPlayer != null && HomeActivity.fragmentPlayer.mediaPlayer != null && HomeActivity.fragmentPlayer.playSongEntity != null) {
-                                            Intent updateDataBroadCast = new Intent("SongListAfterDelete");
-                                            AppController.getSpSongInfo().edit().putString("songList", new Gson().toJson(songsList)).apply();
-                                            requireActivity().sendBroadcast(updateDataBroadCast);
-                                        }
-                                        Toast.makeText(requireActivity(), deleteCount + " " + getResources().getString(R.string.alert_trash_msg), Toast.LENGTH_SHORT).show();
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
+                            requireActivity().runOnUiThread(() -> {
+                                try {
+                                    refreshView();
+                                    if (HomeActivity.fragmentPlayer != null) {
+                                        HomeActivity.fragmentPlayer.onSongDelete(songsList);
                                     }
+                                    Toast.makeText(requireActivity(), deleteCount + " " + getResources().getString(R.string.alert_trash_msg), Toast.LENGTH_SHORT).show();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
                             });
                         } catch (Exception e) {
@@ -518,22 +498,6 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
                         }
                     }
                 });
-
-//                if (HomeActivity.bindingHome.playScreenFrameLayout.getVisibility() == View.VISIBLE) {
-//                    Intent updateDataBroadCast = new Intent("SongListAfterDelete");
-//                    AppController.getSpSongInfo().edit().putString("songList", new Gson().toJson(songsList)).apply();
-//                    requireActivity().sendBroadcast(updateDataBroadCast);
-//                }
-
-
-////                Intent updatePlayBroadCast = new Intent("DeletePlaySong");
-////                requireActivity().sendBroadcast(updatePlayBroadCast);
-//                refreshView();
-
-//                DBUtils.deleteMultipleSongs(songsList.stream().filter(SongModel::getIsChecked).collect(Collectors.toList()));
-//                setResult(Activity.RESULT_OK, new Intent());
-//                finish();
-//                Toast.makeText(getApplicationContext(), "Songs Deleted!", Toast.LENGTH_SHORT).show();
             }).setNegativeButton(getResources().getString(R.string.txt_no), (dialog, id) -> dialog.cancel());
             builder.create().show();
         } catch (Exception e) {
@@ -552,15 +516,15 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
         return true;
     }
 
-    private boolean checkBoxAllIsUnChecked() {
+    private boolean checkBoxIsAnyUnChecked() {
         try {
             for (SongEntity songEntity : songsList) {
-                if (songEntity.getIsChecked()) return false;
+                if (!songEntity.getIsChecked()) return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return true;
+        return false;
     }
 
     private void checkBottomLayout() {
@@ -575,7 +539,6 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
                     binding.layoutTopCheckBox.setVisibility(View.VISIBLE);
                     HomeActivity.bindingHome.playScreenFrameLayout.setVisibility(View.GONE);
                     if (checkBoxAllIsChecked()) binding.cbDelete.setChecked(true);
-                    if (checkBoxAllIsUnChecked()) binding.cbDelete.setChecked(false);
                 } else {
                     HomeActivity.bindingHome.tabLayout.setVisibility(View.VISIBLE);
                     binding.rgLayout.setVisibility(View.VISIBLE);
@@ -598,6 +561,8 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
                     HomeActivity.bindingHome.playScreenFrameLayout.setVisibility(View.VISIBLE);
                 }
             }
+
+            if (checkBoxIsAnyUnChecked()) binding.cbDelete.setChecked(false);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -750,24 +715,6 @@ public class FragmentSongs extends BaseFragment<FragmentSongPresenter> implement
     public void addSongs(SongEntity entity) {
         try {
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void onSourceFileDelete() {
-        try {
-            refreshView();
-            if (HomeActivity.fragmentPlayer != null && HomeActivity.fragmentPlayer.mediaPlayer != null && HomeActivity.fragmentPlayer.playSongEntity != null) {
-                Intent updateDataBroadCast = new Intent("SongListAfterDelete");
-                AppController.getSpSongInfo().edit().putString("songList", new Gson().toJson(songsList)).apply();
-                requireActivity().sendBroadcast(updateDataBroadCast);
-            }
-//            if (HomeActivity.bindingHome.playScreenFrameLayout.getVisibility() == View.VISIBLE) {
-//                Intent updateDataBroadCast = new Intent("SongListAfterDelete");
-//                AppController.getSpSongInfo().edit().putString("songList", new Gson().toJson(songsList)).apply();
-//                requireActivity().sendBroadcast(updateDataBroadCast);
-//            }
         } catch (Exception e) {
             e.printStackTrace();
         }

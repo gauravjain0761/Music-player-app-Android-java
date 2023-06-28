@@ -104,7 +104,7 @@ public class FragmentQueueAdapter extends ListAdapter<SongEntity, FragmentQueueA
                     binding.txtMsg.setText("" + (("" + entity.getArtistName()).replace("null", "").replace("Null", "")));
 
                     if (("" + (("" + entity.getBitmapCover()).replace("null", "").replace("Null", ""))).isEmpty()) {
-                        binding.imageView.setImageResource(R.drawable.icv_songs);
+                        binding.imageView.setImageResource(R.drawable.ic_default_song);
                     } else {
                         binding.imageView.setImageBitmap(ImageUtil.convertToBitmap(entity.getBitmapCover()));
                     }

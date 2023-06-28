@@ -6,7 +6,7 @@ import com.app.musicplayer.R;
 import com.app.musicplayer.business.SampleManagerBusinessLogic;
 import com.app.musicplayer.databinding.FragmentQueueLastPlayedBinding;
 import com.app.musicplayer.entity.SongEntity;
-import com.app.musicplayer.ui.IActivityContract;
+import com.app.musicplayer.ui.contract.IFragmentQueueLastPlayedContract;
 import com.app.mvpdemo.businessframe.BusinessLogicManager;
 import com.app.mvpdemo.businessframe.api.IBusinessLogicApi;
 import com.app.mvpdemo.businessframe.base.BusinessLogicException;
@@ -20,7 +20,7 @@ import com.app.mvpdemo.util.log.LogUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FragmentQueueLastPlayedPresenter extends BasePresenter<IActivityContract.IActivityView> implements IActivityContract.IActivityPresenter, ICallback {
+public class FragmentQueueLastPlayedPresenter extends BasePresenter<IFragmentQueueLastPlayedContract.IFragmentQueueLastPlayedView> implements IFragmentQueueLastPlayedContract.IFragmentQueueLastPlayedPresenter, ICallback {
 
     private static final String TAG = FragmentQueueLastPlayedPresenter.class.getSimpleName();
     private IBusinessLogicApi mIBusinessLogicApi;
@@ -30,7 +30,7 @@ public class FragmentQueueLastPlayedPresenter extends BasePresenter<IActivityCon
     Context context;
     FragmentQueueLastPlayedBinding binding;
 
-    public FragmentQueueLastPlayedPresenter(Context context, IActivityContract.IActivityView view) {
+    public FragmentQueueLastPlayedPresenter(Context context, IFragmentQueueLastPlayedContract.IFragmentQueueLastPlayedView view) {
         super(context, view);
         this.context = context;
     }
